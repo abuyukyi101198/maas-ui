@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 
 import { DynamicTable } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
@@ -18,8 +18,6 @@ import classNames from "classnames";
 
 import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
 import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
-import type { ImageValue } from "@/app/images/types";
-import type { BootResource } from "@/app/store/bootresource/types";
 
 export type Image = {
   id: number;
@@ -32,10 +30,10 @@ export type Image = {
   status: string;
 };
 
-export type SMImagesTableProps = {
-  images: ImageValue[];
-  resources: BootResource[];
-};
+// export type SMImagesTableProps = {
+//   images: ImageValue[];
+//   resources: BootResource[];
+// };
 
 const dummyData: Image[] = [
   {
@@ -60,12 +58,9 @@ const dummyData: Image[] = [
   },
 ];
 
-export const SMImagesTable: React.FC<SMImagesTableProps> = ({
-  images,
-  resources,
-}) => {
+export const SMImagesTable: React.FC = () => {
   const columns = useSMImagesTableColumns();
-  const noItems = useMemo<Image[]>(() => [], []);
+  // const noItems = useMemo<Image[]>(() => [], []);
 
   const [grouping, setGrouping] = useState<GroupingState>(["name"]);
   const [expanded, setExpanded] = useState<ExpandedState>(true);
@@ -136,8 +131,41 @@ export const SMImagesTable: React.FC<SMImagesTableProps> = ({
         ))}
       </thead>
       {
-        // Table body
+        // Error and pending states need to be implemented when integrating with the backend
+        table.getRowModel().rows.length < 1 ? (
+          <caption className="u-visually-hidden">No images</caption> // TableCaption.Title and TableCaption.Description implementation in Site Manager pretty clean, could copy over
+        ) : (
+          <DynamicTable.Body>
+            {table.getRowModel().rows.map((row) => {
+              const { getIsGrouped, id, index, getVisibleCells } = row;
+              const isIndividualRow = !getIsGrouped();
+              return (
+                <tr
+                  className={classNames({
+                    "individual-row": isIndividualRow,
+                    "group-row": !isIndividualRow,
+                  })}
+                  key={id + index}
+                >
+                  {getVisibleCells().map((cell) => {
+                    const { column, id: cellId } = cell;
+                    return (
+                      <td
+                        className={classNames(`${cell.column.id}`)}
+                        key={cellId}
+                      >
+                        {flexRender(column.columnDef.cell, cell.getContext())}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </DynamicTable.Body>
+        )
       }
     </DynamicTable>
   );
 };
+
+export default SMImagesTable;
