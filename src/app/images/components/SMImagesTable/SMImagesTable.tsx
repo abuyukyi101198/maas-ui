@@ -1,18 +1,22 @@
 import React, { useMemo, useState } from "react";
 
 import { DynamicTable } from "@canonical/maas-react-components";
+import { Button } from "@canonical/react-components";
 import type {
   ExpandedState,
   GroupingState,
   SortingState,
 } from "@tanstack/react-table";
 import {
+  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getGroupedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import classNames from "classnames";
 
+import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
 import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
 import type { ImageValue } from "@/app/images/types";
 import type { BootResource } from "@/app/store/bootresource/types";
@@ -97,8 +101,43 @@ export const SMImagesTable: React.FC<SMImagesTableProps> = ({
   });
 
   return (
-    <DynamicTable variant={"full-height"}>
-      <thead></thead>
+    <DynamicTable
+      aria-label="images"
+      className="p-table-dynamic--with-select images-table"
+      variant={"full-height"}
+    >
+      <thead>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <th className={classNames(`${header.column.id}`)} key={header.id}>
+                {header.column.getCanSort() ? (
+                  <Button
+                    appearance="link"
+                    className="p-button--table-header"
+                    onClick={header.column.getToggleSortingHandler()}
+                    type="button"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                    <SortIndicator header={header} />
+                  </Button>
+                ) : (
+                  flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )
+                )}
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      {
+        // Table body
+      }
     </DynamicTable>
   );
 };
