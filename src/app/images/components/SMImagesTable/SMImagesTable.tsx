@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import { DynamicTable } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 import type {
+  Column,
   ExpandedState,
   GroupingState,
+  Header,
+  Row,
   SortingState,
 } from "@tanstack/react-table";
 import {
@@ -18,6 +21,8 @@ import classNames from "classnames";
 
 import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
 import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
+
+import "./SMImagesTable.scss";
 
 export type Image = {
   id: number;
@@ -56,7 +61,29 @@ const dummyData: Image[] = [
     canDeployToMemory: false,
     status: "Queued for download",
   },
+  {
+    id: 3,
+    release: "22.04",
+    architecture: "amd64",
+    name: "Ubuntu 22.04",
+    size: 1.2,
+    lastSynced: "2021-10-01T12:00:00Z",
+    canDeployToMemory: true,
+    status: "Synced",
+  },
 ];
+
+// Filter out the name column from the header
+const filterHeaders = (header: Header<Image, unknown>) =>
+  header.column.id !== "name";
+// Filter out the name column from individual cells
+const filterCells = (row: Row<Image>, column: Column<Image, unknown>) => {
+  if (row.getIsGrouped()) {
+    return ["select", "name", "action"].includes(column.id);
+  } else {
+    return column.id !== "name";
+  }
+};
 
 export const SMImagesTable: React.FC = () => {
   const columns = useSMImagesTableColumns();
@@ -104,7 +131,7 @@ export const SMImagesTable: React.FC = () => {
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
+            {headerGroup.headers.filter(filterHeaders).map((header) => (
               <th className={classNames(`${header.column.id}`)} key={header.id}>
                 {header.column.getCanSort() ? (
                   <Button
@@ -147,17 +174,19 @@ export const SMImagesTable: React.FC = () => {
                   })}
                   key={id + index}
                 >
-                  {getVisibleCells().map((cell) => {
-                    const { column, id: cellId } = cell;
-                    return (
-                      <td
-                        className={classNames(`${cell.column.id}`)}
-                        key={cellId}
-                      >
-                        {flexRender(column.columnDef.cell, cell.getContext())}
-                      </td>
-                    );
-                  })}
+                  {getVisibleCells()
+                    .filter((cell) => filterCells(row, cell.column))
+                    .map((cell) => {
+                      const { column, id: cellId } = cell;
+                      return (
+                        <td
+                          className={classNames(`${cell.column.id}`)}
+                          key={cellId}
+                        >
+                          {flexRender(column.columnDef.cell, cell.getContext())}
+                        </td>
+                      );
+                    })}
                 </tr>
               );
             })}

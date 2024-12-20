@@ -56,7 +56,6 @@ const useSMImagesTableColumns = () => {
                 </div>
                 <small className="u-text--muted">
                   {pluralize("image", row.getLeafRows().length ?? 0, true)}{" "}
-                  images
                 </small>
               </div>
             );
