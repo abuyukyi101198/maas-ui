@@ -12,6 +12,7 @@ import PageContent from "@/app/base/components/PageContent";
 import { useWindowTitle } from "@/app/base/hooks";
 import { useSidePanel } from "@/app/base/side-panel-context";
 import ImagesForms from "@/app/images/components/ImagesForms";
+import SMImagesTable from "@/app/images/components/SMImagesTable/SMImagesTable";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import { configActions } from "@/app/store/config";
@@ -61,6 +62,7 @@ const ImageList = (): JSX.Element => {
               {Labels.SyncDisabled}
             </Notification>
           )}
+          <SMImagesTable />
           {!!ubuntu && <SyncedImages />}
           <GeneratedImages />
           <CustomImages />
