@@ -8,30 +8,33 @@ const TableAllCheckbox: React.FC<TableCheckboxProps<any>> = ({ table }) => {
   if (!table) {
     return null;
   }
-  const isSomeRowsSelected =
-    !table.getIsAllPageRowsSelected() && table.getIsSomeRowsSelected();
+
+  let checked: boolean | "false" | "mixed" | "true" | undefined;
+  if (table.getSelectedRowModel().rows.length === 0) {
+    checked = "false";
+  } else if (
+    table.getSelectedRowModel().rows.length <
+    table.getRowCount() - table.getGroupedRowModel().rows.length
+  ) {
+    checked = "mixed";
+  } else {
+    checked = "true";
+  }
+
   return (
     <label className="p-checkbox--inline">
       <input
-        aria-checked={isSomeRowsSelected ? "mixed" : undefined}
+        aria-checked={checked}
         aria-label="select all"
         className="p-checkbox__input"
         type="checkbox"
         {...{
-          checked: isSomeRowsSelected || table.getIsAllPageRowsSelected(),
+          checked: checked === "true",
           onChange: () => {
             if (table.getIsAllPageRowsSelected()) {
-              table.resetRowSelection();
+              table?.toggleAllPageRowsSelected(false);
             } else {
-              table.setRowSelection((previousSelection) => {
-                return {
-                  ...previousSelection,
-                  ...Object.keys(table.getRowModel().rowsById).reduce(
-                    (acc, id) => ({ ...acc, [id]: true }),
-                    {}
-                  ),
-                };
-              });
+              table?.toggleAllPageRowsSelected(true);
             }
           },
         }}
