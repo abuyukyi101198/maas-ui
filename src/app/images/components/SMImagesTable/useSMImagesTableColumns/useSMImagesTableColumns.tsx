@@ -6,14 +6,16 @@ import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
-import TableActions from "@/app/base/components/TableActions";
+import { useSidePanel } from "@/app/base/side-panel-context";
+import RowActions from "@/app/images/components/SMImagesTable/RowActions/RowActions";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
 import TableCheckbox from "@/app/images/components/SMImagesTable/TableCheckbox/TableCheckbox";
+import { ImageSidePanelViews } from "@/app/images/constants";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
 const useSMImagesTableColumns = () => {
-  // const { setSidePanelContent } = useSidePanel(); // Add after actions are implemented
+  const { setSidePanelContent } = useSidePanel(); // Add after actions are implemented
 
   return useMemo(
     () =>
@@ -125,14 +127,39 @@ const useSMImagesTableColumns = () => {
           accessorKey: "id",
           enableSorting: false,
           header: () => "Action",
-          cell: () => {
-            return (
-              <TableActions data-testid="image-actions" deleteDisabled={true} />
+          cell: ({
+            row,
+            getValue,
+          }: {
+            row: Row<Image>;
+            getValue: Getter<Image["id"]>;
+          }) => {
+            const id = getValue();
+            return row.getIsGrouped() ? (
+              <RowActions.Group row={row} />
+            ) : (
+              <RowActions
+                onDelete={() => {
+                  if (id) {
+                    if (!row.getIsSelected()) {
+                      row.toggleSelected();
+                    }
+                    setSidePanelContent({
+                      view: ImageSidePanelViews.DELETE_IMAGE,
+                      // Could not find what extras is for, maybe for deleting the resource alongside the image
+                      // extras: {
+                      //   bootResource: resource,
+                      // },
+                    });
+                  }
+                }}
+                row={row}
+              />
             );
           },
         },
       ] as ImageColumnDef[],
-    []
+    [setSidePanelContent]
   );
 };
 

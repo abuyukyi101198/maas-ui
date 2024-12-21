@@ -22,7 +22,7 @@ import classNames from "classnames";
 import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
 import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
 
-import "./SMImagesTable.scss";
+import "./_index.scss";
 
 export type Image = {
   id: number;

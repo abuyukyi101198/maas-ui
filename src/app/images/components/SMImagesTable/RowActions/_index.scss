@@ -1,0 +1,27 @@
+.table-actions {
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &:focus-within {
+    opacity: 1;
+  }
+
+  .table-actions-vertical-divider {
+    display: none;
+  }
+
+  &.table-actions-bordered {
+    .table-actions-vertical-divider {
+      display: inline-block;
+      width: 1px;
+      height: 1rem;
+      background-color: rgba(#000, 0.2);
+    }
+  }
+}
+
+tr:hover .table-actions {
+  opacity: 1;
+}
+
