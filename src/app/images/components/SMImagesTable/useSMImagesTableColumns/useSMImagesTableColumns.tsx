@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 
-import { Input } from "@canonical/react-components";
+import { formatBytes } from "@canonical/maas-react-components";
+import { Icon, Input } from "@canonical/react-components";
 import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
 import pluralize from "pluralize";
 
+import TableActions from "@/app/base/components/TableActions";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
@@ -55,7 +57,7 @@ const useSMImagesTableColumns = () => {
                   <strong>{getValue()}</strong>
                 </div>
                 <small className="u-text--muted">
-                  {pluralize("image", row.getLeafRows().length ?? 0, true)}{" "}
+                  {pluralize("image", row.getLeafRows().length ?? 0, true)}
                 </small>
               </div>
             );
@@ -79,28 +81,53 @@ const useSMImagesTableColumns = () => {
           enableSorting: false,
           header: () => "Size",
           cell: ({ getValue }: { getValue: Getter<Image["size"]> }) => {
-            return <span>{getValue()} MB</span>;
+            const { value, unit } = formatBytes({
+              value: getValue(),
+              unit: "B",
+            });
+            return `${value} ${unit}`;
           },
-        },
-        {
-          id: "lastSynced",
-          accessorKey: "lastSynced",
-          enableSorting: true,
-          header: () => "Last synced",
-        },
-        {
-          id: "canDeployToMemory",
-          accessorKey: "canDeployToMemory",
-          enableSorting: false,
-          header: () => "Deployable",
         },
         {
           id: "status",
           accessorKey: "status",
           enableSorting: true,
           header: () => "Status",
+          cell: ({ row }) => (
+            <div>
+              <div>{row.original.status}</div>
+              <small className="u-text--muted">
+                {row.original.lastSynced ? row.original.lastSynced : ""}
+              </small>
+            </div>
+          ),
+        },
+        {
+          id: "canDeployToMemory",
+          accessorKey: "canDeployToMemory",
+          enableSorting: false,
+          header: () => "Deployable",
+          cell: ({
+            getValue,
+          }: {
+            getValue: Getter<Image["canDeployToMemory"]>;
+          }) =>
+            getValue() ? (
+              <Icon aria-label="checked" name="task-outstanding" role="img" />
+            ) : null,
         },
         // Add a custom column for actions
+        {
+          id: "action",
+          accessorKey: "id",
+          enableSorting: false,
+          header: () => "Action",
+          cell: () => {
+            return (
+              <TableActions data-testid="image-actions" deleteDisabled={true} />
+            );
+          },
+        },
       ] as ImageColumnDef[],
     []
   );
