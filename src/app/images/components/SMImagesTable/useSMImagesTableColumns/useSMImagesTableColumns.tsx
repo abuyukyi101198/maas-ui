@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 
 import { formatBytes } from "@canonical/maas-react-components";
-import { Icon, Input } from "@canonical/react-components";
+import { Icon, Input, Spinner } from "@canonical/react-components";
 import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
 import pluralize from "pluralize";
 
+import DoubleRow from "@/app/base/components/DoubleRow";
 import TableActions from "@/app/base/components/TableActions";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
 
@@ -93,14 +94,27 @@ const useSMImagesTableColumns = () => {
           accessorKey: "status",
           enableSorting: true,
           header: () => "Status",
-          cell: ({ row }) => (
-            <div>
-              <div>{row.original.status}</div>
-              <small className="u-text--muted">
-                {row.original.lastSynced ? row.original.lastSynced : ""}
-              </small>
-            </div>
-          ),
+          cell: ({ row }) => {
+            let statusIcon;
+            switch (row.original.status) {
+              case "Synced":
+                statusIcon = <Icon aria-label={"synced"} name={"success"} />;
+                break;
+              default:
+                statusIcon = <Spinner />;
+                break;
+            }
+            return (
+              <DoubleRow
+                data-testid="resource-status"
+                icon={statusIcon}
+                primary={row.original.status}
+                secondary={
+                  row.original.lastSynced ? row.original.lastSynced : ""
+                }
+              />
+            );
+          },
         },
         {
           id: "canDeployToMemory",

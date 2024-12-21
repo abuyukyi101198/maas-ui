@@ -47,7 +47,7 @@ const dummyData: Image[] = [
     architecture: "amd64",
     name: "Ubuntu 20.04",
     size: 1200000,
-    lastSynced: "2021-10-01T12:00:00Z",
+    lastSynced: "Sat, 21 Dec. 2024 13:45:23",
     canDeployToMemory: true,
     status: "Synced",
   },
@@ -67,16 +67,25 @@ const dummyData: Image[] = [
     architecture: "amd64",
     name: "Ubuntu 22.04",
     size: 1200000,
-    lastSynced: "2021-10-01T12:00:00Z",
+    lastSynced: "Sat, 21 Dec. 2024 13:45:23",
     canDeployToMemory: true,
     status: "Synced",
   },
+  {
+    id: 4,
+    release: "18.04",
+    architecture: "armhf",
+    name: "Ubuntu 18.04",
+    size: 1600000,
+    lastSynced: null,
+    canDeployToMemory: false,
+    status: "Downloading 53%",
+  },
 ];
 
-// Filter out the name column from the header
 const filterHeaders = (header: Header<Image, unknown>) =>
   header.column.id !== "name";
-// Filter out the name column from individual cells
+
 const filterCells = (row: Row<Image>, column: Column<Image, unknown>) => {
   if (row.getIsGrouped()) {
     return ["select", "name", "action"].includes(column.id);
