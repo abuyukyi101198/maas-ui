@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 
 import { formatBytes } from "@canonical/maas-react-components";
-import { Icon, Input, Spinner } from "@canonical/react-components";
+import { Icon, Spinner } from "@canonical/react-components";
 import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
 import TableActions from "@/app/base/components/TableActions";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
+import TableCheckbox from "@/app/images/components/SMImagesTable/TableCheckbox/TableCheckbox";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
@@ -21,24 +22,14 @@ const useSMImagesTableColumns = () => {
           id: "select",
           accessorKey: "id",
           enableSorting: false,
-          header: () => <Input type="checkbox" />, // SelectAllCheckbox implementation needed
+          header: ({ table }) => {
+            return <TableCheckbox.All table={table} />;
+          },
           cell: ({ row }: { row: Row<Image> }) => {
             return row.getIsGrouped() ? (
-              <Input type="checkbox" /> // SelectGroupCheckbox implementation needed
+              <TableCheckbox.Group row={row} />
             ) : (
-              <label className="p-checkbox--inline">
-                <input
-                  aria-label={row.original.name}
-                  className="p-checkbox__input"
-                  type="checkbox"
-                  {...{
-                    checked: row.getIsSelected(),
-                    disabled: !row.getCanSelect(),
-                    onChange: row.getToggleSelectedHandler(),
-                  }}
-                />
-                <span className="p-checkbox__label" />
-              </label>
+              <TableCheckbox row={row} />
             );
           },
         },
@@ -109,9 +100,7 @@ const useSMImagesTableColumns = () => {
                 data-testid="resource-status"
                 icon={statusIcon}
                 primary={row.original.status}
-                secondary={
-                  row.original.lastSynced ? row.original.lastSynced : ""
-                }
+                secondary={row.original.lastSynced ?? ""}
               />
             );
           },
