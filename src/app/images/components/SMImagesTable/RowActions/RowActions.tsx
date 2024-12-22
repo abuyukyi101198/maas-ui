@@ -5,7 +5,12 @@ import type { Row } from "@tanstack/react-table";
 import "./_index.scss";
 import classNames from "classnames";
 
-type RowActionsProps<T> = { row: Row<T>; onDelete?: any };
+type RowActionsProps<T> = {
+  row: Row<T>;
+  onDelete?: any;
+  disabled?: boolean;
+  tooltip?: string | null;
+};
 
 const GroupRowActions: React.FC<RowActionsProps<any>> = ({ row }) => (
   <Button
@@ -28,21 +33,18 @@ const GroupRowActions: React.FC<RowActionsProps<any>> = ({ row }) => (
 // Currently, only has deletion action, other actions could later be implemented from MAAS Site Manager
 const RowActions: React.FC<RowActionsProps<any>> & {
   Group: React.FC<RowActionsProps<any>>;
-} = ({ row, onDelete }) => {
-  const isDisabled = row.getIsGrouped()
-    ? !row.getCanSelectSubRows()
-    : !row.getCanSelect();
+} = ({ onDelete, disabled, tooltip }) => {
   return (
     <div
       className={classNames(
         "table-actions u-flex u-align--right table-actions-bordered"
       )}
     >
-      <Tooltip position="left">
+      <Tooltip message={tooltip} position="left">
         <Button
           appearance="base"
           className="is-dense u-table-cell-padding-overlap table-actions-btn"
-          disabled={isDisabled}
+          disabled={disabled}
           hasIcon
           onClick={onDelete}
           type="button"
