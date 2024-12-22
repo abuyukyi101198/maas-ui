@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 
-import { formatBytes } from "@canonical/maas-react-components";
 import { Icon, Spinner } from "@canonical/react-components";
 import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
+import TooltipButton from "@/app/base/components/TooltipButton";
 import { useSidePanel } from "@/app/base/side-panel-context";
 import RowActions from "@/app/images/components/SMImagesTable/RowActions/RowActions";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
@@ -14,8 +14,12 @@ import { ImageSidePanelViews } from "@/app/images/constants";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
-const useSMImagesTableColumns = () => {
-  const { setSidePanelContent } = useSidePanel(); // Add after actions are implemented
+const useSMImagesTableColumns = ({
+  commissioningRelease,
+}: {
+  commissioningRelease: string | null;
+}) => {
+  const { setSidePanelContent } = useSidePanel();
 
   return useMemo(
     () =>
@@ -74,18 +78,11 @@ const useSMImagesTableColumns = () => {
           accessorKey: "size",
           enableSorting: false,
           header: () => "Size",
-          cell: ({ getValue }: { getValue: Getter<Image["size"]> }) => {
-            const { value, unit } = formatBytes({
-              value: getValue(),
-              unit: "B",
-            });
-            return `${value} ${unit}`;
-          },
         },
         {
           id: "status",
           accessorKey: "status",
-          enableSorting: true,
+          enableSorting: false,
           header: () => "Status",
           cell: ({ row }) => {
             let statusIcon;
@@ -118,10 +115,19 @@ const useSMImagesTableColumns = () => {
             getValue: Getter<Image["canDeployToMemory"]>;
           }) =>
             getValue() ? (
-              <Icon aria-label="checked" name="task-outstanding" role="img" />
-            ) : null,
+              <TooltipButton
+                iconName="task-outstanding"
+                iconProps={{ "aria-label": "supported" }}
+                message="This image can be deployed in memory."
+              />
+            ) : (
+              <TooltipButton
+                iconName="close"
+                iconProps={{ "aria-label": "not supported" }}
+                message="This image cannot be deployed in memory."
+              />
+            ),
         },
-        // Add a custom column for actions
         {
           id: "action",
           accessorKey: "id",
@@ -135,10 +141,17 @@ const useSMImagesTableColumns = () => {
             getValue: Getter<Image["id"]>;
           }) => {
             const id = getValue();
+            const isCommissioningImage =
+              row.original.resource.name === `ubuntu/${commissioningRelease}`;
+            const canBeDeleted =
+              !isCommissioningImage &&
+              (row.original.resource.complete ||
+                !row.original.resource.downloading);
             return row.getIsGrouped() ? (
               <RowActions.Group row={row} />
             ) : (
               <RowActions
+                disabled={!canBeDeleted}
                 onDelete={() => {
                   if (id) {
                     if (!row.getIsSelected()) {
@@ -146,20 +159,26 @@ const useSMImagesTableColumns = () => {
                     }
                     setSidePanelContent({
                       view: ImageSidePanelViews.DELETE_IMAGE,
-                      // Could not find what extras is for, maybe for deleting the resource alongside the image
-                      // extras: {
-                      //   bootResource: resource,
-                      // },
+                      extras: {
+                        bootResource: row.original.resource,
+                      },
                     });
                   }
                 }}
                 row={row}
+                tooltip={
+                  !canBeDeleted
+                    ? isCommissioningImage
+                      ? "Cannot delete images of the default commissioning release."
+                      : "Cannot delete images that are currently being imported."
+                    : null
+                }
               />
             );
           },
         },
       ] as ImageColumnDef[],
-    [setSidePanelContent]
+    [setSidePanelContent, commissioningRelease]
   );
 };
 
