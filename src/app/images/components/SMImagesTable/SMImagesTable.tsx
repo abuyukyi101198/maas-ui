@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { DynamicTable } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
@@ -18,75 +18,49 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import classNames from "classnames";
+import { useSelector } from "react-redux";
 
 import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
 import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
-
 import "./_index.scss";
+import bootResourceSelectors from "@/app/store/bootresource/selectors";
+import type { BootResource } from "@/app/store/bootresource/types";
+import { splitResourceName } from "@/app/store/bootresource/utils";
+import configSelectors from "@/app/store/config/selectors";
 
 export type Image = {
   id: number;
   release: string;
   architecture: string;
   name: string;
-  size: number;
+  size: string;
   lastSynced: string | null; // ISO 8601 date string
   canDeployToMemory: boolean;
   status: string;
+  resource: BootResource;
 };
 
-// export type SMImagesTableProps = {
-//   images: ImageValue[];
-//   resources: BootResource[];
-// };
-
-const dummyData: Image[] = [
-  {
-    id: 1,
-    release: "20.04",
-    architecture: "amd64",
-    name: "Ubuntu 20.04",
-    size: 1200000,
-    lastSynced: "Sat, 21 Dec. 2024 13:45:23",
-    canDeployToMemory: true,
-    status: "Synced",
-  },
-  {
-    id: 2,
-    release: "22.04",
-    architecture: "arm64",
-    name: "Ubuntu 22.04",
-    size: 1400000,
-    lastSynced: null,
-    canDeployToMemory: false,
-    status: "Queued for download",
-  },
-  {
-    id: 3,
-    release: "22.04",
-    architecture: "amd64",
-    name: "Ubuntu 22.04",
-    size: 1200000,
-    lastSynced: "Sat, 21 Dec. 2024 13:45:23",
-    canDeployToMemory: true,
-    status: "Synced",
-  },
-  {
-    id: 4,
-    release: "18.04",
-    architecture: "armhf",
-    name: "Ubuntu 18.04",
-    size: 1600000,
-    lastSynced: null,
-    canDeployToMemory: false,
-    status: "Downloading 53%",
-  },
-];
+const getImages = (resources: BootResource[]): Image[] => {
+  return resources.map((resource) => {
+    const { os } = splitResourceName(resource.name);
+    return {
+      id: resource.id,
+      release: resource.title,
+      architecture: resource.arch,
+      name: os[0].toUpperCase() + os.slice(1),
+      size: resource.size,
+      lastSynced: resource.lastUpdate,
+      canDeployToMemory: resource.canDeployToMemory,
+      status: resource.status,
+      resource: resource,
+    };
+  });
+};
 
 const filterHeaders = (header: Header<Image, unknown>) =>
   header.column.id !== "name";
 
-const filterCells = (row: Row<Image>, column: Column<Image, unknown>) => {
+const filterCells = (row: Row<Image>, column: Column<Image>) => {
   if (row.getIsGrouped()) {
     return ["select", "name", "action"].includes(column.id);
   } else {
@@ -95,20 +69,44 @@ const filterCells = (row: Row<Image>, column: Column<Image, unknown>) => {
 };
 
 export const SMImagesTable: React.FC = () => {
-  const columns = useSMImagesTableColumns();
+  const resources = [
+    ...useSelector(bootResourceSelectors.ubuntuResources),
+    ...useSelector(bootResourceSelectors.ubuntuCoreResources),
+    ...useSelector(bootResourceSelectors.otherResources),
+  ];
+  const images = getImages(resources);
+
+  const commissioningRelease = useSelector(
+    configSelectors.commissioningDistroSeries
+  );
+
+  const columns = useSMImagesTableColumns({ commissioningRelease });
   // const noItems = useMemo<Image[]>(() => [], []);
 
   const [grouping, setGrouping] = useState<GroupingState>(["name"]);
   const [expanded, setExpanded] = useState<ExpandedState>(true);
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "name", desc: false },
+    { id: "release", desc: true },
   ]);
 
+  const sortedImages = useMemo(() => {
+    return images.sort((a, b) => {
+      const column = sorting[0] ?? { id: "release", desc: true };
+      if (column.id === "release") {
+        if (!column.desc) {
+          return a.release.localeCompare(b.release);
+        } else {
+          return b.release.localeCompare(a.release);
+        }
+      }
+      return 0;
+    });
+  }, [images, sorting]);
+
   const table = useReactTable<Image>({
-    data: dummyData,
+    data: sortedImages,
     columns,
     state: {
-      // RowSelectionContext alternative needed
       grouping,
       expanded,
       sorting,
@@ -127,7 +125,6 @@ export const SMImagesTable: React.FC = () => {
     groupedColumnMode: false,
     enableRowSelection: true,
     enableMultiRowSelection: true,
-    // onRowSelectionChange: setRowSelection, // RowSelectionContext alternative needed
     getRowId: (row) => `${row.id}`,
   });
 
