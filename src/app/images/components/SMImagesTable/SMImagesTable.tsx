@@ -69,11 +69,7 @@ const filterCells = (row: Row<Image>, column: Column<Image>) => {
 };
 
 export const SMImagesTable: React.FC = () => {
-  const resources = [
-    ...useSelector(bootResourceSelectors.ubuntuResources),
-    ...useSelector(bootResourceSelectors.ubuntuCoreResources),
-    ...useSelector(bootResourceSelectors.otherResources),
-  ];
+  const resources = useSelector(bootResourceSelectors.resources);
   const images = getImages(resources);
 
   const commissioningRelease = useSelector(
