@@ -90,6 +90,16 @@ const SyncedImages = ({ ...stripProps }: Props): JSX.Element | null => {
                   </Tooltip>
                 )}
               </Button>
+              <Button
+                onClick={() =>
+                  setSidePanelContent({
+                    view: ImageSidePanelViews.DOWNLOAD_IMAGE,
+                  })
+                }
+                type="button"
+              >
+                Download images
+              </Button>
             </div>
             <p>
               Select images to be imported and kept in sync daily. Images will
