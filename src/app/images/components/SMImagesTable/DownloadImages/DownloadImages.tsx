@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import type { MultiSelectItem } from "@canonical/react-components";
-import { MultiSelect, Form, Strip } from "@canonical/react-components";
-import { Field } from "formik";
+import { Strip } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import FormikForm from "@/app/base/components/FormikForm";
 import { useSidePanel } from "@/app/base/side-panel-context";
+import DownloadImagesSelect from "@/app/images/components/SMImagesTable/DownloadImages/DownloadImagesSelect";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type {
@@ -21,7 +21,7 @@ import {
 
 import "./_index.scss";
 
-type GroupedImages = {
+export type GroupedImages = {
   [key: string]: ReleasesWithArches;
 };
 
@@ -130,9 +130,6 @@ const groupArchesByRelease = (images: ImagesByOS) => {
   return groupedImages;
 };
 
-const getValueKey = (distro: string, release: string) =>
-  `${distro}-${release}`.replace(".", "-");
-
 const DownloadImages: React.FC = () => {
   const dispatch = useDispatch();
   const ubuntu = useSelector(bootResourceSelectors.ubuntu);
@@ -221,41 +218,11 @@ const DownloadImages: React.FC = () => {
         submitLabel={"Download"}
       >
         {({ values, setFieldValue }: { values: any; setFieldValue: any }) => (
-          <Form>
-            {Object.keys(groupedImages).map((distro) => (
-              <span key={distro}>
-                <h2 className="p-heading--4">{distro} images</h2>
-                <table className="download-images-table">
-                  <thead>
-                    <tr>
-                      <th>Release</th>
-                      <th>Architecture</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(groupedImages[distro]).map((release) => (
-                      <tr aria-label={release} key={release}>
-                        <td>{release}</td>
-                        <td>
-                          <Field
-                            as={MultiSelect}
-                            items={groupedImages[distro][release]}
-                            name={`${distro}-${release}`}
-                            onItemsUpdate={(items: MultiSelectItem) =>
-                              setFieldValue(getValueKey(distro, release), items)
-                            }
-                            placeholder="Select architectures"
-                            selectedItems={values[getValueKey(distro, release)]}
-                            variant="condensed"
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </span>
-            ))}
-          </Form>
+          <DownloadImagesSelect
+            groupedImages={groupedImages}
+            setFieldValue={setFieldValue}
+            values={values}
+          />
         )}
       </FormikForm>
     </Strip>
