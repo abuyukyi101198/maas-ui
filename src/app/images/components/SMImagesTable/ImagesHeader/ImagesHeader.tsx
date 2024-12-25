@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import { Button, Icon, Tooltip } from "@canonical/react-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { useSidePanel } from "@/app/base/side-panel-context";
 import { ImageSidePanelViews } from "@/app/images/constants";
 import { Labels } from "@/app/images/views/ImageList/SyncedImages/SyncedImages";
+import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type { BootResourceUbuntuSource } from "@/app/store/bootresource/types";
 import { BootResourceSourceType } from "@/app/store/bootresource/types";
@@ -22,11 +23,16 @@ const getImageSyncText = (sources: BootResourceUbuntuSource[]) => {
 };
 
 const ImagesHeader: React.FC = () => {
+  const dispatch = useDispatch();
   const ubuntu = useSelector(bootResourceSelectors.ubuntu);
   const resources = useSelector(bootResourceSelectors.resources);
   const { setSidePanelContent } = useSidePanel();
   const sources = ubuntu?.sources || [];
   const hasSources = sources.length !== 0;
+
+  const saving = useSelector(bootResourceSelectors.savingUbuntu);
+  const stoppingImport = useSelector(bootResourceSelectors.stoppingImport);
+  const cleanup = useCallback(() => bootResourceActions.cleanup(), []);
 
   useEffect(() => {
     if (!hasSources) {
@@ -37,6 +43,9 @@ const ImagesHeader: React.FC = () => {
     }
   }, [hasSources, setSidePanelContent]);
 
+  const imagesDownloading = resources.some((resource) => resource.downloading);
+  const canStopImport = (saving || imagesDownloading) && !stoppingImport;
+
   const canChangeSource = resources.every((resource) => !resource.downloading);
   return (
     <div>
@@ -45,16 +54,29 @@ const ImagesHeader: React.FC = () => {
           {Labels.SyncedFrom} <strong>{getImageSyncText(sources)}</strong>
         </h4>
         <div>
-          <Button
-            onClick={() =>
-              setSidePanelContent({
-                view: ImageSidePanelViews.DOWNLOAD_IMAGE,
-              })
-            }
-            type="button"
-          >
-            Download images
-          </Button>
+          {canStopImport || stoppingImport ? (
+            // TODO: Not removing stopped import images, they remain as queued
+            <Button
+              onClick={() => {
+                dispatch(cleanup());
+                dispatch(bootResourceActions.stopImport());
+              }}
+              type="button"
+            >
+              {stoppingImport ? "Stopping image import..." : "Stop import"}
+            </Button>
+          ) : (
+            <Button
+              onClick={() =>
+                setSidePanelContent({
+                  view: ImageSidePanelViews.DOWNLOAD_IMAGE,
+                })
+              }
+              type="button"
+            >
+              Download images
+            </Button>
+          )}
           <Button
             data-testid="change-source-button"
             disabled={!canChangeSource}
