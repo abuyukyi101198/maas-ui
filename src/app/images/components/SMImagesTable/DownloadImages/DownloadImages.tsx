@@ -10,6 +10,7 @@ import DownloadImagesSelect from "@/app/images/components/SMImagesTable/Download
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type {
+  BaseImageFields,
   BootResource,
   BootResourceUbuntuArch,
   BootResourceUbuntuRelease,
@@ -36,16 +37,18 @@ type DownloadableImage = {
   name: string;
   release: string;
   architectures: string;
+  subArchitectures?: string;
   os: string;
 };
 
 const getDownloadableImages = (
-  releases: BootResourceUbuntuRelease[],
-  architectures: BootResourceUbuntuArch[]
-) => {
-  return releases
+  ubuntuReleases: BootResourceUbuntuRelease[],
+  ubuntuArches: BootResourceUbuntuArch[],
+  otherReleases: BaseImageFields[]
+): DownloadableImage[] => {
+  const ubuntuImages = ubuntuReleases
     .map((image) => {
-      return architectures.map((arch) => {
+      return ubuntuArches.map((arch) => {
         return {
           id: `ubuntu-${image.name}-${image.title}-${arch.name}`,
           name: image.name,
@@ -56,6 +59,23 @@ const getDownloadableImages = (
       });
     })
     .flat();
+
+  const otherImages = otherReleases
+    .map((image) => {
+      const [os, architecture, subArchitecture, release] =
+        image.name.split("/");
+      return {
+        id: `${os}-${release}-${architecture}-${subArchitecture}`,
+        name: image.title,
+        release: release,
+        architectures: architecture,
+        subArchitecture: subArchitecture,
+        os: os.charAt(0).toUpperCase() + os.slice(1),
+      };
+    })
+    .flat();
+
+  return [...ubuntuImages, ...otherImages];
 };
 
 const getSyncedImages = (
@@ -66,7 +86,7 @@ const getSyncedImages = (
     .filter((image) => {
       return resources.some(
         (resource) =>
-          resource.title === image.release &&
+          (resource.title === image.release || resource.title === image.name) &&
           resource.arch === image.architectures
       );
     })
@@ -133,7 +153,8 @@ const groupArchesByRelease = (images: ImagesByOS) => {
 const DownloadImages: React.FC = () => {
   const dispatch = useDispatch();
   const ubuntu = useSelector(bootResourceSelectors.ubuntu);
-  const resources = useSelector(bootResourceSelectors.ubuntuResources);
+  const otherImages = useSelector(bootResourceSelectors.otherImages);
+  const resources = useSelector(bootResourceSelectors.resources);
 
   const sources = ubuntu?.sources || [];
   const [groupedImages, setGroupedImages] = useState<GroupedImages>({});
@@ -151,17 +172,17 @@ const DownloadImages: React.FC = () => {
   const tooManySources = sources.length > 1;
 
   useEffect(() => {
-    if (ubuntu) {
+    if (ubuntu && resources && otherImages) {
       const downloadableImages = getDownloadableImages(
         ubuntu.releases,
-        ubuntu.arches
+        ubuntu.arches,
+        otherImages
       );
-      const syncedImages = getSyncedImages(downloadableImages, resources);
-      setSyncedImages(syncedImages);
+      setSyncedImages(getSyncedImages(downloadableImages, resources));
       const imagesByOS = groupImagesByOS(downloadableImages);
       setGroupedImages(groupArchesByRelease(imagesByOS));
     }
-  }, [ubuntu, resources]);
+  }, [ubuntu, resources, otherImages]);
 
   useEffect(() => {
     return () => {
@@ -188,28 +209,63 @@ const DownloadImages: React.FC = () => {
         onCancel={resetForm}
         onSubmit={(values) => {
           dispatch(cleanup());
-          const osystems = Object.entries(
+          const ubuntuSystems: {
+            arches: string[];
+            osystem: string;
+            release: string;
+          }[] = [];
+          const otherSystems: {
+            arch: string;
+            os: string;
+            release: string;
+            subArch: string;
+          }[] = [];
+          Object.entries(
             values as Record<string, { label: string; value: string }[]>
-          ).map(([key, images]) => {
+          ).forEach(([key, images]) => {
             const [osystem] = key.split("-", 1);
-            const arches = images.map((image) => image.label);
-            const release = images[0].value.split("-")[1];
-            return {
-              arches,
-              osystem: osystem.toLowerCase(),
-              release,
-            };
+
+            if (osystem === "Ubuntu") {
+              const arches = images.map((image) => image.label);
+              const release = images[0].value.split("-")[1];
+              ubuntuSystems.push({
+                arches,
+                osystem: osystem.toLowerCase(),
+                release,
+              });
+            } else {
+              const [os, release, arch, subArch] = images[0].value.split("-");
+              otherSystems.push({
+                arch,
+                os,
+                release,
+                subArch,
+              });
+            }
           });
-          const params = mainSource
-            ? {
-                osystems,
-                ...mainSource,
-              }
-            : {
-                osystems,
-                source_type: BootResourceSourceType.MAAS_IO,
-              };
-          dispatch(bootResourceActions.saveUbuntu(params));
+
+          if (ubuntuSystems.length > 0) {
+            const params = mainSource
+              ? {
+                  osystems: ubuntuSystems,
+                  ...mainSource,
+                }
+              : {
+                  osystems: ubuntuSystems,
+                  source_type: BootResourceSourceType.MAAS_IO,
+                };
+            dispatch(bootResourceActions.saveUbuntu(params));
+          }
+
+          if (otherSystems.length > 0) {
+            const params = {
+              images: otherSystems.map(
+                ({ arch, os, release, subArch = "" }) =>
+                  `${os}/${arch}/${subArch}/${release}`
+              ),
+            };
+            dispatch(bootResourceActions.saveOther(params));
+          }
           resetForm();
         }}
         onSuccess={() => {
