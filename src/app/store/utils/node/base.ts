@@ -210,6 +210,7 @@ const sidePanelTitleMap: Record<string, string> = {
   [SidePanelViews.DELETE_SPECIAL_FILESYSTEM[1]]: "Delete special filesystem",
   [SidePanelViews.DeleteTag[1]]: "Delete tag",
   [SidePanelViews.DELETE_VOLUME_GROUP[1]]: "Delete volume group",
+  [SidePanelViews.DOWNLOAD_IMAGE[1]]: "Download image",
   [SidePanelViews.EDIT_INTERFACE[1]]: "Edit interface",
   [SidePanelViews.CREATE_ZONE[1]]: "Add AZ",
   [SidePanelViews.EDIT_DISK[1]]: "Edit disk",
