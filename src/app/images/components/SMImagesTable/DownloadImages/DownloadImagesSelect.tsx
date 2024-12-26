@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  Form,
-  MultiSelect,
-  type MultiSelectItem,
-} from "@canonical/react-components";
+import { MultiSelect, type MultiSelectItem } from "@canonical/react-components";
 import { Field } from "formik";
 
 import type { GroupedImages } from "@/app/images/components/SMImagesTable/DownloadImages/DownloadImages";
@@ -24,7 +20,7 @@ const DownloadImagesSelect: React.FC<DownloadImagesSelectProps> = ({
   groupedImages,
 }) => {
   return (
-    <Form>
+    <>
       {Object.keys(groupedImages).map((distro) => (
         <span key={distro}>
           <h2 className="p-heading--4">{distro} images</h2>
@@ -58,7 +54,7 @@ const DownloadImagesSelect: React.FC<DownloadImagesSelectProps> = ({
           </table>
         </span>
       ))}
-    </Form>
+    </>
   );
 };
 

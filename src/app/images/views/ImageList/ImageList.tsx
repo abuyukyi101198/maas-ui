@@ -3,10 +3,7 @@ import { useEffect } from "react";
 import { Notification } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import CustomImages from "./CustomImages";
-import GeneratedImages from "./GeneratedImages";
 import ImageListHeader from "./ImageListHeader";
-import SyncedImages from "./SyncedImages";
 
 import PageContent from "@/app/base/components/PageContent";
 import { useWindowTitle } from "@/app/base/hooks";
@@ -65,9 +62,9 @@ const ImageList = (): JSX.Element => {
           )}
           {!!ubuntu && <ImagesHeader />}
           <SMImagesTable />
-          {!!ubuntu && <SyncedImages />}
-          <GeneratedImages />
-          <CustomImages />
+          {/*{!!ubuntu && <SyncedImages />}*/}
+          {/*<GeneratedImages />*/}
+          {/*<CustomImages />*/}
         </>
       )}
     </PageContent>
