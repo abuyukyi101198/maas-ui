@@ -44,6 +44,7 @@ const RowActions: React.FC<RowActionsProps<any>> & {
         <Button
           appearance="base"
           className="is-dense u-table-cell-padding-overlap table-actions-btn"
+          data-testid="row-delete"
           disabled={disabled}
           hasIcon
           onClick={onDelete}
