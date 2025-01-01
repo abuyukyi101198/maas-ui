@@ -1,4 +1,4 @@
-import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
+import useImageTableColumns from "@/app/images/components/SMImagesTable/useImageTableColumns/useImageTableColumns";
 import { screen, renderHook, render, waitFor } from "@/testing/utils";
 
 vi.mock("@/context", async () => {
@@ -15,7 +15,7 @@ const setupTestCase = (name = "test-row") => {
   const commissioningRelease: string | null = "20.04";
   const { result } = renderHook(() =>
     // @ts-ignore
-    useSMImagesTableColumns(commissioningRelease)
+    useImageTableColumns(commissioningRelease)
   );
   const props = {
     getValue: () => name,

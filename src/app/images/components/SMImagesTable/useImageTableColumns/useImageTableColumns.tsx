@@ -7,9 +7,9 @@ import pluralize from "pluralize";
 import DoubleRow from "@/app/base/components/DoubleRow";
 import TooltipButton from "@/app/base/components/TooltipButton";
 import { useSidePanel } from "@/app/base/side-panel-context";
-import RowActions from "@/app/images/components/SMImagesTable/RowActions/RowActions";
+import RowActions from "@/app/images/components/GenericTable/RowActions";
+import TableCheckbox from "@/app/images/components/GenericTable/TableCheckbox";
 import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
-import TableCheckbox from "@/app/images/components/SMImagesTable/TableCheckbox/TableCheckbox";
 import { ImageSidePanelViews } from "@/app/images/constants";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;

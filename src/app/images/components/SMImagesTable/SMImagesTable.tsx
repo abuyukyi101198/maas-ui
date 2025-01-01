@@ -1,28 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 
-import { DynamicTable } from "@canonical/maas-react-components";
-import { Button } from "@canonical/react-components";
-import type {
-  Column,
-  ExpandedState,
-  GroupingState,
-  Header,
-  Row,
-  SortingState,
-} from "@tanstack/react-table";
-import {
-  flexRender,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getGroupedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import classNames from "classnames";
+import type { Column, Header, Row } from "@tanstack/react-table";
 import { useSelector } from "react-redux";
 
-import SortIndicator from "@/app/images/components/SMImagesTable/SortIndicator/SortIndicator";
-import useSMImagesTableColumns from "@/app/images/components/SMImagesTable/useSMImagesTableColumns/useSMImagesTableColumns";
-import "./_index.scss";
+import useImageTableColumns from "./useImageTableColumns/useImageTableColumns";
+
+import GenericTable from "@/app/images/components/GenericTable";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type { BootResource } from "@/app/store/bootresource/types";
 import { splitResourceName } from "@/app/store/bootresource/utils";
@@ -76,126 +59,18 @@ export const SMImagesTable: React.FC = () => {
     configSelectors.commissioningDistroSeries
   );
 
-  const columns = useSMImagesTableColumns({ commissioningRelease });
-  // const noItems = useMemo<Image[]>(() => [], []);
-
-  const [grouping, setGrouping] = useState<GroupingState>(["name"]);
-  const [expanded, setExpanded] = useState<ExpandedState>(true);
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "release", desc: true },
-  ]);
-
-  const sortedImages = useMemo(() => {
-    return images.sort((a, b) => {
-      const column = sorting[0] ?? { id: "release", desc: true };
-      if (column.id === "release") {
-        if (!column.desc) {
-          return a.release.localeCompare(b.release);
-        } else {
-          return b.release.localeCompare(a.release);
-        }
-      }
-      return 0;
-    });
-  }, [images, sorting]);
-
-  const table = useReactTable<Image>({
-    data: sortedImages,
-    columns,
-    state: {
-      grouping,
-      expanded,
-      sorting,
-    },
-    manualPagination: true,
-    autoResetExpanded: false,
-    onExpandedChange: setExpanded,
-    onSortingChange: setSorting,
-    onGroupingChange: setGrouping,
-    manualSorting: true,
-    enableSorting: true,
-    enableExpanding: true,
-    getExpandedRowModel: getExpandedRowModel(),
-    getCoreRowModel: getCoreRowModel(),
-    getGroupedRowModel: getGroupedRowModel(),
-    groupedColumnMode: false,
-    enableRowSelection: true,
-    enableMultiRowSelection: true,
-    getRowId: (row) => `${row.id}`,
-  });
+  const columns = useImageTableColumns({ commissioningRelease });
 
   return (
-    <DynamicTable
-      aria-label="images"
-      className="p-table-dynamic--with-select images-table"
-      variant={"full-height"}
-    >
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.filter(filterHeaders).map((header) => (
-              <th className={classNames(`${header.column.id}`)} key={header.id}>
-                {header.column.getCanSort() ? (
-                  <Button
-                    appearance="link"
-                    className="p-button--table-header"
-                    onClick={header.column.getToggleSortingHandler()}
-                    type="button"
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    <SortIndicator header={header} />
-                  </Button>
-                ) : (
-                  flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )
-                )}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      {
-        // Error and pending states need to be implemented when integrating with the backend
-        table.getRowModel().rows.length < 1 ? (
-          <caption className="u-visually-hidden">No images</caption> // TableCaption.Title and TableCaption.Description implementation in Site Manager pretty clean, could copy over
-        ) : (
-          <DynamicTable.Body>
-            {table.getRowModel().rows.map((row) => {
-              const { getIsGrouped, id, index, getVisibleCells } = row;
-              const isIndividualRow = !getIsGrouped();
-              return (
-                <tr
-                  className={classNames({
-                    "individual-row": isIndividualRow,
-                    "group-row": !isIndividualRow,
-                  })}
-                  key={id + index}
-                >
-                  {getVisibleCells()
-                    .filter((cell) => filterCells(row, cell.column))
-                    .map((cell) => {
-                      const { column, id: cellId } = cell;
-                      return (
-                        <td
-                          className={classNames(`${cell.column.id}`)}
-                          key={cellId}
-                        >
-                          {flexRender(column.columnDef.cell, cell.getContext())}
-                        </td>
-                      );
-                    })}
-                </tr>
-              );
-            })}
-          </DynamicTable.Body>
-        )
-      }
-    </DynamicTable>
+    <GenericTable
+      columns={columns}
+      data={images}
+      filterCells={filterCells}
+      filterHeaders={filterHeaders}
+      getRowId={(row) => `${row.id}`}
+      groupBy={["name"]}
+      sortBy={[{ id: "release", desc: true }]}
+    />
   );
 };
 
