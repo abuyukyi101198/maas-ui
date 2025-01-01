@@ -4,9 +4,10 @@ import type { MultiSelectItem } from "@canonical/react-components";
 import { Strip } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
+import DownloadImagesSelect from "./DownloadImagesSelect";
+
 import FormikForm from "@/app/base/components/FormikForm";
 import { useSidePanel } from "@/app/base/side-panel-context";
-import DownloadImagesSelect from "@/app/images/components/SMImagesTable/DownloadImages/DownloadImagesSelect";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type {
