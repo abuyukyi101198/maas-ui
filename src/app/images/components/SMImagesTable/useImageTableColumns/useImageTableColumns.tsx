@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 
 import { Icon, Spinner } from "@canonical/react-components";
-import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  Row,
+  Getter,
+  Header,
+  Column,
+} from "@tanstack/react-table";
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
@@ -14,7 +20,18 @@ import { ImageSidePanelViews } from "@/app/images/constants";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
-const useSMImagesTableColumns = ({
+export const filterCells = (row: Row<Image>, column: Column<Image>) => {
+  if (row.getIsGrouped()) {
+    return ["select", "name", "action"].includes(column.id);
+  } else {
+    return column.id !== "name";
+  }
+};
+
+export const filterHeaders = (header: Header<Image, unknown>) =>
+  header.column.id !== "name";
+
+const useImageTableColumns = ({
   commissioningRelease,
 }: {
   commissioningRelease: string | null;
@@ -182,4 +199,4 @@ const useSMImagesTableColumns = ({
   );
 };
 
-export default useSMImagesTableColumns;
+export default useImageTableColumns;

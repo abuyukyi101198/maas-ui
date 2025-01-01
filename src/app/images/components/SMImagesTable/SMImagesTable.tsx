@@ -1,9 +1,11 @@
 import React from "react";
 
-import type { Column, Header, Row } from "@tanstack/react-table";
 import { useSelector } from "react-redux";
 
-import useImageTableColumns from "./useImageTableColumns/useImageTableColumns";
+import useImageTableColumns, {
+  filterCells,
+  filterHeaders,
+} from "./useImageTableColumns/useImageTableColumns";
 
 import GenericTable from "@/app/images/components/GenericTable";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
@@ -38,17 +40,6 @@ const getImages = (resources: BootResource[]): Image[] => {
       resource: resource,
     };
   });
-};
-
-const filterHeaders = (header: Header<Image, unknown>) =>
-  header.column.id !== "name";
-
-const filterCells = (row: Row<Image>, column: Column<Image>) => {
-  if (row.getIsGrouped()) {
-    return ["select", "name", "action"].includes(column.id);
-  } else {
-    return column.id !== "name";
-  }
 };
 
 export const SMImagesTable: React.FC = () => {
