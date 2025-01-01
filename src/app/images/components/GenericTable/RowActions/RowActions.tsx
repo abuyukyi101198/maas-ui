@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Button, Icon, Tooltip } from "@canonical/react-components";
 import type { Row } from "@tanstack/react-table";
 import "./_index.scss";
@@ -12,7 +10,7 @@ type RowActionsProps<T> = {
   tooltip?: string | null;
 };
 
-const GroupRowActions: React.FC<RowActionsProps<any>> = ({ row }) => (
+const GroupRowActions = <T,>({ row }: RowActionsProps<T>) => (
   <Button
     appearance="base"
     dense
@@ -31,9 +29,11 @@ const GroupRowActions: React.FC<RowActionsProps<any>> = ({ row }) => (
 );
 
 // Currently, only has deletion action, other actions could later be implemented from MAAS Site Manager
-const RowActions: React.FC<RowActionsProps<any>> & {
-  Group: React.FC<RowActionsProps<any>>;
-} = ({ onDelete, disabled, tooltip }) => {
+const RowActions = <T,>({
+  onDelete,
+  disabled,
+  tooltip,
+}: RowActionsProps<T>) => {
   return (
     <div
       className={classNames(
