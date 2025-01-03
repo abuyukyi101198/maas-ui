@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { useSidePanel } from "@/app/base/side-panel-context";
 import { ImageSidePanelViews } from "@/app/images/constants";
-import { Labels } from "@/app/images/views/ImageList/SyncedImages/SyncedImages";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type { BootResourceUbuntuSource } from "@/app/store/bootresource/types";
@@ -51,7 +50,8 @@ const ImagesHeader: React.FC = () => {
     <div>
       <div className="u-flex--between">
         <h4 data-testid="image-sync-text">
-          {Labels.SyncedFrom} <strong>{getImageSyncText(sources)}</strong>
+          Showing images synced from{" "}
+          <strong>{getImageSyncText(sources)}</strong>
         </h4>
         <div>
           {canStopImport || stoppingImport ? (
@@ -87,7 +87,7 @@ const ImagesHeader: React.FC = () => {
               })
             }
           >
-            {Labels.ChangeSource}
+            Change source
             {!canChangeSource && (
               <Tooltip
                 className="u-nudge-right--small"
