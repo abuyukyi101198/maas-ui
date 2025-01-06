@@ -1,20 +1,38 @@
 import { useMemo } from "react";
 
 import { Icon, Spinner } from "@canonical/react-components";
-import type { ColumnDef, Row, Getter } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  Row,
+  Getter,
+  Header,
+  Column,
+} from "@tanstack/react-table";
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
+import TableActions from "@/app/base/components/TableActions";
 import TooltipButton from "@/app/base/components/TooltipButton";
 import { useSidePanel } from "@/app/base/side-panel-context";
-import RowActions from "@/app/images/components/SMImagesTable/RowActions/RowActions";
-import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
-import TableCheckbox from "@/app/images/components/SMImagesTable/TableCheckbox/TableCheckbox";
+import GroupRowActions from "@/app/images/components/GenericTable/GroupRowActions";
+import TableCheckbox from "@/app/images/components/GenericTable/TableCheckbox";
 import { ImageSidePanelViews } from "@/app/images/constants";
+import type { Image } from "@/app/images/types";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
-const useSMImagesTableColumns = ({
+export const filterCells = (row: Row<Image>, column: Column<Image>) => {
+  if (row.getIsGrouped()) {
+    return ["select", "name", "action"].includes(column.id);
+  } else {
+    return column.id !== "name";
+  }
+};
+
+export const filterHeaders = (header: Header<Image, unknown>) =>
+  header.column.id !== "name";
+
+const useImageTableColumns = ({
   commissioningRelease,
 }: {
   commissioningRelease: string | null;
@@ -148,10 +166,18 @@ const useSMImagesTableColumns = ({
               (row.original.resource.complete ||
                 !row.original.resource.downloading);
             return row.getIsGrouped() ? (
-              <RowActions.Group row={row} />
+              <GroupRowActions row={row} />
             ) : (
-              <RowActions
-                disabled={!canBeDeleted}
+              <TableActions
+                data-testid="image-actions"
+                deleteDisabled={!canBeDeleted}
+                deleteTooltip={
+                  !canBeDeleted
+                    ? isCommissioningImage
+                      ? "Cannot delete images of the default commissioning release."
+                      : "Cannot delete images that are currently being imported."
+                    : null
+                }
                 onDelete={() => {
                   if (id) {
                     if (!row.getIsSelected()) {
@@ -165,14 +191,6 @@ const useSMImagesTableColumns = ({
                     });
                   }
                 }}
-                row={row}
-                tooltip={
-                  !canBeDeleted
-                    ? isCommissioningImage
-                      ? "Cannot delete images of the default commissioning release."
-                      : "Cannot delete images that are currently being imported."
-                    : null
-                }
               />
             );
           },
@@ -182,4 +200,4 @@ const useSMImagesTableColumns = ({
   );
 };
 
-export default useSMImagesTableColumns;
+export default useImageTableColumns;

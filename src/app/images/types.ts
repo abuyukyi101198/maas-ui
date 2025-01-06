@@ -8,6 +8,18 @@ import type {
   BootResourceMeta,
 } from "@/app/store/bootresource/types";
 
+export type Image = {
+  id: number;
+  release: string;
+  architecture: string;
+  name: string;
+  size: string;
+  lastSynced: string | null;
+  canDeployToMemory: boolean;
+  status: string;
+  resource: BootResource;
+};
+
 export type ImageValue = {
   arch: string;
   os: string;

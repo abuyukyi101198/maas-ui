@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import type { MultiSelectItem } from "@canonical/react-components";
-import { Strip } from "@canonical/react-components";
+import { Notification, Strip } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
+
+import DownloadImagesSelect from "./DownloadImagesSelect";
 
 import FormikForm from "@/app/base/components/FormikForm";
 import { useSidePanel } from "@/app/base/side-panel-context";
-import DownloadImagesSelect from "@/app/images/components/SMImagesTable/DownloadImages/DownloadImagesSelect";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type {
@@ -41,22 +42,25 @@ type DownloadableImage = {
   os: string;
 };
 
-const getDownloadableImages = (
+export const getDownloadableImages = (
   ubuntuReleases: BootResourceUbuntuRelease[],
   ubuntuArches: BootResourceUbuntuArch[],
   otherReleases: BaseImageFields[]
 ): DownloadableImage[] => {
   const ubuntuImages = ubuntuReleases
+    .filter((release) => !release.deleted)
     .map((image) => {
-      return ubuntuArches.map((arch) => {
-        return {
-          id: `ubuntu-${image.name}-${image.title}-${arch.name}`,
-          name: image.name,
-          release: image.title,
-          architectures: arch.name,
-          os: "Ubuntu",
-        };
-      });
+      return ubuntuArches
+        .filter((arche) => !arche.deleted)
+        .map((arch) => {
+          return {
+            id: `ubuntu-${image.name}-${image.title}-${arch.name}`,
+            name: image.name,
+            release: image.title,
+            architectures: arch.name,
+            os: "Ubuntu",
+          };
+        });
     })
     .flat();
 
@@ -78,7 +82,7 @@ const getDownloadableImages = (
   return [...ubuntuImages, ...otherImages];
 };
 
-const getSyncedImages = (
+export const getSyncedImages = (
   downloadableImages: DownloadableImage[],
   resources: BootResource[]
 ): Record<string, { label: string; value: string }[]> => {
@@ -106,7 +110,7 @@ const getSyncedImages = (
     );
 };
 
-const groupImagesByOS = (images: DownloadableImage[]) => {
+export const groupImagesByOS = (images: DownloadableImage[]) => {
   let imagesByOS: ImagesByOS = {};
 
   images.forEach((image) => {
@@ -126,7 +130,7 @@ const groupImagesByOS = (images: DownloadableImage[]) => {
   return imagesByOS;
 };
 
-const groupArchesByRelease = (images: ImagesByOS) => {
+export const groupArchesByRelease = (images: ImagesByOS) => {
   let groupedImages: GroupedImages = {};
 
   Object.keys(images).forEach((distro) => {
@@ -197,91 +201,100 @@ const DownloadImages: React.FC = () => {
   };
 
   return (
-    <Strip shallow>
-      <FormikForm
-        allowUnchanged
-        buttonsBehavior="independent"
-        cleanup={cleanup}
-        editable={!tooManySources}
-        enableReinitialize
-        errors={error}
-        initialValues={syncedImages}
-        onCancel={resetForm}
-        onSubmit={(values) => {
-          dispatch(cleanup());
-          const ubuntuSystems: {
-            arches: string[];
-            osystem: string;
-            release: string;
-          }[] = [];
-          const otherSystems: {
-            arch: string;
-            os: string;
-            release: string;
-            subArch: string;
-          }[] = [];
-          Object.entries(
-            values as Record<string, { label: string; value: string }[]>
-          ).forEach(([key, images]) => {
-            const [osystem] = key.split("-", 1);
+    <>
+      {tooManySources && (
+        <Notification data-testid="too-many-sources" severity="caution">
+          More than one image source exists. The UI does not support updating
+          synced images when more than one source has been defined. Use the API
+          to adjust your sources.
+        </Notification>
+      )}
+      <Strip shallow>
+        <FormikForm
+          allowUnchanged
+          buttonsBehavior="independent"
+          cleanup={cleanup}
+          editable={!tooManySources}
+          enableReinitialize
+          errors={error}
+          initialValues={syncedImages}
+          onCancel={resetForm}
+          onSubmit={(values) => {
+            dispatch(cleanup());
+            const ubuntuSystems: {
+              arches: string[];
+              osystem: string;
+              release: string;
+            }[] = [];
+            const otherSystems: {
+              arch: string;
+              os: string;
+              release: string;
+              subArch: string;
+            }[] = [];
+            Object.entries(
+              values as Record<string, { label: string; value: string }[]>
+            ).forEach(([key, images]) => {
+              const [osystem] = key.split("-", 1);
 
-            if (osystem === "Ubuntu") {
-              const arches = images.map((image) => image.label);
-              const release = images[0].value.split("-")[1];
-              ubuntuSystems.push({
-                arches,
-                osystem: osystem.toLowerCase(),
-                release,
-              });
-            } else {
-              const [os, release, arch, subArch] = images[0].value.split("-");
-              otherSystems.push({
-                arch,
-                os,
-                release,
-                subArch,
-              });
+              if (osystem === "Ubuntu") {
+                const arches = images.map((image) => image.label);
+                const release = images[0].value.split("-")[1];
+                ubuntuSystems.push({
+                  arches,
+                  osystem: osystem.toLowerCase(),
+                  release,
+                });
+              } else {
+                const [os, release, arch, subArch] = images[0].value.split("-");
+                otherSystems.push({
+                  arch,
+                  os,
+                  release,
+                  subArch,
+                });
+              }
+            });
+
+            if (ubuntuSystems.length > 0) {
+              const params = mainSource
+                ? {
+                    osystems: ubuntuSystems,
+                    ...mainSource,
+                  }
+                : {
+                    osystems: ubuntuSystems,
+                    source_type: BootResourceSourceType.MAAS_IO,
+                  };
+              dispatch(bootResourceActions.saveUbuntu(params));
             }
-          });
 
-          if (ubuntuSystems.length > 0) {
-            const params = mainSource
-              ? {
-                  osystems: ubuntuSystems,
-                  ...mainSource,
-                }
-              : {
-                  osystems: ubuntuSystems,
-                  source_type: BootResourceSourceType.MAAS_IO,
-                };
-            dispatch(bootResourceActions.saveUbuntu(params));
-          }
-
-          if (otherSystems.length > 0) {
-            const params = {
-              images: otherSystems.map(
-                ({ arch, os, release, subArch = "" }) =>
-                  `${os}/${arch}/${subArch}/${release}`
-              ),
-            };
-            dispatch(bootResourceActions.saveOther(params));
-          }
-          resetForm();
-        }}
-        onSuccess={() => {
-          dispatch(bootResourceActions.poll({ continuous: false }));
-        }}
-        submitLabel={"Download"}
-      >
-        {({ values, setFieldValue }: { values: any; setFieldValue: any }) => (
-          <DownloadImagesSelect
-            groupedImages={groupedImages}
-            setFieldValue={setFieldValue}
-            values={values}
-          />
-        )}
-      </FormikForm>
-    </Strip>
+            if (otherSystems.length > 0) {
+              const params = {
+                images: otherSystems.map(
+                  ({ arch, os, release, subArch = "" }) =>
+                    `${os}/${arch}/${subArch}/${release}`
+                ),
+              };
+              dispatch(bootResourceActions.saveOther(params));
+            }
+            resetForm();
+          }}
+          onSuccess={() => {
+            dispatch(bootResourceActions.poll({ continuous: false }));
+          }}
+          submitLabel={"Download"}
+        >
+          {({ values, setFieldValue }: { values: any; setFieldValue: any }) => (
+            <DownloadImagesSelect
+              groupedImages={groupedImages}
+              setFieldValue={setFieldValue}
+              values={values}
+            />
+          )}
+        </FormikForm>
+      </Strip>
+    </>
   );
 };
 

@@ -1,10 +1,8 @@
-import React from "react";
-
 import type { Row, Table } from "@tanstack/react-table";
 
 type TableCheckboxProps<T> = { row?: Row<T>; table?: Table<T> };
 
-const TableAllCheckbox: React.FC<TableCheckboxProps<any>> = ({ table }) => {
+const TableAllCheckbox = <T,>({ table }: TableCheckboxProps<T>) => {
   if (!table) {
     return null;
   }
@@ -44,7 +42,7 @@ const TableAllCheckbox: React.FC<TableCheckboxProps<any>> = ({ table }) => {
   );
 };
 
-const TableGroupCheckbox: React.FC<TableCheckboxProps<any>> = ({ row }) => {
+const TableGroupCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
   if (!row) {
     return null;
   }
@@ -54,7 +52,6 @@ const TableGroupCheckbox: React.FC<TableCheckboxProps<any>> = ({ row }) => {
     <label className="p-checkbox--inline">
       <input
         aria-checked={isSomeSubRowsSelected ? "mixed" : undefined}
-        aria-label={row.original?.name}
         className="p-checkbox__input"
         type="checkbox"
         {...{
@@ -76,17 +73,13 @@ const TableGroupCheckbox: React.FC<TableCheckboxProps<any>> = ({ row }) => {
   );
 };
 
-const TableCheckbox: React.FC<TableCheckboxProps<any>> & {
-  All: React.FC<TableCheckboxProps<any>>;
-  Group: React.FC<TableCheckboxProps<any>>;
-} = ({ row }) => {
+const TableCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
   if (!row) {
     return null;
   }
   return (
     <label className="p-checkbox--inline">
       <input
-        aria-label={row.original.name}
         className="p-checkbox__input"
         type="checkbox"
         {...{
