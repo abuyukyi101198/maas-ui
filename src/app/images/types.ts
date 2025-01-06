@@ -14,7 +14,7 @@ export type Image = {
   architecture: string;
   name: string;
   size: string;
-  lastSynced: string | null; // ISO 8601 date string
+  lastSynced: string | null;
   canDeployToMemory: boolean;
   status: string;
   resource: BootResource;
