@@ -11,9 +11,10 @@ import type {
 import pluralize from "pluralize";
 
 import DoubleRow from "@/app/base/components/DoubleRow";
+import TableActions from "@/app/base/components/TableActions";
 import TooltipButton from "@/app/base/components/TooltipButton";
 import { useSidePanel } from "@/app/base/side-panel-context";
-import RowActions from "@/app/images/components/GenericTable/RowActions";
+import GroupRowActions from "@/app/images/components/GenericTable/GroupRowActions";
 import TableCheckbox from "@/app/images/components/GenericTable/TableCheckbox";
 import { ImageSidePanelViews } from "@/app/images/constants";
 import type { Image } from "@/app/images/types";
@@ -165,10 +166,18 @@ const useImageTableColumns = ({
               (row.original.resource.complete ||
                 !row.original.resource.downloading);
             return row.getIsGrouped() ? (
-              <RowActions.Group row={row} />
+              <GroupRowActions row={row} />
             ) : (
-              <RowActions
-                disabled={!canBeDeleted}
+              <TableActions
+                data-testid="image-actions"
+                deleteDisabled={!canBeDeleted}
+                deleteTooltip={
+                  !canBeDeleted
+                    ? isCommissioningImage
+                      ? "Cannot delete images of the default commissioning release."
+                      : "Cannot delete images that are currently being imported."
+                    : null
+                }
                 onDelete={() => {
                   if (id) {
                     if (!row.getIsSelected()) {
@@ -182,14 +191,6 @@ const useImageTableColumns = ({
                     });
                   }
                 }}
-                row={row}
-                tooltip={
-                  !canBeDeleted
-                    ? isCommissioningImage
-                      ? "Cannot delete images of the default commissioning release."
-                      : "Cannot delete images that are currently being imported."
-                    : null
-                }
               />
             );
           },
