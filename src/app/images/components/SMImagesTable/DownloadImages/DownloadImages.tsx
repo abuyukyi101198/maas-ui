@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import type { MultiSelectItem } from "@canonical/react-components";
-import { Strip } from "@canonical/react-components";
+import { Notification, Strip } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import DownloadImagesSelect from "./DownloadImagesSelect";
@@ -201,91 +201,100 @@ const DownloadImages: React.FC = () => {
   };
 
   return (
-    <Strip shallow>
-      <FormikForm
-        allowUnchanged
-        buttonsBehavior="independent"
-        cleanup={cleanup}
-        editable={!tooManySources}
-        enableReinitialize
-        errors={error}
-        initialValues={syncedImages}
-        onCancel={resetForm}
-        onSubmit={(values) => {
-          dispatch(cleanup());
-          const ubuntuSystems: {
-            arches: string[];
-            osystem: string;
-            release: string;
-          }[] = [];
-          const otherSystems: {
-            arch: string;
-            os: string;
-            release: string;
-            subArch: string;
-          }[] = [];
-          Object.entries(
-            values as Record<string, { label: string; value: string }[]>
-          ).forEach(([key, images]) => {
-            const [osystem] = key.split("-", 1);
+    <>
+      {tooManySources && (
+        <Notification data-testid="too-many-sources" severity="caution">
+          More than one image source exists. The UI does not support updating
+          synced images when more than one source has been defined. Use the API
+          to adjust your sources.
+        </Notification>
+      )}
+      <Strip shallow>
+        <FormikForm
+          allowUnchanged
+          buttonsBehavior="independent"
+          cleanup={cleanup}
+          editable={!tooManySources}
+          enableReinitialize
+          errors={error}
+          initialValues={syncedImages}
+          onCancel={resetForm}
+          onSubmit={(values) => {
+            dispatch(cleanup());
+            const ubuntuSystems: {
+              arches: string[];
+              osystem: string;
+              release: string;
+            }[] = [];
+            const otherSystems: {
+              arch: string;
+              os: string;
+              release: string;
+              subArch: string;
+            }[] = [];
+            Object.entries(
+              values as Record<string, { label: string; value: string }[]>
+            ).forEach(([key, images]) => {
+              const [osystem] = key.split("-", 1);
 
-            if (osystem === "Ubuntu") {
-              const arches = images.map((image) => image.label);
-              const release = images[0].value.split("-")[1];
-              ubuntuSystems.push({
-                arches,
-                osystem: osystem.toLowerCase(),
-                release,
-              });
-            } else {
-              const [os, release, arch, subArch] = images[0].value.split("-");
-              otherSystems.push({
-                arch,
-                os,
-                release,
-                subArch,
-              });
+              if (osystem === "Ubuntu") {
+                const arches = images.map((image) => image.label);
+                const release = images[0].value.split("-")[1];
+                ubuntuSystems.push({
+                  arches,
+                  osystem: osystem.toLowerCase(),
+                  release,
+                });
+              } else {
+                const [os, release, arch, subArch] = images[0].value.split("-");
+                otherSystems.push({
+                  arch,
+                  os,
+                  release,
+                  subArch,
+                });
+              }
+            });
+
+            if (ubuntuSystems.length > 0) {
+              const params = mainSource
+                ? {
+                    osystems: ubuntuSystems,
+                    ...mainSource,
+                  }
+                : {
+                    osystems: ubuntuSystems,
+                    source_type: BootResourceSourceType.MAAS_IO,
+                  };
+              dispatch(bootResourceActions.saveUbuntu(params));
             }
-          });
 
-          if (ubuntuSystems.length > 0) {
-            const params = mainSource
-              ? {
-                  osystems: ubuntuSystems,
-                  ...mainSource,
-                }
-              : {
-                  osystems: ubuntuSystems,
-                  source_type: BootResourceSourceType.MAAS_IO,
-                };
-            dispatch(bootResourceActions.saveUbuntu(params));
-          }
-
-          if (otherSystems.length > 0) {
-            const params = {
-              images: otherSystems.map(
-                ({ arch, os, release, subArch = "" }) =>
-                  `${os}/${arch}/${subArch}/${release}`
-              ),
-            };
-            dispatch(bootResourceActions.saveOther(params));
-          }
-          resetForm();
-        }}
-        onSuccess={() => {
-          dispatch(bootResourceActions.poll({ continuous: false }));
-        }}
-        submitLabel={"Download"}
-      >
-        {({ values, setFieldValue }: { values: any; setFieldValue: any }) => (
-          <DownloadImagesSelect
-            groupedImages={groupedImages}
-            setFieldValue={setFieldValue}
-            values={values}
-          />
-        )}
-      </FormikForm>
-    </Strip>
+            if (otherSystems.length > 0) {
+              const params = {
+                images: otherSystems.map(
+                  ({ arch, os, release, subArch = "" }) =>
+                    `${os}/${arch}/${subArch}/${release}`
+                ),
+              };
+              dispatch(bootResourceActions.saveOther(params));
+            }
+            resetForm();
+          }}
+          onSuccess={() => {
+            dispatch(bootResourceActions.poll({ continuous: false }));
+          }}
+          submitLabel={"Download"}
+        >
+          {({ values, setFieldValue }: { values: any; setFieldValue: any }) => (
+            <DownloadImagesSelect
+              groupedImages={groupedImages}
+              setFieldValue={setFieldValue}
+              values={values}
+            />
+          )}
+        </FormikForm>
+      </Strip>
+    </>
   );
 };
 
