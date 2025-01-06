@@ -42,22 +42,25 @@ type DownloadableImage = {
   os: string;
 };
 
-const getDownloadableImages = (
+export const getDownloadableImages = (
   ubuntuReleases: BootResourceUbuntuRelease[],
   ubuntuArches: BootResourceUbuntuArch[],
   otherReleases: BaseImageFields[]
 ): DownloadableImage[] => {
   const ubuntuImages = ubuntuReleases
+    .filter((release) => !release.deleted)
     .map((image) => {
-      return ubuntuArches.map((arch) => {
-        return {
-          id: `ubuntu-${image.name}-${image.title}-${arch.name}`,
-          name: image.name,
-          release: image.title,
-          architectures: arch.name,
-          os: "Ubuntu",
-        };
-      });
+      return ubuntuArches
+        .filter((arche) => !arche.deleted)
+        .map((arch) => {
+          return {
+            id: `ubuntu-${image.name}-${image.title}-${arch.name}`,
+            name: image.name,
+            release: image.title,
+            architectures: arch.name,
+            os: "Ubuntu",
+          };
+        });
     })
     .flat();
 
@@ -79,7 +82,7 @@ const getDownloadableImages = (
   return [...ubuntuImages, ...otherImages];
 };
 
-const getSyncedImages = (
+export const getSyncedImages = (
   downloadableImages: DownloadableImage[],
   resources: BootResource[]
 ): Record<string, { label: string; value: string }[]> => {
@@ -107,7 +110,7 @@ const getSyncedImages = (
     );
 };
 
-const groupImagesByOS = (images: DownloadableImage[]) => {
+export const groupImagesByOS = (images: DownloadableImage[]) => {
   let imagesByOS: ImagesByOS = {};
 
   images.forEach((image) => {
@@ -127,7 +130,7 @@ const groupImagesByOS = (images: DownloadableImage[]) => {
   return imagesByOS;
 };
 
-const groupArchesByRelease = (images: ImagesByOS) => {
+export const groupArchesByRelease = (images: ImagesByOS) => {
   let groupedImages: GroupedImages = {};
 
   Object.keys(images).forEach((distro) => {
