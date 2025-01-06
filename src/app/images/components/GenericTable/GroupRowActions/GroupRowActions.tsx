@@ -5,22 +5,24 @@ type GroupRowActionsProps<T> = {
   row: Row<T>;
 };
 
-const GroupRowActions = <T,>({ row }: GroupRowActionsProps<T>) => (
-  <Button
-    appearance="base"
-    dense
-    hasIcon
-    onClick={() => {
-      row.toggleExpanded();
-    }}
-    type="button"
-  >
-    {row.getIsExpanded() ? (
-      <Icon name="minus">Collapse</Icon>
-    ) : (
-      <Icon name="plus">Expand</Icon>
-    )}
-  </Button>
-);
+const GroupRowActions = <T,>({ row }: GroupRowActionsProps<T>) => {
+  return (
+    <Button
+      appearance="base"
+      dense
+      hasIcon
+      onClick={() => {
+        row.toggleExpanded();
+      }}
+      type="button"
+    >
+      {row.getIsExpanded() ? (
+        <Icon name="minus">Collapse</Icon>
+      ) : (
+        <Icon name="plus">Expand</Icon>
+      )}
+    </Button>
+  );
+};
 
 export default GroupRowActions;
