@@ -15,8 +15,8 @@ import TooltipButton from "@/app/base/components/TooltipButton";
 import { useSidePanel } from "@/app/base/side-panel-context";
 import RowActions from "@/app/images/components/GenericTable/RowActions";
 import TableCheckbox from "@/app/images/components/GenericTable/TableCheckbox";
-import type { Image } from "@/app/images/components/SMImagesTable/SMImagesTable";
 import { ImageSidePanelViews } from "@/app/images/constants";
+import type { Image } from "@/app/images/types";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
 
