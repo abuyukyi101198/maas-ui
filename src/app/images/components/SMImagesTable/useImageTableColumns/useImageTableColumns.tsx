@@ -13,10 +13,8 @@ import pluralize from "pluralize";
 import DoubleRow from "@/app/base/components/DoubleRow";
 import TableActions from "@/app/base/components/TableActions";
 import TooltipButton from "@/app/base/components/TooltipButton";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import GroupRowActions from "@/app/images/components/GenericTable/GroupRowActions";
 import TableCheckbox from "@/app/images/components/GenericTable/TableCheckbox";
-import { ImageSidePanelViews } from "@/app/images/constants";
 import type { Image } from "@/app/images/types";
 
 export type ImageColumnDef = ColumnDef<Image, Partial<Image>>;
@@ -34,11 +32,11 @@ export const filterHeaders = (header: Header<Image, unknown>) =>
 
 const useImageTableColumns = ({
   commissioningRelease,
+  onDelete,
 }: {
   commissioningRelease: string | null;
+  onDelete: (row: Row<Image>) => void;
 }) => {
-  const { setSidePanelContent } = useSidePanel();
-
   return useMemo(
     () =>
       [
@@ -157,14 +155,7 @@ const useImageTableColumns = ({
           accessorKey: "id",
           enableSorting: false,
           header: () => "Action",
-          cell: ({
-            row,
-            getValue,
-          }: {
-            row: Row<Image>;
-            getValue: Getter<Image["id"]>;
-          }) => {
-            const id = getValue();
+          cell: ({ row }: { row: Row<Image> }) => {
             const isCommissioningImage =
               row.original.resource.name === `ubuntu/${commissioningRelease}`;
             const canBeDeleted =
@@ -184,25 +175,13 @@ const useImageTableColumns = ({
                       : "Cannot delete images that are currently being imported."
                     : null
                 }
-                onDelete={() => {
-                  if (id) {
-                    if (!row.getIsSelected()) {
-                      row.toggleSelected();
-                    }
-                    setSidePanelContent({
-                      view: ImageSidePanelViews.DELETE_IMAGE,
-                      extras: {
-                        bootResource: row.original.resource,
-                      },
-                    });
-                  }
-                }}
+                onDelete={() => onDelete(row)}
               />
             );
           },
         },
       ] as ImageColumnDef[],
-    [setSidePanelContent, commissioningRelease]
+    [commissioningRelease, onDelete]
   );
 };
 

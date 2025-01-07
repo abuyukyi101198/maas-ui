@@ -9,7 +9,9 @@ import useImageTableColumns, {
   filterHeaders,
 } from "./useImageTableColumns/useImageTableColumns";
 
+import { useSidePanel } from "@/app/base/side-panel-context";
 import GenericTable from "@/app/images/components/GenericTable";
+import { ImageSidePanelViews } from "@/app/images/constants";
 import type { Image } from "@/app/images/types";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type { BootResource } from "@/app/store/bootresource/types";
@@ -38,17 +40,40 @@ export const SMImagesTable: React.FC = () => {
   const resources = useSelector(bootResourceSelectors.resources);
   const images = getImages(resources);
 
+  const { setSidePanelContent } = useSidePanel();
+
   const commissioningRelease = useSelector(
     configSelectors.commissioningDistroSeries
   );
 
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
 
-  const columns = useImageTableColumns({ commissioningRelease });
+  const columns = useImageTableColumns({
+    commissioningRelease,
+    onDelete: (row) => {
+      if (row.original.id) {
+        if (!row.getIsSelected()) {
+          row.toggleSelected();
+        }
+        setSidePanelContent({
+          view: ImageSidePanelViews.DELETE_MULTIPLE_IMAGES,
+          extras: {
+            rowSelection: { ...selectedRows, [row.original.id]: true },
+            setRowSelection: setSelectedRows,
+          },
+        });
+      }
+    },
+  });
 
   return (
     <>
-      {!!ubuntu && <ImagesTableHeader selectedRows={selectedRows} />}
+      {!!ubuntu && (
+        <ImagesTableHeader
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
+        />
+      )}
       <GenericTable
         columns={columns}
         data={images}

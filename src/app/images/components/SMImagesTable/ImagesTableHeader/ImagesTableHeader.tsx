@@ -1,4 +1,9 @@
-import { useCallback, useEffect } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+} from "react";
 
 import { Button, Icon, Tooltip } from "@canonical/react-components";
 import type { RowSelectionState } from "@tanstack/react-table";
@@ -13,6 +18,7 @@ import { BootResourceSourceType } from "@/app/store/bootresource/types";
 
 type ImagesTableHeaderProps = {
   selectedRows: RowSelectionState;
+  setSelectedRows: Dispatch<SetStateAction<RowSelectionState>>;
 };
 
 const getImageSyncText = (sources: BootResourceUbuntuSource[]) => {
@@ -26,7 +32,10 @@ const getImageSyncText = (sources: BootResourceUbuntuSource[]) => {
   return "sources";
 };
 
-const ImagesTableHeader = ({ selectedRows }: ImagesTableHeaderProps) => {
+const ImagesTableHeader = ({
+  selectedRows,
+  setSelectedRows,
+}: ImagesTableHeaderProps) => {
   const dispatch = useDispatch();
   const ubuntu = useSelector(bootResourceSelectors.ubuntu);
   const resources = useSelector(bootResourceSelectors.resources);
@@ -67,10 +76,11 @@ const ImagesTableHeader = ({ selectedRows }: ImagesTableHeaderProps) => {
             disabled={isDeleteDisabled}
             onClick={() => {
               setSidePanelContent({
-                view: ImageSidePanelViews.DELETE_IMAGE,
-                // extras: {
-                //   bootResource: null,
-                // },
+                view: ImageSidePanelViews.DELETE_MULTIPLE_IMAGES,
+                extras: {
+                  rowSelection: selectedRows,
+                  setRowSelection: setSelectedRows,
+                },
               });
             }}
             type="button"
