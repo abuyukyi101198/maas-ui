@@ -1,5 +1,6 @@
 import MockDate from "mockdate";
 import timezoneMock from "timezone-mock";
+import { expect, vi } from "vitest";
 
 import * as sidePanelHooks from "@/app/base/side-panel-context";
 import SMImagesTable from "@/app/images/components/SMImagesTable/SMImagesTable";
@@ -140,7 +141,11 @@ it("can open the delete image confirmation if the image does not use the default
 
   expect(setSidePanelContent).toHaveBeenCalledWith(
     expect.objectContaining({
-      view: ImageSidePanelViews.DELETE_IMAGE,
+      view: ImageSidePanelViews.DELETE_MULTIPLE_IMAGES,
+      extras: {
+        rowSelection: { [resources[0].id]: true },
+        setRowSelection: expect.any(Function),
+      },
     })
   );
 });

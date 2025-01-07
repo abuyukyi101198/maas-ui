@@ -1,6 +1,12 @@
-import React, { useCallback, useEffect } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+} from "react";
 
 import { Button, Icon, Tooltip } from "@canonical/react-components";
+import type { RowSelectionState } from "@tanstack/react-table";
 import { useDispatch, useSelector } from "react-redux";
 
 import { useSidePanel } from "@/app/base/side-panel-context";
@@ -9,6 +15,11 @@ import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import type { BootResourceUbuntuSource } from "@/app/store/bootresource/types";
 import { BootResourceSourceType } from "@/app/store/bootresource/types";
+
+type ImagesTableHeaderProps = {
+  selectedRows: RowSelectionState;
+  setSelectedRows: Dispatch<SetStateAction<RowSelectionState>>;
+};
 
 const getImageSyncText = (sources: BootResourceUbuntuSource[]) => {
   if (sources.length === 1) {
@@ -21,7 +32,10 @@ const getImageSyncText = (sources: BootResourceUbuntuSource[]) => {
   return "sources";
 };
 
-const ImagesHeader: React.FC = () => {
+const ImagesTableHeader = ({
+  selectedRows,
+  setSelectedRows,
+}: ImagesTableHeaderProps) => {
   const dispatch = useDispatch();
   const ubuntu = useSelector(bootResourceSelectors.ubuntu);
   const resources = useSelector(bootResourceSelectors.resources);
@@ -45,6 +59,8 @@ const ImagesHeader: React.FC = () => {
   const imagesDownloading = resources.some((resource) => resource.downloading);
   const canStopImport = (saving || imagesDownloading) && !stoppingImport;
 
+  const isDeleteDisabled = Object.keys(selectedRows).length <= 0;
+
   const canChangeSource = resources.every((resource) => !resource.downloading);
   return (
     <div>
@@ -54,6 +70,23 @@ const ImagesHeader: React.FC = () => {
           <strong>{getImageSyncText(sources)}</strong>
         </h4>
         <div>
+          <Button
+            appearance="negative"
+            className="remove-btn"
+            disabled={isDeleteDisabled}
+            onClick={() => {
+              setSidePanelContent({
+                view: ImageSidePanelViews.DELETE_MULTIPLE_IMAGES,
+                extras: {
+                  rowSelection: selectedRows,
+                  setRowSelection: setSelectedRows,
+                },
+              });
+            }}
+            type="button"
+          >
+            Delete
+          </Button>
           {canStopImport || stoppingImport ? (
             // TODO: Not removing stopped import images, they remain as queued
             <Button
@@ -109,4 +142,4 @@ const ImagesHeader: React.FC = () => {
   );
 };
 
-export default ImagesHeader;
+export default ImagesTableHeader;

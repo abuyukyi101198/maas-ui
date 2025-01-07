@@ -1,21 +1,22 @@
+import type { Row } from "@tanstack/react-table";
+import { vi } from "vitest";
+
 import useImageTableColumns from "@/app/images/components/SMImagesTable/useImageTableColumns/useImageTableColumns";
-import { screen, renderHook, render, waitFor } from "@/testing/utils";
+import type { Image } from "@/app/images/types";
+import { screen, renderHook, render } from "@/testing/utils";
 
 vi.mock("@/context", async () => {
   const actual = await vi.importActual("@/context");
   return {
     ...actual!,
-    useAppLayoutContext: () => ({
-      setSidebar: vi.fn(),
-    }),
   };
 });
 
 const setupTestCase = (name = "test-row") => {
   const commissioningRelease: string | null = "20.04";
+  const onDelete: (row: Row<Image>) => void = vi.fn;
   const { result } = renderHook(() =>
-    // @ts-ignore
-    useImageTableColumns(commissioningRelease)
+    useImageTableColumns({ commissioningRelease, onDelete })
   );
   const props = {
     getValue: () => name,
@@ -61,18 +62,4 @@ it("input has correct accessible label", () => {
 
   const inputElement = screen.getByRole("checkbox");
   expect(inputElement).toHaveAccessibleName("Ubuntu");
-});
-
-it("action column toggles row selection on delete", async () => {
-  const toggleSelected = vi.fn();
-  const { result, props } = setupTestCase();
-
-  const actionColumn = result.current.find((column) => column.id === "action");
-  render(
-    // @ts-ignore-next-line
-    actionColumn.cell({ ...props, row: { ...props.row, toggleSelected } })
-  );
-  screen.getByTestId("row-delete").click();
-
-  await waitFor(() => expect(toggleSelected).toHaveBeenCalled());
 });

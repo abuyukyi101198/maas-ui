@@ -72,6 +72,8 @@ describe("GenericTable", () => {
         filterCells={mockFilterCells}
         filterHeaders={mockFilterHeaders}
         getRowId={mockGetRowId}
+        rowSelection={{}}
+        setRowSelection={vi.fn}
       />
     );
 
@@ -90,6 +92,8 @@ describe("GenericTable", () => {
         filterCells={mockFilterCells}
         filterHeaders={mockFilterHeaders}
         getRowId={mockGetRowId}
+        rowSelection={{}}
+        setRowSelection={vi.fn}
       />
     );
 
@@ -104,6 +108,8 @@ describe("GenericTable", () => {
         filterCells={mockFilterCells}
         filterHeaders={mockFilterHeaders}
         getRowId={mockGetRowId}
+        rowSelection={{}}
+        setRowSelection={vi.fn}
       />
     );
 

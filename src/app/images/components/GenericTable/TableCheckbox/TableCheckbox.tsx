@@ -1,8 +1,12 @@
+import type { CheckboxInputProps } from "@canonical/react-components";
 import type { Row, Table } from "@tanstack/react-table";
 
-type TableCheckboxProps<T> = { row?: Row<T>; table?: Table<T> };
+type TableCheckboxProps<T> = {
+  row?: Row<T>;
+  table?: Table<T>;
+} & Partial<CheckboxInputProps>;
 
-const TableAllCheckbox = <T,>({ table }: TableCheckboxProps<T>) => {
+const TableAllCheckbox = <T,>({ table, ...props }: TableCheckboxProps<T>) => {
   if (!table) {
     return null;
   }
@@ -36,13 +40,14 @@ const TableAllCheckbox = <T,>({ table }: TableCheckboxProps<T>) => {
             }
           },
         }}
+        {...props}
       />
       <span className="p-checkbox__label" />
     </label>
   );
 };
 
-const TableGroupCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
+const TableGroupCheckbox = <T,>({ row, ...props }: TableCheckboxProps<T>) => {
   if (!row) {
     return null;
   }
@@ -67,13 +72,14 @@ const TableGroupCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
             }
           },
         }}
+        {...props}
       />
       <span className="p-checkbox__label" />
     </label>
   );
 };
 
-const TableCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
+const TableCheckbox = <T,>({ row, ...props }: TableCheckboxProps<T>) => {
   if (!row) {
     return null;
   }
@@ -87,6 +93,7 @@ const TableCheckbox = <T,>({ row }: TableCheckboxProps<T>) => {
           disabled: !row.getCanSelect(),
           onChange: row.getToggleSelectedHandler(),
         }}
+        {...props}
       />
       <span className="p-checkbox__label" />
     </label>
