@@ -217,6 +217,7 @@ const sidePanelTitleMap: Record<string, string> = {
   [SidePanelViews.EDIT_PARTITION[1]]: "Edit partition",
   [SidePanelViews.EDIT_PHYSICAL[1]]: "Edit physical",
   [SidePanelViews.DELETE_IMAGE[1]]: "Delete image",
+  [SidePanelViews.DELETE_MULTIPLE_IMAGES[1]]: "Delete multiple images",
   [SidePanelViews.DELETE_SPACE[1]]: "Delete space",
   [SidePanelViews.DELETE_FABRIC[1]]: "Delete fabric",
   [SidePanelViews.MARK_CONNECTED[1]]: "Mark as connected",

@@ -1,4 +1,7 @@
+import type { Dispatch, SetStateAction } from "react";
+
 import type { ValueOf } from "@canonical/react-components";
+import type { RowSelectionState } from "@tanstack/react-table";
 
 import type { ImageSidePanelViews } from "./constants";
 
@@ -37,6 +40,13 @@ export type ImageSidePanelContent =
   | SidePanelContent<
       ValueOf<typeof ImageSidePanelViews>,
       { bootResource?: BootResource }
+    >
+  | SidePanelContent<
+      ValueOf<typeof ImageSidePanelViews>,
+      {
+        rowSelection?: RowSelectionState;
+        setRowSelection?: Dispatch<SetStateAction<RowSelectionState>>;
+      }
     >;
 
 export type ImageSetSidePanelContent =
