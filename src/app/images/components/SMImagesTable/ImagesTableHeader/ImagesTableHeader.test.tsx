@@ -307,7 +307,7 @@ describe("Delete", () => {
 
   it("disables the button to delete images if no rows are selected", async () => {
     renderWithBrowserRouter(
-      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />
     );
 
     expect(screen.getByRole("button", { name: "Delete" })).toBeAriaDisabled();
@@ -315,7 +315,7 @@ describe("Delete", () => {
 
   it("can trigger delete images side panel form", async () => {
     renderWithBrowserRouter(
-      <ImagesTableHeader selectedRows={{ 1: true }} setSelectedRows={vi.fn} />,
+      <ImagesTableHeader selectedRows={{ 1: true }} setSelectedRows={vi.fn} />
     );
 
     await userEvent.click(screen.getByRole("button", { name: "Delete" }));
