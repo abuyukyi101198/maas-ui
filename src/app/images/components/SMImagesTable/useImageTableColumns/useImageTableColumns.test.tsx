@@ -72,7 +72,7 @@ it("action column toggles row selection on delete", async () => {
     // @ts-ignore-next-line
     actionColumn.cell({ ...props, row: { ...props.row, toggleSelected } })
   );
-  screen.getByTestId("row-delete").click();
+  screen.getByTestId("table-actions-delete").click();
 
   await waitFor(() => expect(toggleSelected).toHaveBeenCalled());
 });

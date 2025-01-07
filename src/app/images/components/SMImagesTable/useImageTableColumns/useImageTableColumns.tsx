@@ -49,11 +49,17 @@ const useImageTableColumns = ({
           header: ({ table }) => {
             return <TableCheckbox.All table={table} />;
           },
-          cell: ({ row }: { row: Row<Image> }) => {
+          cell: ({
+            row,
+            getValue,
+          }: {
+            row: Row<Image>;
+            getValue: Getter<Image["name"]>;
+          }) => {
             return row.getIsGrouped() ? (
-              <TableCheckbox.Group row={row} />
+              <TableCheckbox.Group aria-label={getValue()} row={row} />
             ) : (
-              <TableCheckbox row={row} />
+              <TableCheckbox aria-label={getValue()} row={row} />
             );
           },
         },
