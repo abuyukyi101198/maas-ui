@@ -3,15 +3,14 @@ import { useEffect } from "react";
 import { Notification } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import CustomImages from "./CustomImages";
-import GeneratedImages from "./GeneratedImages";
 import ImageListHeader from "./ImageListHeader";
-import SyncedImages from "./SyncedImages";
 
 import PageContent from "@/app/base/components/PageContent";
 import { useWindowTitle } from "@/app/base/hooks";
 import { useSidePanel } from "@/app/base/side-panel-context";
 import ImagesForms from "@/app/images/components/ImagesForms";
+import SMImagesTable from "@/app/images/components/SMImagesTable";
+import ImagesHeader from "@/app/images/components/SMImagesTable/ImagesHeader";
 import { bootResourceActions } from "@/app/store/bootresource";
 import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import { configActions } from "@/app/store/config";
@@ -61,9 +60,11 @@ const ImageList = (): JSX.Element => {
               {Labels.SyncDisabled}
             </Notification>
           )}
-          {!!ubuntu && <SyncedImages />}
-          <GeneratedImages />
-          <CustomImages />
+          {!!ubuntu && <ImagesHeader />}
+          <SMImagesTable />
+          {/*{!!ubuntu && <SyncedImages />}*/}
+          {/*<GeneratedImages />*/}
+          {/*<CustomImages />*/}
         </>
       )}
     </PageContent>

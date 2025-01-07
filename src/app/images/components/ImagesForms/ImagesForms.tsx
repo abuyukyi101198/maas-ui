@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import DeleteImageConfirm from "../ImagesTable/DeleteImageConfirm";
 
 import type { SidePanelContentTypes } from "@/app/base/side-panel-context";
+import DownloadImages from "@/app/images/components/SMImagesTable/DownloadImages";
 import { ImageSidePanelViews } from "@/app/images/constants";
 import ChangeSource from "@/app/images/views/ImageList/SyncedImages/ChangeSource";
 
@@ -46,6 +47,9 @@ const ImagesForms = ({
           resource={bootResource}
         />
       );
+    }
+    case ImageSidePanelViews.DOWNLOAD_IMAGE: {
+      return <DownloadImages />;
     }
     default:
       return null;
