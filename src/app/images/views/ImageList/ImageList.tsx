@@ -10,9 +10,7 @@ import { useWindowTitle } from "@/app/base/hooks";
 import { useSidePanel } from "@/app/base/side-panel-context";
 import ImagesForms from "@/app/images/components/ImagesForms";
 import SMImagesTable from "@/app/images/components/SMImagesTable";
-import ImagesHeader from "@/app/images/components/SMImagesTable/ImagesHeader";
 import { bootResourceActions } from "@/app/store/bootresource";
-import bootResourceSelectors from "@/app/store/bootresource/selectors";
 import { configActions } from "@/app/store/config";
 import configSelectors from "@/app/store/config/selectors";
 import { getSidePanelTitle } from "@/app/store/utils/node/base";
@@ -23,7 +21,6 @@ export enum Labels {
 
 const ImageList = (): JSX.Element => {
   const dispatch = useDispatch();
-  const ubuntu = useSelector(bootResourceSelectors.ubuntu);
   const { sidePanelContent, setSidePanelContent } = useSidePanel();
   const autoImport = useSelector(configSelectors.bootImagesAutoImport);
   const configLoaded = useSelector(configSelectors.loaded);
@@ -60,11 +57,7 @@ const ImageList = (): JSX.Element => {
               {Labels.SyncDisabled}
             </Notification>
           )}
-          {!!ubuntu && <ImagesHeader />}
           <SMImagesTable />
-          {/*{!!ubuntu && <SyncedImages />}*/}
-          {/*<GeneratedImages />*/}
-          {/*<CustomImages />*/}
         </>
       )}
     </PageContent>

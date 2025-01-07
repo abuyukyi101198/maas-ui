@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { useMemo, useState } from "react";
 
 import { DynamicTable } from "@canonical/maas-react-components";
@@ -10,6 +11,7 @@ import type {
   GroupingState,
   Header,
   Row,
+  RowSelectionState,
   SortingState,
 } from "@tanstack/react-table";
 import {
@@ -37,6 +39,8 @@ type GenericTableProps<T> = {
   ) => string;
   groupBy?: string[];
   sortBy?: ColumnSort[];
+  rowSelection: RowSelectionState;
+  setRowSelection?: Dispatch<SetStateAction<RowSelectionState>>;
 };
 
 const GenericTable = <T,>({
@@ -48,6 +52,8 @@ const GenericTable = <T,>({
   getRowId,
   groupBy,
   sortBy,
+  rowSelection,
+  setRowSelection,
 }: GenericTableProps<T>) => {
   const [grouping, setGrouping] = useState<GroupingState>(groupBy ?? []);
   const [expanded, setExpanded] = useState<ExpandedState>(true);
@@ -76,12 +82,14 @@ const GenericTable = <T,>({
       grouping,
       expanded,
       sorting,
+      rowSelection,
     },
     manualPagination: true,
     autoResetExpanded: false,
     onExpandedChange: setExpanded,
     onSortingChange: setSorting,
     onGroupingChange: setGrouping,
+    onRowSelectionChange: setRowSelection,
     manualSorting: true,
     enableSorting: true,
     enableExpanding: true,

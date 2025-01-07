@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import configureStore from "redux-mock-store";
 import { describe } from "vitest";
 
-import ImagesHeader from "./ImagesHeader";
+import ImagesTableHeader from "./ImagesTableHeader";
 
 import * as sidePanelHooks from "@/app/base/side-panel-context";
 import { ImageSidePanelViews } from "@/app/images/constants";
@@ -44,7 +44,7 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
 
     await userEvent.click(
       screen.getByRole("button", { name: "Change source" })
@@ -62,7 +62,7 @@ describe("Change sources", () => {
         ubuntu: factory.bootResourceUbuntu({ sources: [] }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
 
     expect(setSidePanelContent).toHaveBeenCalledWith({
       view: ImageSidePanelViews.CHANGE_SOURCE,
@@ -82,7 +82,7 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("maas.io")).toBeInTheDocument();
   });
@@ -100,7 +100,7 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("www.url.com")).toBeInTheDocument();
   });
@@ -116,7 +116,7 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("sources")).toBeInTheDocument();
   });
@@ -130,7 +130,7 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
     expect(
       screen.getByRole("button", { name: "Change source" })
     ).toBeAriaDisabled();
@@ -166,7 +166,7 @@ describe("Download images", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
 
     await userEvent.click(
       screen.getByRole("button", { name: "Download images" })
@@ -187,7 +187,7 @@ describe("Download images", () => {
         ubuntu: factory.bootResourceUbuntu(),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, {
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, {
       state,
     });
 
@@ -210,7 +210,7 @@ describe("Stop import", () => {
         ubuntu: factory.bootResourceUbuntu(),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, {
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, {
       state,
     });
 
@@ -232,7 +232,7 @@ describe("Stop import", () => {
     render(
       <Provider store={store}>
         <MemoryRouter>
-          <ImagesHeader />
+          <ImagesTableHeader selectedRows={{}} />
         </MemoryRouter>
       </Provider>
     );
@@ -255,7 +255,7 @@ describe("Stop import", () => {
         statuses: factory.bootResourceStatuses({ savingUbuntu: true }),
       }),
     });
-    renderWithBrowserRouter(<ImagesHeader />, { state });
+    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
     const stopImportButton = screen.getByRole("button", {
       name: "Stop import",
     });

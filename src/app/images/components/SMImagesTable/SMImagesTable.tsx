@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 
+import type { RowSelectionState } from "@tanstack/react-table";
 import { useSelector } from "react-redux";
 
+import ImagesTableHeader from "./ImagesTableHeader";
 import useImageTableColumns, {
   filterCells,
   filterHeaders,
@@ -32,6 +34,7 @@ const getImages = (resources: BootResource[]): Image[] => {
 };
 
 export const SMImagesTable: React.FC = () => {
+  const ubuntu = useSelector(bootResourceSelectors.ubuntu);
   const resources = useSelector(bootResourceSelectors.resources);
   const images = getImages(resources);
 
@@ -39,18 +42,25 @@ export const SMImagesTable: React.FC = () => {
     configSelectors.commissioningDistroSeries
   );
 
+  const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
+
   const columns = useImageTableColumns({ commissioningRelease });
 
   return (
-    <GenericTable
-      columns={columns}
-      data={images}
-      filterCells={filterCells}
-      filterHeaders={filterHeaders}
-      getRowId={(row) => `${row.id}`}
-      groupBy={["name"]}
-      sortBy={[{ id: "release", desc: true }]}
-    />
+    <>
+      {!!ubuntu && <ImagesTableHeader selectedRows={selectedRows} />}
+      <GenericTable
+        columns={columns}
+        data={images}
+        filterCells={filterCells}
+        filterHeaders={filterHeaders}
+        getRowId={(row) => `${row.id}`}
+        groupBy={["name"]}
+        rowSelection={selectedRows}
+        setRowSelection={setSelectedRows}
+        sortBy={[{ id: "release", desc: true }]}
+      />
+    </>
   );
 };
 
