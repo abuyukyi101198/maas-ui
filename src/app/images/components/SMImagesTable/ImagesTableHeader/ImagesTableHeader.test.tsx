@@ -1,7 +1,7 @@
 import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router-dom";
 import configureStore from "redux-mock-store";
-import { describe } from "vitest";
+import { describe, vi } from "vitest";
 
 import ImagesTableHeader from "./ImagesTableHeader";
 
@@ -44,7 +44,10 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
 
     await userEvent.click(
       screen.getByRole("button", { name: "Change source" })
@@ -62,7 +65,10 @@ describe("Change sources", () => {
         ubuntu: factory.bootResourceUbuntu({ sources: [] }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
 
     expect(setSidePanelContent).toHaveBeenCalledWith({
       view: ImageSidePanelViews.CHANGE_SOURCE,
@@ -82,7 +88,10 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("maas.io")).toBeInTheDocument();
   });
@@ -100,7 +109,10 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("www.url.com")).toBeInTheDocument();
   });
@@ -116,7 +128,10 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
     const images_from = screen.getByText("Showing images synced from");
     expect(within(images_from).getByText("sources")).toBeInTheDocument();
   });
@@ -130,7 +145,10 @@ describe("Change sources", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
     expect(
       screen.getByRole("button", { name: "Change source" })
     ).toBeAriaDisabled();
@@ -166,7 +184,10 @@ describe("Download images", () => {
         }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
 
     await userEvent.click(
       screen.getByRole("button", { name: "Download images" })
@@ -187,9 +208,12 @@ describe("Download images", () => {
         ubuntu: factory.bootResourceUbuntu(),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, {
-      state,
-    });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      {
+        state,
+      }
+    );
 
     expect(
       screen.queryByRole("button", { name: "Download images" })
@@ -210,9 +234,12 @@ describe("Stop import", () => {
         ubuntu: factory.bootResourceUbuntu(),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, {
-      state,
-    });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      {
+        state,
+      }
+    );
 
     expect(
       screen.queryByRole("button", { name: "Stop import" })
@@ -232,7 +259,7 @@ describe("Stop import", () => {
     render(
       <Provider store={store}>
         <MemoryRouter>
-          <ImagesTableHeader selectedRows={{}} />
+          <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />
         </MemoryRouter>
       </Provider>
     );
@@ -255,10 +282,50 @@ describe("Stop import", () => {
         statuses: factory.bootResourceStatuses({ savingUbuntu: true }),
       }),
     });
-    renderWithBrowserRouter(<ImagesTableHeader selectedRows={{}} />, { state });
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+      { state }
+    );
     const stopImportButton = screen.getByRole("button", {
       name: "Stop import",
     });
     expect(stopImportButton).toBeEnabled();
+  });
+});
+
+describe("Delete", () => {
+  const setSidePanelContent = vi.fn();
+
+  beforeEach(() => {
+    vi.spyOn(sidePanelHooks, "useSidePanel").mockReturnValue({
+      setSidePanelContent,
+      sidePanelContent: null,
+      setSidePanelSize: vi.fn(),
+      sidePanelSize: "regular",
+    });
+  });
+
+  it("disables the button to delete images if no rows are selected", async () => {
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{}} setSelectedRows={() => {}} />,
+    );
+
+    expect(screen.getByRole("button", { name: "Delete" })).toBeAriaDisabled();
+  });
+
+  it("can trigger delete images side panel form", async () => {
+    renderWithBrowserRouter(
+      <ImagesTableHeader selectedRows={{ 1: true }} setSelectedRows={vi.fn} />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+    expect(setSidePanelContent).toHaveBeenCalledWith({
+      view: ImageSidePanelViews.DELETE_MULTIPLE_IMAGES,
+      extras: {
+        rowSelection: { 1: true },
+        setRowSelection: vi.fn,
+      },
+    });
   });
 });
