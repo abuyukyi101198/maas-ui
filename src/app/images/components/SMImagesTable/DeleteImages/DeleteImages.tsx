@@ -65,12 +65,12 @@ const DeleteImages = ({
             dispatch(bootResourceActions.deleteImage({ id: Number(key) }));
           }
         });
-        if (setRowSelection) {
-          setRowSelection({});
-        }
       }}
       onSuccess={() => {
         dispatch(bootResourceActions.poll({ continuous: false }));
+        if (setRowSelection) {
+          setRowSelection({});
+        }
         closeForm();
       }}
       saved={saved}
