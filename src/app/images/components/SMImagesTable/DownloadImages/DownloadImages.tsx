@@ -267,6 +267,7 @@ const DownloadImages: React.FC = () => {
                     source_type: BootResourceSourceType.MAAS_IO,
                   };
               dispatch(bootResourceActions.saveUbuntu(params));
+              dispatch(bootResourceActions.saveUbuntuSuccess());
             }
 
             if (otherSystems.length > 0) {
@@ -277,6 +278,7 @@ const DownloadImages: React.FC = () => {
                 ),
               };
               dispatch(bootResourceActions.saveOther(params));
+              dispatch(bootResourceActions.saveOtherSuccess());
             }
             resetForm();
           }}

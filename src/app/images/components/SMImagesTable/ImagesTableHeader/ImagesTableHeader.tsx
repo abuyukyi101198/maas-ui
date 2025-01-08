@@ -88,11 +88,12 @@ const ImagesTableHeader = ({
             Delete
           </Button>
           {canStopImport || stoppingImport ? (
-            // TODO: Not removing stopped import images, they remain as queued
             <Button
               onClick={() => {
                 dispatch(cleanup());
                 dispatch(bootResourceActions.stopImport());
+                dispatch(bootResourceActions.saveUbuntuSuccess());
+                dispatch(bootResourceActions.poll({ continuous: false }));
               }}
               type="button"
             >
