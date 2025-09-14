@@ -13,9 +13,7 @@ async function analyzeComponentDependencies(srcPath = "src/app") {
   const dependencies = await runMadgeAnalysis(srcPath);
 
   // Step 2: Process the dependencies (TODO: implement index replacement)
-  const processedDependencies = processDependencies(dependencies);
-
-  return processedDependencies;
+  return processDependencies(dependencies);
 }
 
 // Execute Madge command and read the output
@@ -86,33 +84,6 @@ function resolveIndexDependencies(dependencies) {
   return dependencies;
 }
 
-// Generate a simple component-to-component mapping
-function generateComponentGraph(dependencies) {
-  const componentGraph = {};
-
-  Object.entries(dependencies).forEach(([filePath, deps]) => {
-    const componentName = getComponentNameFromPath(filePath);
-
-    // Convert file paths to component names
-    const componentDeps = deps.map((depPath) =>
-      getComponentNameFromPath(depPath)
-    );
-
-    if (componentDeps.length > 0) {
-      componentGraph[componentName] = componentDeps;
-    }
-  });
-
-  return componentGraph;
-}
-
-// Extract component name from file path
-function getComponentNameFromPath(filePath) {
-  const fileName = filePath.split("/").pop();
-  const componentName = fileName?.replace(/\.(tsx|jsx|ts|js)$/, "");
-  return componentName || filePath;
-}
-
 // Clean up generated files
 function cleanup() {
   if (fs.existsSync(MADGE_OUTPUT_FILE)) {
@@ -124,25 +95,15 @@ function cleanup() {
 // CLI execution
 if (import.meta.url === `file://${process.argv[1]}`) {
   const srcPath = process.argv[2] || "src/app";
-  const outputFormat = process.argv[3] || "detailed"; // 'detailed' or 'simple'
-  const keepFiles = process.argv.includes("--keep-files");
 
   try {
     const dependencies = await analyzeComponentDependencies(srcPath);
 
-    if (outputFormat === "simple") {
-      const componentGraph = generateComponentGraph(dependencies);
-      console.log("\n📊 Component Dependency Graph:");
-      console.log(JSON.stringify(componentGraph, null, 2));
-    } else {
-      console.log("\n📊 Detailed Component Dependencies:");
-      console.log(JSON.stringify(dependencies, null, 2));
-    }
+    console.log("\n📊 Detailed Component Dependencies:");
+    console.log(JSON.stringify(dependencies, null, 2));
   } catch (error) {
     console.error("❌ Analysis failed:", error.message);
   } finally {
-    if (!keepFiles) {
-      cleanup();
-    }
+    cleanup();
   }
 }
