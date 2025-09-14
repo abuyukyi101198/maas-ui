@@ -9,23 +9,23 @@ const MADGE_OUTPUT_FILE = "madge-output.json";
 let SOURCE_PATH = "src/app";
 
 // Main function to analyze React component dependencies
-async function analyzeComponentDependencies() {
+async function analyzeComponentDependencies(tsConfig) {
   console.log(`🔧 Analyzing React components in: ${SOURCE_PATH}\n`);
 
   // Step 1: Run Madge and save output to JSON file
-  const dependencies = await runMadgeAnalysis();
+  const dependencies = await runMadgeAnalysis(tsConfig);
 
   // Step 2: Process the dependencie
   return processDependencies(dependencies);
 }
 
 // Execute Madge command and read the output
-async function runMadgeAnalysis() {
+async function runMadgeAnalysis(tsConfig) {
   console.log("🔍 Running Madge analysis...");
 
   try {
     // Run madge command and save to file
-    const madgeCommand = `madge --extensions ts,tsx --exclude '.*\\.test\\.tsx$' --ts-config tsconfig.json --json ${SOURCE_PATH} > ${MADGE_OUTPUT_FILE}`;
+    const madgeCommand = `madge --extensions ts,tsx --exclude '.*\\.test\\.tsx$' --ts-config ${tsConfig} --json ${SOURCE_PATH} > ${MADGE_OUTPUT_FILE}`;
     execSync(madgeCommand, { encoding: "utf8" });
 
     console.log(`✅ Madge output saved to ${MADGE_OUTPUT_FILE}`);
@@ -127,13 +127,38 @@ function cleanup() {
 
 // CLI execution
 if (import.meta.url === `file://${process.argv[1]}`) {
-  SOURCE_PATH = process.argv[2] || "src/app";
+  // Default values
+  SOURCE_PATH = "src/app";
+  let tsConfig = "tsconfig.json";
+  let jsonOutFile = null;
+
+  // Parse CLI args
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === "--ts-config" && args[i + 1]) {
+      tsConfig = args[i + 1];
+      i++;
+    } else if (arg === "--json" && args[i + 1]) {
+      jsonOutFile = args[i + 1];
+      i++;
+    } else {
+      // Treat anything else as SOURCE_PATH
+      SOURCE_PATH = arg;
+    }
+  }
 
   try {
-    const dependencies = await analyzeComponentDependencies();
+    const dependencies = await analyzeComponentDependencies(tsConfig);
 
-    console.log("\n📊 Detailed Component Dependencies:");
-    console.log(JSON.stringify(dependencies, null, 2));
+    if (jsonOutFile) {
+      await fs.promises.writeFile(
+        jsonOutFile,
+        JSON.stringify(dependencies, null, 2),
+        "utf8"
+      );
+      console.log(`✅ JSON written to ${jsonOutFile}`);
+    }
   } catch (error) {
     console.error("❌ Analysis failed:", error.message);
   } finally {
