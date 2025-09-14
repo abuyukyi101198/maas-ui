@@ -1,28 +1,31 @@
 #!/usr/bin/env node
 
 import fs from "fs";
+import { parse } from "@babel/parser";
 import { execSync } from "child_process";
+import path from "path";
 
 const MADGE_OUTPUT_FILE = "madge-output.json";
+let SOURCE_PATH = "src/app";
 
 // Main function to analyze React component dependencies
-async function analyzeComponentDependencies(srcPath = "src/app") {
-  console.log(`🔧 Analyzing React components in: ${srcPath}\n`);
+async function analyzeComponentDependencies() {
+  console.log(`🔧 Analyzing React components in: ${SOURCE_PATH}\n`);
 
   // Step 1: Run Madge and save output to JSON file
-  const dependencies = await runMadgeAnalysis(srcPath);
+  const dependencies = await runMadgeAnalysis();
 
-  // Step 2: Process the dependencies (TODO: implement index replacement)
+  // Step 2: Process the dependencie
   return processDependencies(dependencies);
 }
 
 // Execute Madge command and read the output
-async function runMadgeAnalysis(srcPath) {
+async function runMadgeAnalysis() {
   console.log("🔍 Running Madge analysis...");
 
   try {
     // Run madge command and save to file
-    const madgeCommand = `madge --extensions ts,tsx --exclude '.*\\.test\\.tsx$' --ts-config tsconfig.json --json ${srcPath} > ${MADGE_OUTPUT_FILE}`;
+    const madgeCommand = `madge --extensions ts,tsx --exclude '.*\\.test\\.tsx$' --ts-config tsconfig.json --json ${SOURCE_PATH} > ${MADGE_OUTPUT_FILE}`;
     execSync(madgeCommand, { encoding: "utf8" });
 
     console.log(`✅ Madge output saved to ${MADGE_OUTPUT_FILE}`);
@@ -51,37 +54,67 @@ async function runMadgeAnalysis(srcPath) {
   }
 }
 
-// Process dependencies to filter and format
 function processDependencies(dependencies) {
   console.log("🔄 Processing dependencies...");
 
   const processed = {};
 
-  // Filter to only include React component files (TSX/JSX)
-  Object.entries(dependencies).forEach(([filePath, deps]) => {
+  for (const [filePath, deps] of Object.entries(dependencies)) {
     if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
-      // TODO: Replace index file dependencies with actual component names
-      // For now, just keep the original dependencies
-      processed[filePath] = deps;
+      const importNames = getImportsBabel(filePath);
+      const filteredDeps = deps.flatMap((dep) => {
+        const expandedImports = expandIndex(dep, dependencies);
+        return expandedImports.filter((file) => {
+          const base = path.basename(file, path.extname(file));
+          return importNames.has(base);
+        });
+      });
+      processed[filePath] = [...new Set(filteredDeps)];
     }
-  });
+  }
 
   console.log(`📝 Processed ${Object.keys(processed).length} component files`);
 
   return processed;
 }
 
-// TODO: Implement index replacement functionality
-function resolveIndexDependencies(dependencies) {
-  // This will analyze index.ts files and replace them with actual exported components
-  // Steps:
-  // 1. For each dependency that ends with 'index.ts' or 'index.tsx'
-  // 2. Parse the index file to find what it exports
-  // 3. Match exports with actual JSX usage in the consuming component
-  // 4. Replace the index path with the actual component paths
+function expandIndex(dep, dependencies, seen = new Set()) {
+  // Avoid infinite loops if circular deps
+  if (seen.has(dep)) return [dep];
+  seen.add(dep);
 
-  console.log("🔧 TODO: Implement index file resolution");
-  return dependencies;
+  if (/index\.(ts|tsx|js|jsx)$/.test(dep) && dependencies[dep]) {
+    // Flatten its dependencies instead of keeping the index itself
+    return dependencies[dep].flatMap((d) => {
+      return expandIndex(d, dependencies, seen);
+    });
+  }
+
+  return [dep];
+}
+
+export function getImportsBabel(filePath) {
+  const code = fs.readFileSync(path.join(SOURCE_PATH, filePath), "utf8");
+  const ast = parse(code, {
+    sourceType: "module",
+    plugins: ["typescript", "jsx"],
+  });
+
+  const imports = new Set();
+  for (const node of ast.program.body) {
+    if (node.type === "ImportDeclaration") {
+      node.specifiers.forEach((spec) => {
+        if (spec.type === "ImportDefaultSpecifier") {
+          imports.add(spec.local.name);
+        } else if (spec.type === "ImportSpecifier") {
+          imports.add(spec.imported.name);
+        } else if (spec.type === "ImportNamespaceSpecifier") {
+          imports.add(spec.local.name);
+        }
+      });
+    }
+  }
+  return imports;
 }
 
 // Clean up generated files
@@ -94,10 +127,10 @@ function cleanup() {
 
 // CLI execution
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const srcPath = process.argv[2] || "src/app";
+  SOURCE_PATH = process.argv[2] || "src/app";
 
   try {
-    const dependencies = await analyzeComponentDependencies(srcPath);
+    const dependencies = await analyzeComponentDependencies();
 
     console.log("\n📊 Detailed Component Dependencies:");
     console.log(JSON.stringify(dependencies, null, 2));
