@@ -36,93 +36,87 @@
 <script>
   const width = window.innerWidth;
   const height = window.innerHeight;
-
-  // Example data: nodes = components, links = dependencies
-  const nodes = [
-    { id: "App" },
-    { id: "Header" },
-    { id: "Footer" },
-    { id: "Button" },
-    { id: "Card" },
-    { id: "Modal" },
-  ];
-
-  const links = [
-    { source: "App", target: "Header" },
-    { source: "App", target: "Footer" },
-    { source: "App", target: "Card" },
-    { source: "Header", target: "Button" },
-    { source: "Card", target: "Button" },
-    { source: "Modal", target: "Button" },
-  ];
-
-  const svg = d3.select("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-  // Force simulation
-  const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.id).distance(80))
-    .force("charge", d3.forceManyBody().strength(-200))
-    .force("center", d3.forceCenter(width / 2, height / 2));
-
+  const svg = d3.select("svg").attr("width", width).attr("height", height);
   const g = svg.append("g");
 
-  const link = g.selectAll("line")
-    .data(links)
-    .enter().append("line")
-    .attr("stroke", "#666")
-    .attr("stroke-width", 1);
+  // Load your dependencies JSON
+  d3.json("component-dependencies.json").then(data => {
+    // Convert JSON into nodes + links
+    const nodesMap = new Map();
+    const links = [];
 
-  const node = g.selectAll("circle")
-    .data(nodes)
-    .enter().append("circle")
-    .attr("r", 3)
-    .attr("fill", "white");
+    for (const [target, sources] of Object.entries(data)) {
+      if (!nodesMap.has(target)) nodesMap.set(target, { id: target });
+      sources.forEach(source => {
+        if (!nodesMap.has(source)) nodesMap.set(source, { id: source });
+        links.push({ source, target });
+      });
+    }
 
-  const label = g.selectAll("text")
-    .data(nodes)
-    .enter().append("text")
-    .attr("class", "label")
-    .text(d => d.id);
+    const nodes = Array.from(nodesMap.values());
 
-  function updateVoronoi() {
-    const delaunay = d3.Delaunay.from(nodes, d => d.x, d => d.y);
-    const voronoi = delaunay.voronoi([0, 0, width, height]);
+    // Force simulation
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(80))
+      .force("charge", d3.forceManyBody().strength(-200))
+      .force("center", d3.forceCenter(width / 2, height / 2));
 
-    const cells = g.selectAll("path.cell")
-      .data(nodes, d => d.id);
+    const link = g.selectAll("line")
+      .data(links)
+      .enter().append("line")
+      .attr("stroke", "#666")
+      .attr("stroke-width", 1);
 
-    cells.join("path")
-      .attr("class", "cell")
-      .attr("d", (d, i) => voronoi.renderCell(i))
-      .attr("fill", (d, i) => d3.schemeTableau10[i % 10]);
-  }
+    const node = g.selectAll("circle")
+      .data(nodes)
+      .enter().append("circle")
+      .attr("r", 3)
+      .attr("fill", "white");
 
-  simulation.on("tick", () => {
-    link
-      .attr("x1", d => d.source.x)
-      .attr("y1", d => d.source.y)
-      .attr("x2", d => d.target.x)
-      .attr("y2", d => d.target.y);
+    const label = g.selectAll("text")
+      .data(nodes)
+      .enter().append("text")
+      .attr("class", "label")
+      .text(d => d.id);
 
-    node
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y);
+    function updateVoronoi() {
+      const delaunay = d3.Delaunay.from(nodes, d => d.x, d => d.y);
+      const voronoi = delaunay.voronoi([0, 0, width, height]);
 
-    label
-      .attr("x", d => d.x)
-      .attr("y", d => d.y);
+      const cells = g.selectAll("path.cell")
+        .data(nodes, d => d.id);
 
-    updateVoronoi();
+      cells.join("path")
+        .attr("class", "cell")
+        .attr("d", (d, i) => voronoi.renderCell(i))
+        .attr("fill", (d, i) => d3.schemeTableau10[i % 10]);
+    }
+
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+      label
+        .attr("x", d => d.x)
+        .attr("y", d => d.y);
+
+      updateVoronoi();
+    });
+
+    // Zoom / pan
+    svg.call(
+      d3.zoom()
+        .scaleExtent([0.5, 5])
+        .on("zoom", (event) => g.attr("transform", event.transform)),
+    );
   });
-
-  // Zoom / pan
-  svg.call(d3.zoom()
-    .scaleExtent([0.5, 5])
-    .on("zoom", (event) => {
-      g.attr("transform", event.transform);
-    }));
 </script>
 </body>
 </html>
