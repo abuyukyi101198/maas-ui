@@ -41,10 +41,8 @@
 
     const nodes = Array.from(nodesMap.values());
 
-    // Compute degree (number of links) for each node
     nodes.forEach(node => {
       node.degree = links.filter(l => l.source === node.id || l.target === node.id).length;
-      // Give initial position near center to avoid collapse
       node.x = width / 2 + (Math.random() - 0.5) * 50;
       node.y = height / 2 + (Math.random() - 0.5) * 50;
     });
@@ -57,10 +55,9 @@
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("radial", d3.forceRadial(
         d => {
-          // Normalize degree: high degree closer to center
           const normalized = maxDegree ? d.degree / maxDegree : 0;
-          const minRadius = 50; // dense downtown core
-          const maxRadius = Math.min(width, height) / 2 - 50; // suburbs near edges
+          const minRadius = 50;
+          const maxRadius = Math.min(width, height) / 2 - 50;
           return minRadius + (1 - normalized) * maxRadius;
         },
         width / 2,
@@ -88,8 +85,14 @@
 
     svg.call(
       d3.zoom()
-        .scaleExtent([0.5, 5])
-        .on("zoom", (event) => g.attr("transform", event.transform)),
+        .scaleExtent([1, 5])
+        .on("zoom", (event) => {
+          const t = event.transform;
+          const k = t.k;
+          const tx = Math.min(0, Math.max(width - width * k, t.x));
+          const ty = Math.min(0, Math.max(height - height * k, t.y));
+          g.attr("transform", `translate(${tx},${ty}) scale(${k})`);
+        })
     );
   });
 </script>
