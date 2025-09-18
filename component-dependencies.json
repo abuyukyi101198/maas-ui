@@ -1,17 +1,4 @@
 {
-  "../testing/mockFormikFormSaved.tsx": {
-    "dependencies": [],
-    "loc": 17
-  },
-  "../testing/utils.tsx": {
-    "dependencies": [
-      "../testing/factories/config.ts",
-      "../testing/factories/fabric.ts",
-      "../testing/factories/subnet.ts",
-      "../testing/factories/vlan.ts"
-    ],
-    "loc": 657
-  },
   "App.tsx": {
     "dependencies": [
       "base/components/AppSideNavigation/NavigationBanner/NavigationBanner.tsx",
@@ -41,14 +28,12 @@
   },
   "base/components/AppSideNavigation/AppSideNavItems/AppSideNavItems.tsx": {
     "dependencies": [
-      "base/components/AppSideNavigation/AppSideNavItem/AppSideNavItem.tsx",
-      "base/urls.ts"
+      "base/components/AppSideNavigation/AppSideNavItem/AppSideNavItem.tsx"
     ],
     "loc": 146
   },
   "base/components/AppSideNavigation/AppSideNavigation.stories.tsx": {
     "dependencies": [
-      "../testing/factories/user.ts",
       "base/components/AppSideNavigation/AppSideNavigation.tsx"
     ],
     "loc": 45
@@ -56,16 +41,12 @@
   "base/components/AppSideNavigation/AppSideNavigation.tsx": {
     "dependencies": [
       "base/components/AppSideNavigation/AppSideNavItems/AppSideNavItems.tsx",
-      "base/components/AppSideNavigation/NavigationBanner/NavigationBanner.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/AppSideNavigation/NavigationBanner/NavigationBanner.tsx"
     ],
     "loc": 187
   },
   "base/components/AppSideNavigation/NavigationBanner/NavigationBanner.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 49
   },
   "base/components/AppSidePanel/AppSidePanel.tsx": {
@@ -74,8 +55,7 @@
   },
   "base/components/ArchitectureSelect/ArchitectureSelect.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "store/general/selectors/architectures.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 47
   },
@@ -111,10 +91,7 @@
     "loc": 48
   },
   "base/components/ControllerLink/ControllerLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 35
   },
   "base/components/CopyButton/CopyButton.tsx": {
@@ -126,11 +103,7 @@
       "base/components/DHCPTable/EditDHCP/EditDHCP.tsx",
       "base/components/DhcpSnippetType/DhcpSnippetType.tsx",
       "base/components/TableActions/TableActions.tsx",
-      "base/components/TitledSection/TitledSection.tsx",
-      "base/docsUrls.ts",
-      "utils/isId.ts",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 205
   },
@@ -151,10 +124,7 @@
     "loc": 46
   },
   "base/components/DeviceLink/DeviceLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 35
   },
   "base/components/DhcpForm/DhcpForm.tsx": {
@@ -220,22 +190,16 @@
     "loc": 47
   },
   "base/components/ErrorBoundary/ErrorBoundary.tsx": {
-    "dependencies": [
-      "store/general/selectors/version.ts"
-    ],
+    "dependencies": [],
     "loc": 55
   },
   "base/components/FabricLink/FabricLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 36
   },
   "base/components/FabricSelect/FabricSelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "utils/simpleSortByKey.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 46
   },
@@ -316,8 +280,7 @@
   "base/components/Login/Login.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/components/FormikForm/FormikForm.tsx",
-      "utils/formatErrors.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 136
   },
@@ -327,15 +290,12 @@
   },
   "base/components/MacAddressField/MacAddressField.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "utils/formatMacAddress.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 29
   },
   "base/components/MachineLink/MachineLink.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 27
   },
   "base/components/MachineSelectTable/MachineSelectTable.tsx": {
@@ -352,8 +312,7 @@
   },
   "base/components/MinimumKernelSelect/MinimumKernelSelect.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "store/general/selectors/hweKernels.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 49
   },
@@ -370,9 +329,7 @@
   "base/components/ModelNotFound/ModelNotFound.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "base/components/SectionHeader/SectionHeader.tsx",
-      "utils/capitaliseFirst.ts",
-      "utils/isId.ts"
+      "base/components/SectionHeader/SectionHeader.tsx"
     ],
     "loc": 48
   },
@@ -422,8 +379,7 @@
   "base/components/NodeSummaryNetworkCard/NetworkCardTable/NetworkCardTable.tsx": {
     "dependencies": [
       "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "utils/formatSpeedUnits.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 127
   },
@@ -443,8 +399,7 @@
   },
   "base/components/NotificationGroup/NotificationGroup.tsx": {
     "dependencies": [
-      "base/components/NotificationGroup/Notification/Notification.tsx",
-      "utils/capitaliseFirst.ts"
+      "base/components/NotificationGroup/Notification/Notification.tsx"
     ],
     "loc": 90
   },
@@ -498,9 +453,7 @@
       "base/components/FormikField/FormikField.tsx",
       "base/components/PowerTypeFields/BasePowerField/BasePowerField.tsx",
       "base/components/PowerTypeFields/IPMIPowerFields/IPMIPowerFields.tsx",
-      "base/components/PowerTypeFields/LXDPowerFields/LXDPowerFields.tsx",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "base/components/PowerTypeFields/LXDPowerFields/LXDPowerFields.tsx"
     ],
     "loc": 134
   },
@@ -521,9 +474,7 @@
     "loc": 39
   },
   "base/components/RowCheckbox/RowCheckbox.tsx": {
-    "dependencies": [
-      "utils/someInArray.ts"
-    ],
+    "dependencies": [],
     "loc": 44
   },
   "base/components/ScriptStatus/ScriptStatus.tsx": {
@@ -561,37 +512,28 @@
     "loc": 66
   },
   "base/components/SpaceLink/SpaceLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 31
   },
   "base/components/SpaceSelect/SpaceSelect.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "utils/simpleSortByKey.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 41
   },
   "base/components/StatusBar/StatusBar.tsx": {
     "dependencies": [
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "store/general/selectors/version.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 241
   },
   "base/components/SubnetLink/SubnetLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 33
   },
   "base/components/SubnetSelect/SubnetSelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "utils/simpleSortByKey.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 58
   },
@@ -618,9 +560,7 @@
     "loc": 43
   },
   "base/components/TableConfirm/TableConfirm.tsx": {
-    "dependencies": [
-      "utils/formatErrors.ts"
-    ],
+    "dependencies": [],
     "loc": 85
   },
   "base/components/TableDeleteConfirm/TableDeleteConfirm.tsx": {
@@ -677,10 +617,7 @@
     "loc": 14
   },
   "base/components/TooltipButton/TooltipButton.tsx": {
-    "dependencies": [
-      "utils/breakLines.ts",
-      "utils/unindentString.ts"
-    ],
+    "dependencies": [],
     "loc": 52
   },
   "base/components/UploadTextArea/UploadTextArea.tsx": {
@@ -690,23 +627,17 @@
     "loc": 110
   },
   "base/components/VLANLink/VLANLink.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 31
   },
   "base/components/VLANSelect/VLANSelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "utils/isId.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 106
   },
   "base/components/VaultNotification/VaultNotification.tsx": {
-    "dependencies": [
-      "store/general/selectors/vaultEnabled.ts"
-    ],
+    "dependencies": [],
     "loc": 46
   },
   "base/components/VisuallyHidden/VisuallyHidden.tsx": {
@@ -720,16 +651,13 @@
     "loc": 40
   },
   "base/components/node/ActionConfirm/ActionConfirm.tsx": {
-    "dependencies": [
-      "utils/formatErrors.ts"
-    ],
+    "dependencies": [],
     "loc": 83
   },
   "base/components/node/DeleteForm/DeleteForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/components/NodeActionConfirmationText/NodeActionConfirmationText.tsx",
-      "utils/capitaliseFirst.ts"
+      "base/components/NodeActionConfirmationText/NodeActionConfirmationText.tsx"
     ],
     "loc": 61
   },
@@ -749,9 +677,7 @@
   },
   "base/components/node/FieldlessForm/FieldlessForm.tsx": {
     "dependencies": [
-      "base/components/ActionForm/ActionForm.tsx",
-      "utils/capitaliseFirst.ts",
-      "utils/kebabToCamelCase.ts"
+      "base/components/ActionForm/ActionForm.tsx"
     ],
     "loc": 78
   },
@@ -775,8 +701,7 @@
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
       "base/components/Placeholder/Placeholder.tsx",
-      "base/components/node/NodeDevices/NodeDevicesWarning/NodeDevicesWarning.tsx",
-      "base/urls.ts"
+      "base/components/node/NodeDevices/NodeDevicesWarning/NodeDevicesWarning.tsx"
     ],
     "loc": 288
   },
@@ -793,9 +718,7 @@
     "loc": 25
   },
   "base/components/node/NodeLogs/DownloadMenu/DownloadMenu.tsx": {
-    "dependencies": [
-      "utils/capitaliseFirst.ts"
-    ],
+    "dependencies": [],
     "loc": 187
   },
   "base/components/node/NodeLogs/EventLogs/EventLogs.tsx": {
@@ -818,8 +741,7 @@
     "dependencies": [
       "base/components/node/NodeLogs/DownloadMenu/DownloadMenu.tsx",
       "base/components/node/NodeLogs/EventLogs/EventLogs.tsx",
-      "base/components/node/NodeLogs/InstallationOutput/InstallationOutput.tsx",
-      "utils/getRelativeRoute.ts"
+      "base/components/node/NodeLogs/InstallationOutput/InstallationOutput.tsx"
     ],
     "loc": 69
   },
@@ -827,9 +749,7 @@
     "dependencies": [
       "base/components/CertificateDetails/CertificateDetails.tsx",
       "base/components/Definition/Definition.tsx",
-      "base/components/node/NodePowerParameters/NodePowerDefinitions/PowerParameterDefinition/PowerParameterDefinition.tsx",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "base/components/node/NodePowerParameters/NodePowerDefinitions/PowerParameterDefinition/PowerParameterDefinition.tsx"
     ],
     "loc": 74
   },
@@ -840,10 +760,7 @@
     "loc": 54
   },
   "base/components/node/NodePowerParameters/NodePowerNotifications/NodePowerNotifications.tsx": {
-    "dependencies": [
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
-    ],
+    "dependencies": [],
     "loc": 45
   },
   "base/components/node/NodePowerParameters/NodePowerParameters.tsx": {
@@ -856,8 +773,7 @@
   "base/components/node/NodeTestDetails/NodeTestDetails.tsx": {
     "dependencies": [
       "base/components/ScriptStatus/ScriptStatus.tsx",
-      "base/components/node/NodeTestDetails/NodeTestDetailsLogs/NodeTestDetailsLogs.tsx",
-      "utils/isId.ts"
+      "base/components/node/NodeTestDetails/NodeTestDetailsLogs/NodeTestDetailsLogs.tsx"
     ],
     "loc": 134
   },
@@ -882,9 +798,7 @@
   },
   "base/components/node/NodeTestsTable/TestActions/TestActions.tsx": {
     "dependencies": [
-      "base/components/TableMenu/TableMenu.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/TableMenu/TableMenu.tsx"
     ],
     "loc": 89
   },
@@ -911,19 +825,12 @@
     "loc": 55
   },
   "base/components/node/OverviewCard/DetailsCard/DetailsCard.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "store/general/selectors/powerTypes.ts",
-      "utils/extractPowerType.ts"
-    ],
+    "dependencies": [],
     "loc": 215
   },
   "base/components/node/OverviewCard/MachineStatusCard/MachineStatusCard.tsx": {
     "dependencies": [
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/docsUrls.ts",
-      "utils/breakLines.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 142
   },
@@ -946,8 +853,7 @@
   },
   "base/components/node/OverviewCard/StorageCard/StorageCard.tsx": {
     "dependencies": [
-      "base/components/node/TestResults/TestResults.tsx",
-      "base/urls.ts"
+      "base/components/node/TestResults/TestResults.tsx"
     ],
     "loc": 47
   },
@@ -960,8 +866,7 @@
   "base/components/node/SetZoneForm/SetZoneForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/components/ZoneSelect/ZoneSelect.tsx",
-      "utils/capitaliseFirst.ts"
+      "base/components/ZoneSelect/ZoneSelect.tsx"
     ],
     "loc": 77
   },
@@ -1004,8 +909,7 @@
       "base/components/node/DiskNumaNodes/DiskNumaNodes.tsx",
       "base/components/node/DiskTestStatus/DiskTestStatus.tsx",
       "base/components/node/StorageTables/AvailableStorageTable/BulkActions/BulkActions.tsx",
-      "base/components/node/StorageTables/AvailableStorageTable/StorageDeviceActions/StorageDeviceActions.tsx",
-      "base/urls.ts"
+      "base/components/node/StorageTables/AvailableStorageTable/StorageDeviceActions/StorageDeviceActions.tsx"
     ],
     "loc": 447
   },
@@ -1200,16 +1104,14 @@
       "base/components/TagLinks/TagLinks.tsx",
       "base/components/node/DiskBootStatus/DiskBootStatus.tsx",
       "base/components/node/DiskNumaNodes/DiskNumaNodes.tsx",
-      "base/components/node/DiskTestStatus/DiskTestStatus.tsx",
-      "base/urls.ts"
+      "base/components/node/DiskTestStatus/DiskTestStatus.tsx"
     ],
     "loc": 199
   },
   "base/components/node/TestForm/TestForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/components/node/TestForm/TestFormFields/TestFormFields.tsx",
-      "utils/capitaliseFirst.ts"
+      "base/components/node/TestForm/TestFormFields/TestFormFields.tsx"
     ],
     "loc": 159
   },
@@ -1221,9 +1123,7 @@
     "loc": 90
   },
   "base/components/node/TestResults/TestResults.tsx": {
-    "dependencies": [
-      "utils/capitaliseFirst.ts"
-    ],
+    "dependencies": [],
     "loc": 163
   },
   "base/components/node/networking/DHCPColumn/DHCPColumn.tsx": {
@@ -1254,9 +1154,7 @@
     "loc": 82
   },
   "base/components/node/networking/NetworkTable/NetworkTable.tsx": {
-    "dependencies": [
-      "base/components/node/networking/NetworkTable/useNetworkTableColumns/useNetworkTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 262
   },
   "base/components/node/networking/NetworkTable/PXEColumn/PXEColumn.tsx": {
@@ -1266,32 +1164,13 @@
   "base/components/node/networking/NetworkTable/SpeedColumn/SpeedColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "utils/formatSpeedUnits.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 69
   },
-  "base/components/node/networking/NetworkTable/useNetworkTableColumns/useNetworkTableColumns.tsx": {
-    "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
-      "base/components/TableHeader/TableHeader.tsx",
-      "base/components/node/networking/DHCPColumn/DHCPColumn.tsx",
-      "base/components/node/networking/FabricColumn/FabricColumn.tsx",
-      "base/components/node/networking/NetworkTable/IPColumn/IPColumn.tsx",
-      "base/components/node/networking/NetworkTable/PXEColumn/PXEColumn.tsx",
-      "base/components/node/networking/NetworkTable/SpeedColumn/SpeedColumn.tsx",
-      "base/components/node/networking/SubnetColumn/SubnetColumn.tsx",
-      "base/components/node/networking/TypeColumn/TypeColumn.tsx",
-      "machines/views/MachineDetails/MachineNetwork/NetworkTable/NetworkTableActions/NetworkTableActions.tsx"
-    ],
-    "loc": 248
-  },
   "base/components/node/networking/SubnetColumn/SubnetColumn.tsx": {
     "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/DoubleRow/DoubleRow.tsx"
     ],
     "loc": 91
   },
@@ -1302,22 +1181,6 @@
     ],
     "loc": 35
   },
-  "base/hooks/logout.tsx": {
-    "dependencies": [],
-    "loc": 9
-  },
-  "base/side-panel-context-new.tsx": {
-    "dependencies": [],
-    "loc": 121
-  },
-  "base/side-panel-context.tsx": {
-    "dependencies": [],
-    "loc": 221
-  },
-  "base/theme-context.tsx": {
-    "dependencies": [],
-    "loc": 31
-  },
   "base/views/NotFound/NotFound.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
@@ -1325,15 +1188,8 @@
     ],
     "loc": 32
   },
-  "base/websocket-context.tsx": {
-    "dependencies": [],
-    "loc": 13
-  },
   "controllers/components/ControllerForms/AddController/AddController.tsx": {
-    "dependencies": [
-      "base/docsUrls.ts",
-      "store/general/selectors/version.ts"
-    ],
+    "dependencies": [],
     "loc": 111
   },
   "controllers/components/ControllerForms/ControllerActionFormWrapper/ControllerActionFormWrapper.tsx": {
@@ -1342,9 +1198,7 @@
       "base/components/node/FieldlessForm/FieldlessForm.tsx",
       "base/components/node/NodeActionFormWrapper/NodeActionFormWrapper.tsx",
       "base/components/node/SetZoneForm/SetZoneForm.tsx",
-      "base/components/node/TestForm/TestForm.tsx",
-      "base/urls.ts",
-      "utils/kebabToCamelCase.ts"
+      "base/components/node/TestForm/TestForm.tsx"
     ],
     "loc": 155
   },
@@ -1380,9 +1234,7 @@
       "base/components/EditableSection/EditableSection.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/NodeConfigurationFields/NodeConfigurationFields.tsx",
-      "base/components/TagLinks/TagLinks.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/TagLinks/TagLinks.tsx"
     ],
     "loc": 115
   },
@@ -1391,9 +1243,7 @@
       "base/components/EditableSection/EditableSection.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/PowerTypeFields/PowerTypeFields.tsx",
-      "base/components/node/NodePowerParameters/NodePowerParameters.tsx",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "base/components/node/NodePowerParameters/NodePowerParameters.tsx"
     ],
     "loc": 158
   },
@@ -1402,8 +1252,6 @@
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
       "base/components/node/NodeTestDetails/NodeTestDetails.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "controllers/components/ControllerForms/ControllerForms.tsx",
       "controllers/views/ControllerDetails/ControllerCommissioning/ControllerCommissioning.tsx",
       "controllers/views/ControllerDetails/ControllerConfiguration/ControllerConfiguration.tsx",
@@ -1414,9 +1262,7 @@
       "controllers/views/ControllerDetails/ControllerStorage/ControllerStorage.tsx",
       "controllers/views/ControllerDetails/ControllerSummary/ControllerSummary.tsx",
       "controllers/views/ControllerDetails/ControllerUSBDevices/ControllerUSBDevices.tsx",
-      "controllers/views/ControllerDetails/ControllerVLANs/ControllerVLANs.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "controllers/views/ControllerDetails/ControllerVLANs/ControllerVLANs.tsx"
     ],
     "loc": 168
   },
@@ -1424,8 +1270,6 @@
     "dependencies": [
       "base/components/NodeActionMenu/NodeActionMenu.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "controllers/views/ControllerDetails/ControllerDetailsHeader/ControllerName/ControllerName.tsx"
     ],
     "loc": 117
@@ -1438,9 +1282,7 @@
   },
   "controllers/views/ControllerDetails/ControllerLogs/ControllerLogs.tsx": {
     "dependencies": [
-      "base/components/node/NodeLogs/NodeLogs.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/node/NodeLogs/NodeLogs.tsx"
     ],
     "loc": 35
   },
@@ -1509,8 +1351,7 @@
       "base/components/VaultNotification/VaultNotification.tsx",
       "controllers/components/ControllerForms/ControllerForms.tsx",
       "controllers/views/ControllerList/ControllerListHeader/ControllerListHeader.tsx",
-      "controllers/views/ControllerList/ControllerListTable/ControllerListTable.tsx",
-      "store/general/selectors/vaultEnabled.ts"
+      "controllers/views/ControllerList/ControllerListTable/ControllerListTable.tsx"
     ],
     "loc": 86
   },
@@ -1530,15 +1371,9 @@
       "base/components/RowCheckbox/RowCheckbox.tsx",
       "base/components/TableHeader/TableHeader.tsx",
       "base/components/TooltipButton/TooltipButton.tsx",
-      "base/docsUrls.ts",
       "controllers/views/ControllerList/ControllerListTable/StatusColumn/StatusColumn.tsx",
       "controllers/views/ControllerList/ControllerListTable/VLANsColumn/VLANsColumn.tsx",
-      "controllers/views/ControllerList/ControllerListTable/VersionColumn/VersionColumn.tsx",
-      "store/general/selectors/vaultEnabled.ts",
-      "utils/generateCheckboxHandlers.ts",
-      "utils/isComparable.ts",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "controllers/views/ControllerList/ControllerListTable/VersionColumn/VersionColumn.tsx"
     ],
     "loc": 316
   },
@@ -1551,8 +1386,7 @@
   },
   "controllers/views/ControllerList/ControllerListTable/VLANsColumn/VLANsColumn.tsx": {
     "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/urls.ts"
+      "base/components/DoubleRow/DoubleRow.tsx"
     ],
     "loc": 50
   },
@@ -1579,8 +1413,7 @@
       "base/components/IpAssignmentSelect/IpAssignmentSelect.tsx",
       "base/components/MacAddressField/MacAddressField.tsx",
       "base/components/PrefixedIpInput/PrefixedIpInput.tsx",
-      "base/components/SubnetSelect/SubnetSelect.tsx",
-      "utils/getNextName.ts"
+      "base/components/SubnetSelect/SubnetSelect.tsx"
     ],
     "loc": 178
   },
@@ -1588,9 +1421,7 @@
     "dependencies": [
       "base/components/node/DeleteForm/DeleteForm.tsx",
       "base/components/node/NodeActionFormWrapper/NodeActionFormWrapper.tsx",
-      "base/components/node/SetZoneForm/SetZoneForm.tsx",
-      "base/urls.ts",
-      "utils/kebabToCamelCase.ts"
+      "base/components/node/SetZoneForm/SetZoneForm.tsx"
     ],
     "loc": 88
   },
@@ -1615,9 +1446,7 @@
       "base/components/EditableSection/EditableSection.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/NodeConfigurationFields/NodeConfigurationFields.tsx",
-      "base/components/TagLinks/TagLinks.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/TagLinks/TagLinks.tsx"
     ],
     "loc": 119
   },
@@ -1625,16 +1454,12 @@
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "devices/components/DeviceHeaderForms/DeviceHeaderForms.tsx",
       "devices/components/DeviceNetworkForms/DeviceNetworkForms.tsx",
       "devices/views/DeviceDetails/DeviceConfiguration/DeviceConfiguration.tsx",
       "devices/views/DeviceDetails/DeviceDetailsHeader/DeviceDetailsHeader.tsx",
       "devices/views/DeviceDetails/DeviceNetwork/DeviceNetwork.tsx",
-      "devices/views/DeviceDetails/DeviceSummary/DeviceSummary.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "devices/views/DeviceDetails/DeviceSummary/DeviceSummary.tsx"
     ],
     "loc": 132
   },
@@ -1642,7 +1467,6 @@
     "dependencies": [
       "base/components/NodeActionMenu/NodeActionMenu.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "base/urls.ts",
       "devices/views/DeviceDetails/DeviceDetailsHeader/DeviceName/DeviceName.tsx"
     ],
     "loc": 86
@@ -1655,8 +1479,7 @@
   },
   "devices/views/DeviceDetails/DeviceNetwork/AddInterface/AddInterface.tsx": {
     "dependencies": [
-      "devices/views/DeviceDetails/DeviceNetwork/InterfaceForm/InterfaceForm.tsx",
-      "utils/preparePayload.ts"
+      "devices/views/DeviceDetails/DeviceNetwork/InterfaceForm/InterfaceForm.tsx"
     ],
     "loc": 71
   },
@@ -1670,30 +1493,18 @@
     "loc": 43
   },
   "devices/views/DeviceDetails/DeviceNetwork/DeviceNetworkTable/DeviceNetworkTable.tsx": {
-    "dependencies": [
-      "devices/views/DeviceDetails/DeviceNetwork/DeviceNetworkTable/useDeviceNetworkTableColumns/useDeviceNetworkTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 130
   },
   "devices/views/DeviceDetails/DeviceNetwork/DeviceNetworkTable/RemoveInterface/RemoveInterface.tsx": {
     "dependencies": [
-      "base/components/ModelActionForm/ModelActionForm.tsx",
-      "utils/formatErrors.ts"
+      "base/components/ModelActionForm/ModelActionForm.tsx"
     ],
     "loc": 75
   },
-  "devices/views/DeviceDetails/DeviceNetwork/DeviceNetworkTable/useDeviceNetworkTableColumns/useDeviceNetworkTableColumns.tsx": {
-    "dependencies": [
-      "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
-      "base/components/TableActions/TableActions.tsx",
-      "base/components/node/networking/SubnetColumn/SubnetColumn.tsx"
-    ],
-    "loc": 98
-  },
   "devices/views/DeviceDetails/DeviceNetwork/EditInterface/EditInterface.tsx": {
     "dependencies": [
-      "devices/views/DeviceDetails/DeviceNetwork/InterfaceForm/InterfaceForm.tsx",
-      "utils/preparePayload.ts"
+      "devices/views/DeviceDetails/DeviceNetwork/InterfaceForm/InterfaceForm.tsx"
     ],
     "loc": 78
   },
@@ -1723,8 +1534,6 @@
   "devices/views/DeviceDetails/DeviceSummary/DeviceSummary.tsx": {
     "dependencies": [
       "base/components/NodeSummaryNetworkCard/NodeSummaryNetworkCard.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "devices/views/DeviceDetails/DeviceSummary/DeviceOverviewCard/DeviceOverviewCard.tsx"
     ],
     "loc": 46
@@ -1760,13 +1569,7 @@
       "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
       "base/components/RowCheckbox/RowCheckbox.tsx",
       "base/components/TableHeader/TableHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "devices/views/DeviceList/DeviceListTable/OwnerColumn/OwnerColumn.tsx",
-      "utils/generateCheckboxHandlers.ts",
-      "utils/isComparable.ts",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "devices/views/DeviceList/DeviceListTable/OwnerColumn/OwnerColumn.tsx"
     ],
     "loc": 241
   },
@@ -1779,8 +1582,7 @@
   "domains/components/DomainForm/DomainForm.tsx": {
     "dependencies": [
       "domains/components/SetDefaultForm/SetDefaultForm.tsx",
-      "domains/views/DomainsList/DomainListHeaderForm/DomainListHeaderForm.tsx",
-      "utils/isId.ts"
+      "domains/views/DomainsList/DomainListHeaderForm/DomainListHeaderForm.tsx"
     ],
     "loc": 33
   },
@@ -1800,14 +1602,11 @@
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "domains/views/DomainDetails/DomainDetailsHeader/AddRecordForm/AddRecordForm.tsx",
       "domains/views/DomainDetails/DomainDetailsHeader/DeleteDomainForm/DeleteDomainForm.tsx",
       "domains/views/DomainDetails/DomainDetailsHeader/DomainDetailsHeader.tsx",
       "domains/views/DomainDetails/DomainSummary/DomainSummary.tsx",
-      "domains/views/DomainDetails/ResourceRecords/ResourceRecords.tsx",
-      "utils/isId.ts"
+      "domains/views/DomainDetails/ResourceRecords/ResourceRecords.tsx"
     ],
     "loc": 76
   },
@@ -1820,8 +1619,7 @@
   },
   "domains/views/DomainDetails/DomainDetailsHeader/DeleteDomainForm/DeleteDomainForm.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/urls.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 67
   },
@@ -1855,7 +1653,6 @@
   },
   "domains/views/DomainDetails/ResourceRecords/ResourceRecords.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "domains/views/DomainDetails/ResourceRecords/DeleteRecordForm/DeleteRecordForm.tsx",
       "domains/views/DomainDetails/ResourceRecords/EditRecordForm/EditRecordForm.tsx"
     ],
@@ -1884,9 +1681,7 @@
     "loc": 36
   },
   "domains/views/DomainsList/DomainsTable/DomainsTable.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 132
   },
   "images/components/ImagesForms/DeleteImageForm/DeleteImageForm.tsx": {
@@ -1921,18 +1716,8 @@
     "loc": 77
   },
   "images/components/ImagesTable/ImagesTable.tsx": {
-    "dependencies": [
-      "images/components/ImagesTable/useImageTableColumns/useImageTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 79
-  },
-  "images/components/ImagesTable/useImageTableColumns/useImageTableColumns.tsx": {
-    "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/TableActions/TableActions.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx"
-    ],
-    "loc": 211
   },
   "images/views/ImageList/ImageList.tsx": {
     "dependencies": [
@@ -1953,14 +1738,12 @@
   },
   "intro/components/IntroSection/IntroSection.tsx": {
     "dependencies": [
-      "base/components/PageContent/PageContent.tsx",
-      "utils/formatErrors.ts"
+      "base/components/PageContent/PageContent.tsx"
     ],
     "loc": 56
   },
   "intro/views/ImagesIntro/ImagesIntro.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "images/components/ImagesForms/ImagesForms.tsx",
       "images/components/ImagesTable/ImagesTable.tsx",
       "images/views/ImageList/ImageListHeader/ImageListHeader.tsx",
@@ -1971,7 +1754,6 @@
   },
   "intro/views/IncompleteCard/IncompleteCard.tsx": {
     "dependencies": [
-      "base/docsUrls.ts",
       "intro/components/IntroCard/IntroCard.tsx",
       "intro/components/IntroSection/IntroSection.tsx"
     ],
@@ -1981,14 +1763,11 @@
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "intro/views/ImagesIntro/ImagesIntro.tsx",
       "intro/views/IncompleteCard/IncompleteCard.tsx",
       "intro/views/MaasIntro/MaasIntro.tsx",
       "intro/views/MaasIntroSuccess/MaasIntroSuccess.tsx",
-      "intro/views/UserIntro/UserIntro.tsx",
-      "utils/getRelativeRoute.ts"
+      "intro/views/UserIntro/UserIntro.tsx"
     ],
     "loc": 85
   },
@@ -2003,8 +1782,6 @@
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/TableConfirm/TableConfirm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "intro/components/IntroSection/IntroSection.tsx",
       "intro/views/MaasIntro/ConnectivityCard/ConnectivityCard.tsx",
       "intro/views/MaasIntro/NameCard/NameCard.tsx"
@@ -2014,14 +1791,12 @@
   "intro/views/MaasIntro/NameCard/NameCard.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/docsUrls.ts",
       "intro/components/IntroCard/IntroCard.tsx"
     ],
     "loc": 39
   },
   "intro/views/MaasIntroSuccess/MaasIntroSuccess.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "intro/components/IntroCard/IntroCard.tsx",
       "intro/components/IntroSection/IntroSection.tsx"
     ],
@@ -2033,8 +1808,7 @@
       "intro/components/IntroCard/IntroCard.tsx",
       "intro/components/IntroSection/IntroSection.tsx",
       "preferences/views/SSHKeys/components/AddSSHKey/AddSSHKey.tsx",
-      "preferences/views/SSHKeys/views/SSHKeysList.tsx",
-      "utils/formatErrors.ts"
+      "preferences/views/SSHKeys/views/SSHKeysList.tsx"
     ],
     "loc": 99
   },
@@ -2053,8 +1827,7 @@
   },
   "kvm/components/CoreResources/CoreResources.tsx": {
     "dependencies": [
-      "kvm/components/KVMResourceMeter/KVMResourceMeter.tsx",
-      "utils/getRanges.ts"
+      "kvm/components/KVMResourceMeter/KVMResourceMeter.tsx"
     ],
     "loc": 52
   },
@@ -2092,8 +1865,7 @@
   "kvm/components/KVMForms/AddLxd/AuthenticationForm/AuthenticationForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "kvm/components/KVMForms/AddLxd/AuthenticationForm/AuthenticationFormFields/AuthenticationFormFields.tsx",
-      "store/general/selectors/generatedCertificate.ts"
+      "kvm/components/KVMForms/AddLxd/AuthenticationForm/AuthenticationFormFields/AuthenticationFormFields.tsx"
     ],
     "loc": 147
   },
@@ -2107,8 +1879,7 @@
   "kvm/components/KVMForms/AddLxd/CredentialsForm/CredentialsForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "kvm/components/KVMForms/AddLxd/CredentialsForm/CredentialsFormFields/CredentialsFormFields.tsx",
-      "store/general/selectors/generatedCertificate.ts"
+      "kvm/components/KVMForms/AddLxd/CredentialsForm/CredentialsFormFields/CredentialsFormFields.tsx"
     ],
     "loc": 142
   },
@@ -2124,25 +1895,20 @@
   "kvm/components/KVMForms/AddLxd/SelectProjectForm/SelectProjectForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "kvm/components/KVMForms/AddLxd/SelectProjectForm/SelectProjectFormFields/SelectProjectFormFields.tsx",
-      "utils/formatErrors.ts",
-      "utils/preparePayload.ts"
+      "kvm/components/KVMForms/AddLxd/SelectProjectForm/SelectProjectFormFields/SelectProjectFormFields.tsx"
     ],
     "loc": 117
   },
   "kvm/components/KVMForms/AddLxd/SelectProjectForm/SelectProjectFormFields/SelectProjectFormFields.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "base/urls.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 145
   },
   "kvm/components/KVMForms/AddVirsh/AddVirsh.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "kvm/components/KVMForms/AddVirsh/AddVirshFields/AddVirshFields.tsx",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "kvm/components/KVMForms/AddVirsh/AddVirshFields/AddVirshFields.tsx"
     ],
     "loc": 123
   },
@@ -2160,11 +1926,7 @@
       "base/components/ActionForm/ActionForm.tsx",
       "kvm/components/KVMForms/ComposeForm/ComposeFormFields/ComposeFormFields.tsx",
       "kvm/components/KVMForms/ComposeForm/InterfacesTable/InterfacesTable.tsx",
-      "kvm/components/KVMForms/ComposeForm/StorageTable/StorageTable.tsx",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/powerTypes.ts",
-      "utils/arrayFromRangesString.ts",
-      "utils/getRanges.ts"
+      "kvm/components/KVMForms/ComposeForm/StorageTable/StorageTable.tsx"
     ],
     "loc": 502
   },
@@ -2174,9 +1936,7 @@
       "base/components/FormikField/FormikField.tsx",
       "base/components/ResourcePoolSelect/ResourcePoolSelect.tsx",
       "base/components/ShowAdvanced/ShowAdvanced.tsx",
-      "base/components/ZoneSelect/ZoneSelect.tsx",
-      "utils/arrayFromRangesString.ts",
-      "utils/getRanges.ts"
+      "base/components/ZoneSelect/ZoneSelect.tsx"
     ],
     "loc": 187
   },
@@ -2189,9 +1949,7 @@
     "loc": 257
   },
   "kvm/components/KVMForms/ComposeForm/InterfacesTable/SubnetSelect/SubnetSelect.tsx": {
-    "dependencies": [
-      "utils/groupAsMap.ts"
-    ],
+    "dependencies": [],
     "loc": 165
   },
   "kvm/components/KVMForms/ComposeForm/StorageTable/PoolSelect/PoolSelect.tsx": {
@@ -2209,8 +1967,7 @@
   "kvm/components/KVMForms/DeleteForm/DeleteForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/components/FormikField/FormikField.tsx",
-      "base/urls.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 144
   },
@@ -2237,7 +1994,6 @@
   },
   "kvm/components/KVMResourcesCard/KVMResourcesCard.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "kvm/components/CoreResources/CoreResources.tsx",
       "kvm/components/RamResources/RamResources.tsx",
       "kvm/components/VfResources/VfResources.tsx",
@@ -2253,9 +2009,7 @@
   },
   "kvm/components/LXDHostToolbar/LXDHostToolbar.tsx": {
     "dependencies": [
-      "base/components/Switch/Switch.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/Switch/Switch.tsx"
     ],
     "loc": 124
   },
@@ -2308,8 +2062,7 @@
   },
   "kvm/components/LXDVMsTable/VMsTable/CoresColumn/CoresColumn.tsx": {
     "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "utils/getRanges.ts"
+      "base/components/DoubleRow/DoubleRow.tsx"
     ],
     "loc": 25
   },
@@ -2324,7 +2077,6 @@
   "kvm/components/LXDVMsTable/VMsTable/NameColumn/NameColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
-      "base/urls.ts",
       "machines/views/MachineList/MachineListTable/MachineCheckbox/MachineCheckbox.tsx"
     ],
     "loc": 39
@@ -2346,9 +2098,7 @@
       "kvm/components/LXDVMsTable/VMsTable/IPColumn/IPColumn.tsx",
       "kvm/components/LXDVMsTable/VMsTable/NameColumn/NameColumn.tsx",
       "kvm/components/LXDVMsTable/VMsTable/StatusColumn/StatusColumn.tsx",
-      "machines/views/MachineList/MachineListTable/AllCheckbox/AllCheckbox.tsx",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "machines/views/MachineList/MachineListTable/AllCheckbox/AllCheckbox.tsx"
     ],
     "loc": 400
   },
@@ -2434,8 +2184,7 @@
   },
   "kvm/components/VfResources/VfResources.tsx": {
     "dependencies": [
-      "kvm/components/KVMResourceMeter/KVMResourceMeter.tsx",
-      "utils/simpleSortByKey.ts"
+      "kvm/components/KVMResourceMeter/KVMResourceMeter.tsx"
     ],
     "loc": 135
   },
@@ -2445,29 +2194,18 @@
     ],
     "loc": 96
   },
-  "kvm/hooks.tsx": {
-    "dependencies": [
-      "base/urls.ts",
-      "utils/isId.ts"
-    ],
-    "loc": 71
-  },
   "kvm/views/KVM.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "kvm/views/KVMList/KVMList.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterDetails.tsx",
       "kvm/views/LXDSingleDetails/LXDSingleDetails.tsx",
-      "kvm/views/VirshDetails/VirshDetails.tsx",
-      "utils/getRelativeRoute.ts"
+      "kvm/views/VirshDetails/VirshDetails.tsx"
     ],
     "loc": 42
   },
   "kvm/views/KVMList/KVMList.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMForms/KVMForms.tsx",
       "kvm/views/KVMList/KVMListHeader/KVMListHeader.tsx",
       "kvm/views/KVMList/LxdTable/LxdTable.tsx",
@@ -2477,9 +2215,7 @@
   },
   "kvm/views/KVMList/KVMListHeader/KVMListHeader.tsx": {
     "dependencies": [
-      "base/components/ModelListSubtitle/ModelListSubtitle.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/ModelListSubtitle/ModelListSubtitle.tsx"
     ],
     "loc": 52
   },
@@ -2493,14 +2229,12 @@
       "kvm/components/RAMColumn/RAMColumn.tsx",
       "kvm/components/StorageColumn/StorageColumn.tsx",
       "kvm/components/TagsColumn/TagsColumn.tsx",
-      "kvm/components/VMsColumn/VMsColumn.tsx",
-      "utils/isComparable.ts"
+      "kvm/components/VMsColumn/VMsColumn.tsx"
     ],
     "loc": 286
   },
   "kvm/views/KVMList/LxdTable/LxdTable.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "kvm/views/KVMList/LxdTable/LxdKVMHostTable/LxdKVMHostTable.tsx"
     ],
     "loc": 84
@@ -2508,16 +2242,13 @@
   "kvm/views/KVMList/VirshTable/VirshTable.tsx": {
     "dependencies": [
       "base/components/TableHeader/TableHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/CPUColumn/CPUColumn.tsx",
       "kvm/components/NameColumn/NameColumn.tsx",
       "kvm/components/PoolColumn/PoolColumn.tsx",
       "kvm/components/RAMColumn/RAMColumn.tsx",
       "kvm/components/StorageColumn/StorageColumn.tsx",
       "kvm/components/TagsColumn/TagsColumn.tsx",
-      "kvm/components/VMsColumn/VMsColumn.tsx",
-      "utils/isComparable.ts"
+      "kvm/components/VMsColumn/VMsColumn.tsx"
     ],
     "loc": 229
   },
@@ -2525,8 +2256,6 @@
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMForms/KVMForms.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterDetailsHeader/LXDClusterDetailsHeader.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterDetailsRedirect/LXDClusterDetailsRedirect.tsx",
@@ -2535,47 +2264,35 @@
       "kvm/views/LXDClusterDetails/LXDClusterHosts/LXDClusterHosts.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterResources/LXDClusterResources.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterSettings/LXDClusterSettings.tsx",
-      "kvm/views/LXDClusterDetails/LXDClusterVMs/LXDClusterVMs.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "kvm/views/LXDClusterDetails/LXDClusterVMs/LXDClusterVMs.tsx"
     ],
     "loc": 167
   },
   "kvm/views/LXDClusterDetails/LXDClusterDetailsHeader/LXDClusterDetailsHeader.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "kvm/components/KVMDetailsHeader/KVMDetailsHeader.tsx"
     ],
     "loc": 124
   },
   "kvm/views/LXDClusterDetails/LXDClusterDetailsRedirect/LXDClusterDetailsRedirect.tsx": {
     "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "utils/isId.ts"
+      "base/components/ModelNotFound/ModelNotFound.tsx"
     ],
     "loc": 47
   },
   "kvm/views/LXDClusterDetails/LXDClusterHostSettings/LXDClusterHostSettings.tsx": {
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMConfigurationCard/KVMConfigurationCard.tsx",
       "kvm/components/LXDHostToolbar/LXDHostToolbar.tsx",
-      "kvm/components/SettingsBackLink/SettingsBackLink.tsx",
-      "utils/isId.ts"
+      "kvm/components/SettingsBackLink/SettingsBackLink.tsx"
     ],
     "loc": 69
   },
   "kvm/views/LXDClusterDetails/LXDClusterHostVMs/LXDClusterHostVMs.tsx": {
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "kvm/components/LXDHostVMs/LXDHostVMs.tsx",
-      "utils/isId.ts"
+      "kvm/components/LXDHostVMs/LXDHostVMs.tsx"
     ],
     "loc": 87
   },
@@ -2596,14 +2313,11 @@
   "kvm/views/LXDClusterDetails/LXDClusterHosts/LXDClusterHostsTable/LXDClusterHostsTable.tsx": {
     "dependencies": [
       "base/components/TableHeader/TableHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/CPUColumn/CPUColumn.tsx",
       "kvm/components/NameColumn/NameColumn.tsx",
       "kvm/components/RAMColumn/RAMColumn.tsx",
       "kvm/components/StorageColumn/StorageColumn.tsx",
-      "kvm/components/TagsColumn/TagsColumn.tsx",
-      "utils/isComparable.ts"
+      "kvm/components/TagsColumn/TagsColumn.tsx"
     ],
     "loc": 333
   },
@@ -2632,8 +2346,6 @@
   },
   "kvm/views/LXDClusterDetails/LXDClusterVMs/LXDClusterVMs.tsx": {
     "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/LXDVMsTable/LXDVMsTable.tsx",
       "kvm/views/LXDClusterDetails/LXDClusterSummaryCard/LXDClusterSummaryCard.tsx"
     ],
@@ -2643,22 +2355,16 @@
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMForms/KVMForms.tsx",
       "kvm/views/LXDSingleDetails/LXDSingleDetailsHeader/LXDSingleDetailsHeader.tsx",
       "kvm/views/LXDSingleDetails/LXDSingleResources/LXDSingleResources.tsx",
       "kvm/views/LXDSingleDetails/LXDSingleSettings/LXDSingleSettings.tsx",
-      "kvm/views/LXDSingleDetails/LXDSingleVMs/LXDSingleVMs.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "kvm/views/LXDSingleDetails/LXDSingleVMs/LXDSingleVMs.tsx"
     ],
     "loc": 125
   },
   "kvm/views/LXDSingleDetails/LXDSingleDetailsHeader/LXDSingleDetailsHeader.tsx": {
     "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMDetailsHeader/KVMDetailsHeader.tsx"
     ],
     "loc": 106
@@ -2681,8 +2387,7 @@
   "kvm/views/LXDSingleDetails/LXDSingleSettings/AuthenticationCard/UpdateCertificate/UpdateCertificate.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "kvm/views/LXDSingleDetails/LXDSingleSettings/AuthenticationCard/UpdateCertificate/UpdateCertificateFields/UpdateCertificateFields.tsx",
-      "store/general/selectors/generatedCertificate.ts"
+      "kvm/views/LXDSingleDetails/LXDSingleSettings/AuthenticationCard/UpdateCertificate/UpdateCertificateFields/UpdateCertificateFields.tsx"
     ],
     "loc": 115
   },
@@ -2720,14 +2425,10 @@
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMForms/KVMForms.tsx",
       "kvm/views/VirshDetails/VirshDetailsHeader/VirshDetailsHeader.tsx",
       "kvm/views/VirshDetails/VirshResources/VirshResources.tsx",
-      "kvm/views/VirshDetails/VirshSettings/VirshSettings.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "kvm/views/VirshDetails/VirshSettings/VirshSettings.tsx"
     ],
     "loc": 88
   },
@@ -2737,8 +2438,6 @@
   },
   "kvm/views/VirshDetails/VirshDetailsHeader/VirshDetailsHeader.tsx": {
     "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "kvm/components/KVMDetailsHeader/KVMDetailsHeader.tsx",
       "kvm/views/VirshDetails/VirshDetailsHeader/VirshDetailsActionMenu/VirshDetailsActionMenu.tsx"
     ],
@@ -2766,11 +2465,7 @@
   "machines/components/MachineForms/AddChassis/AddChassisForm/AddChassisForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "base/docsUrls.ts",
-      "machines/components/MachineForms/AddChassis/AddChassisFormFields/AddChassisFormFields.tsx",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "machines/components/MachineForms/AddChassis/AddChassisFormFields/AddChassisFormFields.tsx"
     ],
     "loc": 126
   },
@@ -2784,14 +2479,7 @@
   "machines/components/MachineForms/AddMachine/AddMachineForm/AddMachineForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "base/docsUrls.ts",
-      "machines/components/MachineForms/AddMachine/AddMachineFormFields/AddMachineFormFields.tsx",
-      "store/general/selectors/architectures.ts",
-      "store/general/selectors/defaultMinHweKernel.ts",
-      "store/general/selectors/hweKernels.ts",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "machines/components/MachineForms/AddMachine/AddMachineFormFields/AddMachineFormFields.tsx"
     ],
     "loc": 188
   },
@@ -2805,8 +2493,7 @@
       "base/components/PowerTypeFields/PowerTypeFields.tsx",
       "base/components/ResourcePoolSelect/ResourcePoolSelect.tsx",
       "base/components/TooltipButton/TooltipButton.tsx",
-      "base/components/ZoneSelect/ZoneSelect.tsx",
-      "utils/formatMacAddress.ts"
+      "base/components/ZoneSelect/ZoneSelect.tsx"
     ],
     "loc": 127
   },
@@ -2828,16 +2515,8 @@
     "loc": 133
   },
   "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneFormFields/CloneNetworkTable/CloneNetworkTable.tsx": {
-    "dependencies": [
-      "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneFormFields/CloneNetworkTable/useCloneNetworkTableColumns/useCloneNetworkTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 158
-  },
-  "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneFormFields/CloneNetworkTable/useCloneNetworkTableColumns/useCloneNetworkTableColumns.tsx": {
-    "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx"
-    ],
-    "loc": 102
   },
   "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneFormFields/CloneStorageTable/CloneStorageTable.tsx": {
     "dependencies": [
@@ -2864,19 +2543,13 @@
     "loc": 101
   },
   "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneResults/CloneResults.tsx": {
-    "dependencies": [
-      "base/urls.ts",
-      "utils/formatErrors.ts"
-    ],
+    "dependencies": [],
     "loc": 249
   },
   "machines/components/MachineForms/MachineActionFormWrapper/CommissionForm/CommissionForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "machines/components/MachineForms/MachineActionFormWrapper/CommissionForm/CommissionFormFields/CommissionFormFields.tsx",
-      "utils/simpleSortByKey.ts"
+      "machines/components/MachineForms/MachineActionFormWrapper/CommissionForm/CommissionFormFields/CommissionFormFields.tsx"
     ],
     "loc": 198
   },
@@ -2890,10 +2563,7 @@
   "machines/components/MachineForms/MachineActionFormWrapper/DeployForm/DeployForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "machines/components/MachineForms/MachineActionFormWrapper/DeployForm/DeployFormFields/DeployFormFields.tsx",
-      "store/general/selectors/defaultMinHweKernel.ts",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/osInfo.ts"
+      "machines/components/MachineForms/MachineActionFormWrapper/DeployForm/DeployFormFields/DeployFormFields.tsx"
     ],
     "loc": 179
   },
@@ -2901,11 +2571,7 @@
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/TooltipButton/TooltipButton.tsx",
-      "base/components/UploadTextArea/UploadTextArea.tsx",
-      "base/docsUrls.ts",
-      "base/urls.ts",
-      "store/general/selectors/defaultMinHweKernel.ts",
-      "store/general/selectors/osInfo.ts"
+      "base/components/UploadTextArea/UploadTextArea.tsx"
     ],
     "loc": 372
   },
@@ -2923,8 +2589,6 @@
       "base/components/node/PowerOffForm/PowerOffForm.tsx",
       "base/components/node/SetZoneForm/SetZoneForm.tsx",
       "base/components/node/TestForm/TestForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "machines/components/MachineForms/MachineActionFormWrapper/CloneForm/CloneForm.tsx",
       "machines/components/MachineForms/MachineActionFormWrapper/CommissionForm/CommissionForm.tsx",
       "machines/components/MachineForms/MachineActionFormWrapper/DeployForm/DeployForm.tsx",
@@ -2952,9 +2616,7 @@
   "machines/components/MachineForms/MachineActionFormWrapper/OverrideTestForm/OverrideTestForm.tsx": {
     "dependencies": [
       "base/components/ActionForm/ActionForm.tsx",
-      "base/components/FormikField/FormikField.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 112
   },
@@ -3004,9 +2666,7 @@
   },
   "machines/components/MachineForms/MachineActionFormWrapper/TagForm/TagFormChanges/TagFormChanges.tsx": {
     "dependencies": [
-      "base/urls.ts",
-      "machines/components/MachineForms/MachineActionFormWrapper/TagForm/TagChip/TagChip.tsx",
-      "utils/toFormikNumber.ts"
+      "machines/components/MachineForms/MachineActionFormWrapper/TagForm/TagChip/TagChip.tsx"
     ],
     "loc": 283
   },
@@ -3059,14 +2719,9 @@
     "dependencies": [],
     "loc": 71
   },
-  "machines/hooks.tsx": {
-    "dependencies": [],
-    "loc": 64
-  },
   "machines/views/MachineDetails/MachineCommissioning/MachineCommissioning.tsx": {
     "dependencies": [
-      "base/components/node/NodeTestsTable/NodeTestsTable.tsx",
-      "utils/isId.ts"
+      "base/components/node/NodeTestsTable/NodeTestsTable.tsx"
     ],
     "loc": 68
   },
@@ -3102,10 +2757,7 @@
       "base/components/EditableSection/EditableSection.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/node/NodePowerParameters/NodePowerParameters.tsx",
-      "machines/views/MachineDetails/MachineConfiguration/PowerForm/PowerFormFields/PowerFormFields.tsx",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/powerTypes.ts",
-      "store/general/utils/powerTypes.ts"
+      "machines/views/MachineDetails/MachineConfiguration/PowerForm/PowerFormFields/PowerFormFields.tsx"
     ],
     "loc": 135
   },
@@ -3118,9 +2770,7 @@
   "machines/views/MachineDetails/MachineConfiguration/TagForm/TagForm.tsx": {
     "dependencies": [
       "base/components/EditableSection/EditableSection.tsx",
-      "base/components/TagLinks/TagLinks.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/TagLinks/TagLinks.tsx"
     ],
     "loc": 69
   },
@@ -3129,8 +2779,6 @@
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
       "base/components/node/NodeTestDetails/NodeTestDetails.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "machines/components/MachineForms/MachineForms.tsx",
       "machines/views/MachineDetails/MachineCommissioning/MachineCommissioning.tsx",
       "machines/views/MachineDetails/MachineConfiguration/MachineConfiguration.tsx",
@@ -3145,9 +2793,7 @@
       "machines/views/MachineDetails/MachineSummary/SummaryNotifications/SummaryNotifications.tsx",
       "machines/views/MachineDetails/MachineSummary/MachineSummary.tsx",
       "machines/views/MachineDetails/MachineTests/MachineTests.tsx",
-      "machines/views/MachineDetails/MachineUSBDevices/MachineUSBDevices.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "machines/views/MachineDetails/MachineUSBDevices/MachineUSBDevices.tsx"
     ],
     "loc": 217
   },
@@ -3170,33 +2816,26 @@
     "loc": 51
   },
   "machines/views/MachineDetails/MachineInstances/MachineInstances.tsx": {
-    "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 115
   },
   "machines/views/MachineDetails/MachineLogs/MachineLogs.tsx": {
     "dependencies": [
-      "base/components/node/NodeLogs/NodeLogs.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/node/NodeLogs/NodeLogs.tsx"
     ],
     "loc": 33
   },
   "machines/views/MachineDetails/MachineNetwork/AddAliasOrVlan/AddAliasOrVlan.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "machines/views/MachineDetails/MachineNetwork/AddAliasOrVlan/AddAliasOrVlanFields/AddAliasOrVlanFields.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/AddAliasOrVlan/AddAliasOrVlanFields/AddAliasOrVlanFields.tsx"
     ],
     "loc": 141
   },
   "machines/views/MachineDetails/MachineNetwork/AddAliasOrVlan/AddAliasOrVlanFields/AddAliasOrVlanFields.tsx": {
     "dependencies": [
       "base/components/TagNameField/TagNameField.tsx",
-      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx",
-      "utils/toFormikNumber.ts"
+      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx"
     ],
     "loc": 71
   },
@@ -3213,8 +2852,7 @@
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
       "machines/views/MachineDetails/MachineNetwork/BridgeFormFields/BridgeFormFields.tsx",
-      "machines/views/MachineDetails/MachineNetwork/InterfaceFormTable/InterfaceFormTable.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/InterfaceFormTable/InterfaceFormTable.tsx"
     ],
     "loc": 134
   },
@@ -3224,8 +2862,7 @@
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/MacAddressField/MacAddressField.tsx",
       "base/components/TagNameField/TagNameField.tsx",
-      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx"
     ],
     "loc": 128
   },
@@ -3243,22 +2880,19 @@
   },
   "machines/views/MachineDetails/MachineNetwork/BondForm/BondModeSelect/BondModeSelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "store/general/selectors/bondOptions.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 35
   },
   "machines/views/MachineDetails/MachineNetwork/BondForm/HashPolicySelect/HashPolicySelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "store/general/selectors/bondOptions.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 60
   },
   "machines/views/MachineDetails/MachineNetwork/BondForm/LACPRateSelect/LACPRateSelect.tsx": {
     "dependencies": [
-      "base/components/DynamicSelect/DynamicSelect.tsx",
-      "store/general/selectors/bondOptions.ts"
+      "base/components/DynamicSelect/DynamicSelect.tsx"
     ],
     "loc": 35
   },
@@ -3281,8 +2915,7 @@
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/TagNameField/TagNameField.tsx",
-      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/NetworkFields/NetworkFields.tsx"
     ],
     "loc": 156
   },
@@ -3291,16 +2924,14 @@
       "base/components/FormikForm/FormikForm.tsx",
       "machines/views/MachineDetails/MachineNetwork/BondForm/BondFormFields/BondFormFields.tsx",
       "machines/views/MachineDetails/MachineNetwork/BondForm/ToggleMembers/ToggleMembers.tsx",
-      "machines/views/MachineDetails/MachineNetwork/InterfaceFormTable/InterfaceFormTable.tsx",
-      "utils/arrayItemsEqual.ts"
+      "machines/views/MachineDetails/MachineNetwork/InterfaceFormTable/InterfaceFormTable.tsx"
     ],
     "loc": 229
   },
   "machines/views/MachineDetails/MachineNetwork/EditBridgeForm/EditBridgeForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "machines/views/MachineDetails/MachineNetwork/BridgeFormFields/BridgeFormFields.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/BridgeFormFields/BridgeFormFields.tsx"
     ],
     "loc": 142
   },
@@ -3325,8 +2956,7 @@
   "machines/views/MachineDetails/MachineNetwork/EditPhysicalForm/EditPhysicalForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "machines/views/MachineDetails/MachineNetwork/EditPhysicalForm/EditPhysicalFields/EditPhysicalFields.tsx",
-      "utils/preparePayload.ts"
+      "machines/views/MachineDetails/MachineNetwork/EditPhysicalForm/EditPhysicalFields/EditPhysicalFields.tsx"
     ],
     "loc": 241
   },
@@ -3340,9 +2970,7 @@
       "base/components/node/networking/NetworkTable/PXEColumn/PXEColumn.tsx",
       "base/components/node/networking/NetworkTable/SpeedColumn/SpeedColumn.tsx",
       "base/components/node/networking/SubnetColumn/SubnetColumn.tsx",
-      "base/components/node/networking/TypeColumn/TypeColumn.tsx",
-      "utils/generateCheckboxHandlers.ts",
-      "utils/simpleSortByKey.ts"
+      "base/components/node/networking/TypeColumn/TypeColumn.tsx"
     ],
     "loc": 205
   },
@@ -3374,8 +3002,7 @@
       "base/components/LinkModeSelect/LinkModeSelect.tsx",
       "base/components/PrefixedIpInput/PrefixedIpInput.tsx",
       "base/components/SubnetSelect/SubnetSelect.tsx",
-      "base/components/VLANSelect/VLANSelect.tsx",
-      "utils/toFormikNumber.ts"
+      "base/components/VLANSelect/VLANSelect.tsx"
     ],
     "loc": 266
   },
@@ -3421,9 +3048,7 @@
   "machines/views/MachineDetails/MachineStorage/MachineStorage.tsx": {
     "dependencies": [
       "base/components/node/StorageTables/StorageTables.tsx",
-      "base/docsUrls.ts",
-      "machines/views/MachineDetails/MachineStorage/ChangeStorageLayoutMenu/ChangeStorageLayoutMenu.tsx",
-      "utils/isId.ts"
+      "machines/views/MachineDetails/MachineStorage/ChangeStorageLayoutMenu/ChangeStorageLayoutMenu.tsx"
     ],
     "loc": 56
   },
@@ -3438,12 +3063,9 @@
       "base/components/NodeSummaryNetworkCard/NodeSummaryNetworkCard.tsx",
       "base/components/node/HardwareCard/HardwareCard.tsx",
       "base/components/node/OverviewCard/OverviewCard.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "machines/views/MachineDetails/MachineSummary/NumaCard/NumaCard.tsx",
       "machines/views/MachineDetails/MachineSummary/TestResults/TestResults.tsx",
-      "machines/views/MachineDetails/MachineSummary/WorkloadCard/WorkloadCard.tsx",
-      "utils/isId.ts"
+      "machines/views/MachineDetails/MachineSummary/WorkloadCard/WorkloadCard.tsx"
     ],
     "loc": 75
   },
@@ -3455,39 +3077,30 @@
   },
   "machines/views/MachineDetails/MachineSummary/NumaCard/NumaCardDetails/NumaCardDetails.tsx": {
     "dependencies": [
-      "base/components/LabelledList/LabelledList.tsx",
-      "utils/getRanges.ts"
+      "base/components/LabelledList/LabelledList.tsx"
     ],
     "loc": 126
   },
   "machines/views/MachineDetails/MachineSummary/SummaryNotifications/SummaryNotifications.tsx": {
     "dependencies": [
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "machines/views/MachineDetails/MachineNotifications/MachineNotifications.tsx",
-      "store/general/selectors/architectures.ts"
+      "machines/views/MachineDetails/MachineNotifications/MachineNotifications.tsx"
     ],
     "loc": 135
   },
   "machines/views/MachineDetails/MachineSummary/TestResults/TestResults.tsx": {
-    "dependencies": [
-      "utils/capitaliseFirst.ts"
-    ],
+    "dependencies": [],
     "loc": 160
   },
   "machines/views/MachineDetails/MachineSummary/WorkloadCard/WorkloadCard.tsx": {
     "dependencies": [
       "base/components/LabelledList/LabelledList.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 98
   },
   "machines/views/MachineDetails/MachineTests/MachineTests.tsx": {
     "dependencies": [
-      "base/components/node/NodeTestsTable/NodeTestsTable.tsx",
-      "utils/isId.ts"
+      "base/components/node/NodeTestsTable/NodeTestsTable.tsx"
     ],
     "loc": 153
   },
@@ -3498,9 +3111,7 @@
     "loc": 31
   },
   "machines/views/MachineList/ErrorsNotification/ErrorsNotification.tsx": {
-    "dependencies": [
-      "utils/formatErrors.ts"
-    ],
+    "dependencies": [],
     "loc": 29
   },
   "machines/views/MachineList/MachineList.tsx": {
@@ -3532,7 +3143,6 @@
     "dependencies": [
       "base/components/DebounceSearchBox/DebounceSearchBox.tsx",
       "base/components/GroupSelect/GroupSelect.tsx",
-      "base/urls.ts",
       "machines/views/MachineList/MachineListControls/HiddenColumnsSelect/HiddenColumnsSelect.tsx",
       "machines/views/MachineList/MachineListControls/MachineActionMenu/MachineActionMenu.tsx",
       "machines/views/MachineList/MachineListControls/MachinesFilterAccordion/MachinesFilterAccordion.tsx",
@@ -3578,10 +3188,6 @@
     ],
     "loc": 44
   },
-  "machines/views/MachineList/MachineListTable/CoresColumn/index.tsx": {
-    "dependencies": [],
-    "loc": 1
-  },
   "machines/views/MachineList/MachineListTable/DisksColumn/DisksColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
@@ -3592,7 +3198,6 @@
   "machines/views/MachineList/MachineListTable/FabricColumn/FabricColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
-      "base/urls.ts",
       "machines/views/MachineList/MachineListTable/MachineTestStatus/MachineTestStatus.tsx"
     ],
     "loc": 51
@@ -3638,9 +3243,7 @@
       "machines/views/MachineList/MachineListTable/AllCheckbox/AllCheckbox.tsx",
       "machines/views/MachineList/MachineListTable/MachineListPagination/MachineListPagination.tsx",
       "machines/views/MachineList/MachineListTable/MachineListSelectedCount/MachineListSelectedCount.tsx",
-      "machines/views/MachineList/MachineListTable/PageSizeSelect/PageSizeSelect.tsx",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "machines/views/MachineList/MachineListTable/PageSizeSelect/PageSizeSelect.tsx"
     ],
     "loc": 466
   },
@@ -3655,7 +3258,6 @@
       "base/components/DoubleRow/DoubleRow.tsx",
       "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
       "base/components/NonBreakingSpace/NonBreakingSpace.tsx",
-      "base/urls.ts",
       "machines/views/MachineList/MachineListTable/MachineCheckbox/MachineCheckbox.tsx"
     ],
     "loc": 159
@@ -3672,16 +3274,14 @@
   },
   "machines/views/MachineList/MachineListTable/PoolColumn/PoolColumn.tsx": {
     "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/urls.ts"
+      "base/components/DoubleRow/DoubleRow.tsx"
     ],
     "loc": 95
   },
   "machines/views/MachineList/MachineListTable/PowerColumn/PowerColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/PowerIcon/PowerIcon.tsx",
-      "utils/breakLines.ts"
+      "base/components/PowerIcon/PowerIcon.tsx"
     ],
     "loc": 137
   },
@@ -3695,9 +3295,7 @@
   "machines/views/MachineList/MachineListTable/StatusColumn/StatusColumn.tsx": {
     "dependencies": [
       "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "utils/breakLines.ts",
-      "utils/getStatusText.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 167
   },
@@ -3709,34 +3307,13 @@
   },
   "machines/views/MachineList/MachineListTable/ZoneColumn/ZoneColumn.tsx": {
     "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/urls.ts"
+      "base/components/DoubleRow/DoubleRow.tsx"
     ],
     "loc": 101
-  },
-  "machines/views/MachineList/MachineListTable/tableModels.tsx": {
-    "dependencies": [
-      "base/components/DoubleRow/DoubleRow.tsx",
-      "base/components/Placeholder/Placeholder.tsx",
-      "machines/views/MachineList/MachineListTable/CoresColumn/CoresColumn.tsx",
-      "machines/views/MachineList/MachineListTable/DisksColumn/DisksColumn.tsx",
-      "machines/views/MachineList/MachineListTable/FabricColumn/FabricColumn.tsx",
-      "machines/views/MachineList/MachineListTable/GroupColumn/GroupColumn.tsx",
-      "machines/views/MachineList/MachineListTable/NameColumn/NameColumn.tsx",
-      "machines/views/MachineList/MachineListTable/OwnerColumn/OwnerColumn.tsx",
-      "machines/views/MachineList/MachineListTable/PoolColumn/PoolColumn.tsx",
-      "machines/views/MachineList/MachineListTable/PowerColumn/PowerColumn.tsx",
-      "machines/views/MachineList/MachineListTable/RamColumn/RamColumn.tsx",
-      "machines/views/MachineList/MachineListTable/StatusColumn/StatusColumn.tsx",
-      "machines/views/MachineList/MachineListTable/StorageColumn/StorageColumn.tsx",
-      "machines/views/MachineList/MachineListTable/ZoneColumn/ZoneColumn.tsx"
-    ],
-    "loc": 374
   },
   "machines/views/Machines.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "base/urls.ts",
       "machines/components/MachineForms/MachineForms.tsx",
       "machines/views/MachineList/MachineListHeader/MachineListHeader.tsx",
       "machines/views/MachineList/MachineList.tsx"
@@ -3745,8 +3322,7 @@
   },
   "networkDiscovery/components/ClearAllForm/ClearAllForm.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/docsUrls.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 91
   },
@@ -3759,27 +3335,14 @@
   "networkDiscovery/components/DiscoveriesTable/DiscoveriesTable.tsx": {
     "dependencies": [
       "base/components/SearchBox/SearchBox.tsx",
-      "networkDiscovery/components/DiscoveriesTable/DiscoveriesFilterAccordion/DiscoveriesFilterAccordion.tsx",
-      "networkDiscovery/components/DiscoveriesTable/useDiscoveriesTableColumns/useDiscoveriesTableColumns.tsx"
+      "networkDiscovery/components/DiscoveriesTable/DiscoveriesFilterAccordion/DiscoveriesFilterAccordion.tsx"
     ],
     "loc": 55
-  },
-  "networkDiscovery/components/DiscoveriesTable/useDiscoveriesTableColumns/useDiscoveriesTableColumns.tsx": {
-    "dependencies": [
-      "base/components/MacAddressDisplay/MacAddressDisplay.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "networkDiscovery/components/DiscoveryAddForm/DiscoveryAddForm.tsx",
-      "networkDiscovery/components/DiscoveryDeleteForm/DiscoveryDeleteForm.tsx"
-    ],
-    "loc": 131
   },
   "networkDiscovery/components/DiscoveryAddForm/DiscoveryAddForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "networkDiscovery/components/DiscoveryAddForm/DiscoveryAddFormFields/DiscoveryAddFormFields.tsx",
-      "utils/preparePayload.ts"
+      "networkDiscovery/components/DiscoveryAddForm/DiscoveryAddFormFields/DiscoveryAddFormFields.tsx"
     ],
     "loc": 238
   },
@@ -3788,8 +3351,7 @@
       "base/components/DhcpFormFields/MachineSelect/MachineSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/IpAssignmentSelect/IpAssignmentSelect.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/urls.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 201
   },
@@ -3802,17 +3364,13 @@
   "networkDiscovery/components/NetworkDiscoveryConfigurationSubnetForm/NetworkDiscoveryConfigurationSubnetForm.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "utils/simpleSortByKey.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 115
   },
   "networkDiscovery/components/NetworkDiscoveryHeader/NetworkDiscoveryHeader.tsx": {
     "dependencies": [
       "base/components/SectionHeader/SectionHeader.tsx",
-      "base/urls.ts",
       "networkDiscovery/components/ClearAllForm/ClearAllForm.tsx"
     ],
     "loc": 54
@@ -3858,26 +3416,13 @@
   },
   "pools/components/PoolsListHeader/PoolsListHeader.tsx": {
     "dependencies": [
-      "base/urls.ts",
       "pools/components/AddPool/AddPool.tsx"
     ],
     "loc": 36
   },
   "pools/components/PoolsTable/PoolsTable.tsx": {
-    "dependencies": [
-      "base/hooks/usePagination/usePagination.ts",
-      "pools/components/PoolsTable/usePoolsTableColumns/usePoolsTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 33
-  },
-  "pools/components/PoolsTable/usePoolsTableColumns/usePoolsTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "base/urls.ts",
-      "pools/components/DeletePool/DeletePool.tsx",
-      "pools/components/EditPool/EditPool.tsx"
-    ],
-    "loc": 99
   },
   "pools/views/PoolsList.tsx": {
     "dependencies": [
@@ -3895,8 +3440,7 @@
   },
   "preferences/views/APIKeys/components/APIKeyDelete/APIKeyDelete.tsx": {
     "dependencies": [
-      "preferences/views/APIKeys/components/APIKeyDeleteForm/APIKeyDeleteForm.tsx",
-      "utils/isId.ts"
+      "preferences/views/APIKeys/components/APIKeyDeleteForm/APIKeyDeleteForm.tsx"
     ],
     "loc": 11
   },
@@ -3920,18 +3464,8 @@
     "loc": 90
   },
   "preferences/views/APIKeys/components/APIKeyTable/APIKeyTable.tsx": {
-    "dependencies": [
-      "preferences/views/APIKeys/components/APIKeyTable/useAPIKeyTableColumns/useAPIKeyTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 45
-  },
-  "preferences/views/APIKeys/components/APIKeyTable/useAPIKeyTableColumns/useAPIKeyTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "preferences/views/APIKeys/components/APIKeyDelete/APIKeyDelete.tsx",
-      "preferences/views/APIKeys/components/APIKeyEdit/APIKeyEdit.tsx"
-    ],
-    "loc": 68
   },
   "preferences/views/APIKeys/views/APIKeyList.tsx": {
     "dependencies": [
@@ -3957,8 +3491,7 @@
   "preferences/views/SSHKeys/components/AddSSHKey/SSHKeyFormFields/SSHKeyFormFields.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/docsUrls.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 68
   },
@@ -3970,18 +3503,9 @@
   },
   "preferences/views/SSHKeys/components/SSHKeysTable/SSHKeysTable.tsx": {
     "dependencies": [
-      "base/docsUrls.ts",
-      "preferences/views/SSHKeys/components/SSHKeysTable/useSSHKeysTableColumns/useSSHKeysTableColumns.tsx",
       "preferences/views/SSHKeys/components/AddSSHKey/AddSSHKey.tsx"
     ],
     "loc": 90
-  },
-  "preferences/views/SSHKeys/components/SSHKeysTable/useSSHKeysTableColumns/useSSHKeysTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "preferences/views/SSHKeys/components/DeleteSSHKey/DeleteSSHKey.tsx"
-    ],
-    "loc": 87
   },
   "preferences/views/SSHKeys/views/SSHKeysList.tsx": {
     "dependencies": [
@@ -4005,17 +3529,9 @@
   },
   "preferences/views/SSLKeys/components/SSLKeysTable/SSLKeysTable.tsx": {
     "dependencies": [
-      "preferences/views/SSLKeys/components/SSLKeysTable/useSSLKeysTableColumns/useSSLKeysTableColumns.tsx",
       "preferences/views/SSLKeys/components/AddSSLKey/AddSSLKey.tsx"
     ],
     "loc": 42
-  },
-  "preferences/views/SSLKeys/components/SSLKeysTable/useSSLKeysTableColumns/useSSLKeysTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "preferences/views/SSLKeys/components/DeleteSSLKey/DeleteSSLKey.tsx"
-    ],
-    "loc": 56
   },
   "preferences/views/SSLKeys/views/SSLKeysList.tsx": {
     "dependencies": [
@@ -4033,8 +3549,7 @@
   "settings/views/Configuration/Commissioning/Commissioning.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "settings/views/Configuration/CommissioningForm/CommissioningForm.tsx",
-      "store/general/selectors/osInfo.ts"
+      "settings/views/Configuration/CommissioningForm/CommissioningForm.tsx"
     ],
     "loc": 44
   },
@@ -4046,16 +3561,14 @@
   },
   "settings/views/Configuration/CommissioningFormFields/CommissioningFormFields.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "store/general/selectors/osInfo.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 75
   },
   "settings/views/Configuration/Deploy/Deploy.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "settings/views/Configuration/DeployForm/DeployForm.tsx",
-      "store/general/selectors/osInfo.ts"
+      "settings/views/Configuration/DeployForm/DeployForm.tsx"
     ],
     "loc": 41
   },
@@ -4068,8 +3581,7 @@
   },
   "settings/views/Configuration/DeployFormFields/DeployFormFields.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "store/general/selectors/osInfo.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 75
   },
@@ -4129,16 +3641,13 @@
       "base/components/DhcpSnippetType/DhcpSnippetType.tsx",
       "base/components/TableActions/TableActions.tsx",
       "base/components/TableDeleteConfirm/TableDeleteConfirm.tsx",
-      "base/docsUrls.ts",
       "settings/components/SettingsTable/SettingsTable.tsx",
       "settings/views/Dhcp/DhcpTarget/DhcpTarget.tsx"
     ],
     "loc": 271
   },
   "settings/views/Dhcp/DhcpTarget/DhcpTarget.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 47
   },
   "settings/views/Images/ChangeSource/ChangeSource.tsx": {
@@ -4219,8 +3728,7 @@
   "settings/views/LicenseKeys/components/LicenseKeyForm/LicenseKeyForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "settings/views/LicenseKeys/components/LicenseKeyFormFields/LicenseKeyFormFields.tsx",
-      "store/general/selectors/osInfo.ts"
+      "settings/views/LicenseKeys/components/LicenseKeyFormFields/LicenseKeyFormFields.tsx"
     ],
     "loc": 105
   },
@@ -4233,19 +3741,9 @@
   "settings/views/LicenseKeys/components/LicenseKeyTable/LicenseKeyTable.tsx": {
     "dependencies": [
       "base/components/SearchBox/SearchBox.tsx",
-      "settings/views/LicenseKeys/components/LicenseKeyTable/useLicenseKeyTableColumns/useLicenseKeyTableColumns.tsx",
-      "settings/views/LicenseKeys/components/LicenseKeyAdd/LicenseKeyAdd.tsx",
-      "store/general/selectors/osInfo.ts"
+      "settings/views/LicenseKeys/components/LicenseKeyAdd/LicenseKeyAdd.tsx"
     ],
     "loc": 64
-  },
-  "settings/views/LicenseKeys/components/LicenseKeyTable/useLicenseKeyTableColumns/useLicenseKeyTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "settings/views/LicenseKeys/components/LicenseKeyDelete/LicenseKeyDelete.tsx",
-      "settings/views/LicenseKeys/components/LicenseKeyEdit/LicenseKeyEdit.tsx"
-    ],
-    "loc": 57
   },
   "settings/views/LicenseKeys/views/LicenseKeyList.tsx": {
     "dependencies": [
@@ -4309,11 +3807,7 @@
   "settings/views/Repositories/components/AddRepository/AddRepository.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "settings/views/Repositories/components/RepositoryFormFields/RepositoryFormFields.tsx",
-      "store/general/selectors/componentsToDisable.ts",
-      "store/general/selectors/knownArchitectures.ts",
-      "store/general/selectors/pocketsToDisable.ts",
-      "utils/parseCommaSeparatedValues.ts"
+      "settings/views/Repositories/components/RepositoryFormFields/RepositoryFormFields.tsx"
     ],
     "loc": 105
   },
@@ -4326,36 +3820,19 @@
   "settings/views/Repositories/components/EditRepository/EditRepository.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "settings/views/Repositories/components/RepositoryFormFields/RepositoryFormFields.tsx",
-      "store/general/selectors/componentsToDisable.ts",
-      "store/general/selectors/knownArchitectures.ts",
-      "store/general/selectors/pocketsToDisable.ts",
-      "utils/parseCommaSeparatedValues.ts"
+      "settings/views/Repositories/components/RepositoryFormFields/RepositoryFormFields.tsx"
     ],
     "loc": 147
   },
   "settings/views/Repositories/components/RepositoriesTable/RepositoriesTable.tsx": {
     "dependencies": [
-      "base/hooks/usePagination/usePagination.ts",
-      "settings/views/Repositories/components/RepositoriesTable/useRepositoriesTableColumns/useRepositoriesTableColumns.tsx",
       "settings/views/Repositories/components/AddRepository/AddRepository.tsx"
     ],
     "loc": 74
   },
-  "settings/views/Repositories/components/RepositoriesTable/useRepositoriesTableColumns/useRepositoriesTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "settings/views/Repositories/components/DeleteRepository/DeleteRepository.tsx",
-      "settings/views/Repositories/components/EditRepository/EditRepository.tsx"
-    ],
-    "loc": 82
-  },
   "settings/views/Repositories/components/RepositoryFormFields/RepositoryFormFields.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "store/general/selectors/componentsToDisable.ts",
-      "store/general/selectors/knownArchitectures.ts",
-      "store/general/selectors/pocketsToDisable.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 198
   },
@@ -4376,28 +3853,20 @@
       "base/components/TableActions/TableActions.tsx",
       "base/components/TableDeleteConfirm/TableDeleteConfirm.tsx",
       "settings/components/SettingsTable/SettingsTable.tsx",
-      "settings/views/Scripts/ScriptDetails/ScriptDetails.tsx",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "settings/views/Scripts/ScriptDetails/ScriptDetails.tsx"
     ],
     "loc": 201
   },
   "settings/views/Scripts/ScriptsUpload/ScriptsUpload.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "settings/views/Scripts/ScriptsUpload/readScript.tsx"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 168
-  },
-  "settings/views/Scripts/ScriptsUpload/readScript.tsx": {
-    "dependencies": [],
-    "loc": 57
   },
   "settings/views/Security/IpmiSettings/IpmiFormFields/IpmiFormFields.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/docsUrls.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 66
   },
@@ -4411,46 +3880,37 @@
   "settings/views/Security/SecretStorage/SecretStorage.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "settings/views/Security/SecretStorage/VaultSettings/VaultSettings.tsx",
-      "store/general/selectors/vaultEnabled.ts"
+      "settings/views/Security/SecretStorage/VaultSettings/VaultSettings.tsx"
     ],
     "loc": 29
   },
   "settings/views/Security/SecretStorage/VaultSettings/VaultSettings.tsx": {
-    "dependencies": [
-      "base/docsUrls.ts",
-      "store/general/selectors/vaultEnabled.ts"
-    ],
+    "dependencies": [],
     "loc": 128
   },
   "settings/views/Security/SecurityProtocols/SecurityProtocols.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
       "settings/views/Security/SecurityProtocols/TLSDisabled/TLSDisabled.tsx",
-      "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabled.tsx",
-      "store/general/selectors/tlsCertificate.ts"
+      "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabled.tsx"
     ],
     "loc": 34
   },
   "settings/views/Security/SecurityProtocols/TLSDisabled/TLSDisabled.tsx": {
-    "dependencies": [
-      "base/docsUrls.ts"
-    ],
+    "dependencies": [],
     "loc": 35
   },
   "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabled.tsx": {
     "dependencies": [
       "base/components/CertificateMetadata/CertificateMetadata.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabledFields/TLSEnabledFields.tsx",
-      "store/general/selectors/tlsCertificate.ts"
+      "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabledFields/TLSEnabledFields.tsx"
     ],
     "loc": 111
   },
   "settings/views/Security/SecurityProtocols/TLSEnabled/TLSEnabledFields/TLSEnabledFields.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "base/docsUrls.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 48
   },
@@ -4506,22 +3966,9 @@
   "settings/views/Users/components/UsersTable/UsersTable.tsx": {
     "dependencies": [
       "base/components/SearchBox/SearchBox.tsx",
-      "base/hooks/usePagination/usePagination.ts",
-      "settings/views/Users/components/UsersTable/useUsersTableColumns/useUsersTableColumns.tsx",
       "settings/views/Users/components/AddUser/AddUser.tsx"
     ],
     "loc": 57
-  },
-  "settings/views/Users/components/UsersTable/useUsersTableColumns/useUsersTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "base/components/TableHeader/TableHeader.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "base/urls.ts",
-      "settings/views/Users/components/DeleteUser/DeleteUser.tsx",
-      "settings/views/Users/components/EditUser/EditUser.tsx"
-    ],
-    "loc": 186
   },
   "settings/views/Users/views/UsersList.tsx": {
     "dependencies": [
@@ -4529,16 +3976,6 @@
       "settings/views/Users/components/UsersTable/UsersTable.tsx"
     ],
     "loc": 28
-  },
-  "store/machine/utils/hooks.tsx": {
-    "dependencies": [
-      "machines/components/ErrorDetails/ErrorDetails.tsx",
-      "store/general/selectors/architectures.ts",
-      "store/general/selectors/machineActions.ts",
-      "store/general/selectors/osInfo.ts",
-      "utils/isId.ts"
-    ],
-    "loc": 776
   },
   "subnets/components/DHCPSnippets/DHCPSnippets.tsx": {
     "dependencies": [
@@ -4556,8 +3993,7 @@
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/components/PrefixedIpInput/PrefixedIpInput.tsx",
-      "utils/isId.ts"
+      "base/components/PrefixedIpInput/PrefixedIpInput.tsx"
     ],
     "loc": 312
   },
@@ -4565,11 +4001,7 @@
     "dependencies": [
       "base/components/SubnetLink/SubnetLink.tsx",
       "base/components/TableActions/TableActions.tsx",
-      "base/components/TitledSection/TitledSection.tsx",
-      "base/docsUrls.ts",
-      "utils/isId.ts",
-      "utils/table/generateEmptyStateMsg.tsx",
-      "utils/table/getTableStatus.ts"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 283
   },
@@ -4580,10 +4012,6 @@
     ],
     "loc": 88
   },
-  "subnets/views/FabricDetails/EditFabric/index.tsx": {
-    "dependencies": [],
-    "loc": 1
-  },
   "subnets/views/FabricDetails/FabricDetails.tsx": {
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
@@ -4592,15 +4020,13 @@
       "subnets/views/FabricDetails/FabricDetailsHeader/FabricDeleteForm/FabricDeleteForm.tsx",
       "subnets/views/FabricDetails/FabricDetailsHeader/FabricDetailsHeader.tsx",
       "subnets/views/FabricDetails/FabricSummary/FabricSummary.tsx",
-      "subnets/views/FabricDetails/FabricVLANsTable/FabricVLANsTable.tsx",
-      "utils/isId.ts"
+      "subnets/views/FabricDetails/FabricVLANsTable/FabricVLANsTable.tsx"
     ],
     "loc": 90
   },
   "subnets/views/FabricDetails/FabricDetailsHeader/FabricDeleteForm/FabricDeleteForm.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "utils/isId.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 81
   },
@@ -4617,10 +4043,6 @@
     ],
     "loc": 45
   },
-  "subnets/views/FabricDetails/FabricSummary/FabricController/index.tsx": {
-    "dependencies": [],
-    "loc": 1
-  },
   "subnets/views/FabricDetails/FabricSummary/FabricSummary.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
@@ -4631,18 +4053,9 @@
   },
   "subnets/views/FabricDetails/FabricVLANsTable/FabricVLANsTable.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx",
-      "subnets/views/FabricDetails/FabricVLANsTable/useFabricVLANsTableColumns/useFabricVLANsTableColumns.tsx"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 93
-  },
-  "subnets/views/FabricDetails/FabricVLANsTable/useFabricVLANsTableColumns/useFabricVLANsTableColumns.tsx": {
-    "dependencies": [
-      "base/components/SpaceLink/SpaceLink.tsx",
-      "base/components/SubnetLink/SubnetLink.tsx",
-      "base/components/VLANLink/VLANLink.tsx"
-    ],
-    "loc": 72
   },
   "subnets/views/FormActions/FormActions.tsx": {
     "dependencies": [
@@ -4672,8 +4085,7 @@
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/components/VLANSelect/VLANSelect.tsx",
-      "utils/toFormikNumber.ts"
+      "base/components/VLANSelect/VLANSelect.tsx"
     ],
     "loc": 157
   },
@@ -4682,8 +4094,7 @@
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/components/SpaceSelect/SpaceSelect.tsx",
-      "utils/toFormikNumber.ts"
+      "base/components/SpaceSelect/SpaceSelect.tsx"
     ],
     "loc": 127
   },
@@ -4695,15 +4106,13 @@
       "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDelete/SpaceDelete.tsx",
       "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDetailsHeader.tsx",
       "subnets/views/SpaceDetails/SpaceSubnets/SpaceSubnets.tsx",
-      "subnets/views/SpaceDetails/SpaceSummary/SpaceSummary.tsx",
-      "utils/isId.ts"
+      "subnets/views/SpaceDetails/SpaceSummary/SpaceSummary.tsx"
     ],
     "loc": 90
   },
   "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDelete/SpaceDelete.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "subnets/urls.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 53
   },
@@ -4715,19 +4124,9 @@
   },
   "subnets/views/SpaceDetails/SpaceSubnets/SpaceSubnets.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx",
-      "subnets/views/SpaceDetails/SpaceSubnets/useSpaceSubnetsColumns/useSpaceSubnetsColumns.tsx",
-      "utils/simpleSortByKey.ts"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 62
-  },
-  "subnets/views/SpaceDetails/SpaceSubnets/useSpaceSubnetsColumns/useSpaceSubnetsColumns.tsx": {
-    "dependencies": [
-      "base/components/FabricLink/FabricLink.tsx",
-      "base/components/SubnetLink/SubnetLink.tsx",
-      "base/components/VLANLink/VLANLink.tsx"
-    ],
-    "loc": 69
   },
   "subnets/views/SpaceDetails/SpaceSummary/SpaceSummary.tsx": {
     "dependencies": [
@@ -4775,8 +4174,7 @@
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/components/SubnetSelect/SubnetSelect.tsx",
-      "utils/toFormikNumber.ts"
+      "base/components/SubnetSelect/SubnetSelect.tsx"
     ],
     "loc": 121
   },
@@ -4790,24 +4188,15 @@
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/components/SubnetSelect/SubnetSelect.tsx",
-      "utils/toFormikNumber.ts"
+      "base/components/SubnetSelect/SubnetSelect.tsx"
     ],
     "loc": 128
   },
   "subnets/views/SubnetDetails/StaticRoutes/StaticRoutes.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx",
-      "subnets/views/SubnetDetails/StaticRoutes/useStaticRoutesColumns/useStaticRoutesColumns.tsx"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 69
-  },
-  "subnets/views/SubnetDetails/StaticRoutes/useStaticRoutesColumns/useStaticRoutesColumns.tsx": {
-    "dependencies": [
-      "base/components/SubnetLink/SubnetLink.tsx",
-      "base/components/TableActions/TableActions.tsx"
-    ],
-    "loc": 77
   },
   "subnets/views/SubnetDetails/SubnetActionForms/SubnetActionForms.tsx": {
     "dependencies": [
@@ -4833,24 +4222,20 @@
   },
   "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx": {
     "dependencies": [
-      "base/components/RowCheckbox/RowCheckbox.tsx",
-      "store/general/selectors/knownBootArchitectures.ts"
+      "base/components/RowCheckbox/RowCheckbox.tsx"
     ],
     "loc": 130
   },
   "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/EditBootArchitectures.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "store/general/selectors/knownBootArchitectures.ts",
       "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx"
     ],
     "loc": 80
   },
   "subnets/views/SubnetDetails/SubnetActionForms/components/MapSubnet/MapSubnet.tsx": {
     "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 72
   },
@@ -4859,19 +4244,14 @@
       "base/components/ModelNotFound/ModelNotFound.tsx",
       "base/components/PageContent/PageContent.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "subnets/components/DHCPSnippets/DHCPSnippets.tsx",
       "subnets/components/ReservedRanges/ReservedRanges.tsx",
-      "subnets/urls.ts",
       "subnets/views/SubnetDetails/StaticDHCPLease/StaticDHCPLease.tsx",
       "subnets/views/SubnetDetails/StaticRoutes/StaticRoutes.tsx",
       "subnets/views/SubnetDetails/SubnetActionForms/SubnetActionForms.tsx",
       "subnets/views/SubnetDetails/SubnetDetailsHeader/SubnetDetailsHeader.tsx",
       "subnets/views/SubnetDetails/SubnetSummary/SubnetSummary.tsx",
-      "subnets/views/SubnetDetails/SubnetUsedIPs/SubnetUsedIPs.tsx",
-      "utils/getRelativeRoute.ts",
-      "utils/isId.ts"
+      "subnets/views/SubnetDetails/SubnetUsedIPs/SubnetUsedIPs.tsx"
     ],
     "loc": 146
   },
@@ -4944,24 +4324,15 @@
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/SpaceLink/SpaceLink.tsx",
-      "base/components/TooltipButton/TooltipButton.tsx",
-      "utils/isId.ts"
+      "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 26
   },
   "subnets/views/SubnetDetails/SubnetUsedIPs/SubnetUsedIPs.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx",
-      "base/hooks/usePagination/usePagination.ts",
-      "subnets/views/SubnetDetails/SubnetUsedIPs/useSubnetUsedIPsColumns/useSubnetUsedIPsColumns.tsx"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 84
-  },
-  "subnets/views/SubnetDetails/SubnetUsedIPs/useSubnetUsedIPsColumns/useSubnetUsedIPsColumns.tsx": {
-    "dependencies": [
-      "base/components/node/NodeLink/NodeLink.tsx"
-    ],
-    "loc": 79
   },
   "subnets/views/SubnetDetails/Utilisation/SubnetUtilisation.tsx": {
     "dependencies": [
@@ -4987,37 +4358,21 @@
     "loc": 121
   },
   "subnets/views/SubnetsList/SubnetsTable/SubnetsTable.tsx": {
-    "dependencies": [
-      "base/hooks/usePagination/usePagination.ts",
-      "subnets/views/SubnetsList/SubnetsTable/useSubnetsTableColumns/useSubnetsTableColumns.tsx"
-    ],
-    "loc": 49
-  },
-  "subnets/views/SubnetsList/SubnetsTable/useSubnetsTableColumns/useSubnetsTableColumns.tsx": {
-    "dependencies": [
-      "subnets/urls.ts"
-    ],
-    "loc": 145
-  },
-  "subnets/views/SubnetsList/SubnetsTable/utils.tsx": {
     "dependencies": [],
-    "loc": 18
+    "loc": 49
   },
   "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCP.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "base/docsUrls.ts",
       "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx",
-      "subnets/views/VLANDetails/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx",
-      "utils/isId.ts"
+      "subnets/views/VLANDetails/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx"
     ],
     "loc": 230
   },
   "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
-      "base/components/VLANSelect/VLANSelect.tsx",
-      "utils/simpleSortByKey.ts"
+      "base/components/VLANSelect/VLANSelect.tsx"
     ],
     "loc": 187
   },
@@ -5026,8 +4381,7 @@
       "base/components/FormikField/FormikField.tsx",
       "base/components/SubnetLink/SubnetLink.tsx",
       "base/components/SubnetSelect/SubnetSelect.tsx",
-      "base/components/TitledSection/TitledSection.tsx",
-      "utils/isId.ts"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 197
   },
@@ -5035,11 +4389,7 @@
     "dependencies": [
       "base/components/ControllerLink/ControllerLink.tsx",
       "base/components/Definition/Definition.tsx",
-      "base/components/TitledSection/TitledSection.tsx",
-      "base/docsUrls.ts",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "utils/isId.ts"
+      "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 147
   },
@@ -5049,8 +4399,7 @@
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/SpaceSelect/SpaceSelect.tsx",
-      "subnets/views/VLANDetails/VLANSummary/VLANControllers/VLANControllers.tsx",
-      "utils/isId.ts"
+      "subnets/views/VLANDetails/VLANSummary/VLANControllers/VLANControllers.tsx"
     ],
     "loc": 127
   },
@@ -5067,8 +4416,7 @@
   "subnets/views/VLANDetails/VLANDeleteForm/VLANDeleteForm.tsx": {
     "dependencies": [
       "base/components/FabricLink/FabricLink.tsx",
-      "base/components/FormikForm/FormikForm.tsx",
-      "utils/isId.ts"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
     "loc": 71
   },
@@ -5083,8 +4431,7 @@
       "subnets/views/VLANDetails/VLANActionForms/VLANActionForms.tsx",
       "subnets/views/VLANDetails/VLANDetailsHeader/VLANDetailsHeader.tsx",
       "subnets/views/VLANDetails/VLANSubnets/VLANSubnets.tsx",
-      "subnets/views/VLANDetails/VLANSummary/VLANSummary.tsx",
-      "utils/isId.ts"
+      "subnets/views/VLANDetails/VLANSummary/VLANSummary.tsx"
     ],
     "loc": 96
   },
@@ -5135,33 +4482,25 @@
   },
   "tags/components/DefinitionField/DefinitionField.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "base/docsUrls.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 102
   },
   "tags/components/KernelOptionsField/KernelOptionsField.tsx": {
     "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "base/docsUrls.ts",
-      "utils/isId.ts"
+      "base/components/FormikField/FormikField.tsx"
     ],
     "loc": 76
   },
   "tags/components/NodesTagsLink/NodesTagsLink.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 55
   },
   "tags/components/TagDetails/TagDetails.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "tags/components/AppliedTo/AppliedTo.tsx",
-      "utils/isId.ts"
+      "tags/components/AppliedTo/AppliedTo.tsx"
     ],
     "loc": 95
   },
@@ -5169,8 +4508,6 @@
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "tags/components/DefinitionField/DefinitionField.tsx",
       "tags/components/KernelOptionsField/KernelOptionsField.tsx"
     ],
@@ -5179,16 +4516,12 @@
   "tags/components/TagsHeader/DeleteTagForm/DeleteTagForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "tags/components/TagsHeader/DeleteTagForm/DeleteTagFormWarnings/DeleteTagFormWarnings.tsx"
     ],
     "loc": 85
   },
   "tags/components/TagsHeader/DeleteTagForm/DeleteTagFormWarnings/DeleteTagFormWarnings.tsx": {
-    "dependencies": [
-      "base/urls.ts"
-    ],
+    "dependencies": [],
     "loc": 65
   },
   "tags/components/TagsHeader/TagForms/TagForms.tsx": {
@@ -5202,18 +4535,13 @@
   "tags/components/TagsHeader/TagsHeader.tsx": {
     "dependencies": [
       "base/components/SearchBox/SearchBox.tsx",
-      "base/components/SegmentedControl/SegmentedControl.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts"
+      "base/components/SegmentedControl/SegmentedControl.tsx"
     ],
     "loc": 118
   },
   "tags/views/TagDetails/TagDetails.tsx": {
     "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "utils/isId.ts"
+      "base/components/ModelNotFound/ModelNotFound.tsx"
     ],
     "loc": 48
   },
@@ -5229,22 +4557,15 @@
       "base/components/TableActions/TableActions.tsx",
       "base/components/TableHeader/TableHeader.tsx",
       "base/components/TooltipButton/TooltipButton.tsx",
-      "base/docsUrls.ts",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
-      "tags/components/AppliedTo/AppliedTo.tsx",
-      "utils/isComparable.ts"
+      "tags/components/AppliedTo/AppliedTo.tsx"
     ],
     "loc": 241
   },
   "tags/views/TagMachines/TagMachines.tsx": {
     "dependencies": [
       "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/hooks/urls.ts",
-      "base/urls.ts",
       "machines/views/MachineList/ErrorsNotification/ErrorsNotification.tsx",
-      "machines/views/MachineList/MachineListTable/MachineListTable.tsx",
-      "utils/isId.ts"
+      "machines/views/MachineList/MachineListTable/MachineListTable.tsx"
     ],
     "loc": 91
   },
@@ -5259,7 +4580,6 @@
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/FormikField/FormikField.tsx",
-      "base/docsUrls.ts",
       "tags/components/AppliedTo/AppliedTo.tsx",
       "tags/components/DefinitionField/DefinitionField.tsx",
       "tags/components/KernelOptionsField/KernelOptionsField.tsx"
@@ -5269,20 +4589,14 @@
   "tags/views/Tags.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "base/urls.ts",
       "base/views/NotFound/NotFound.tsx",
       "tags/components/TagsHeader/TagForms/TagForms.tsx",
       "tags/components/TagsHeader/TagsHeader.tsx",
       "tags/views/TagDetails/TagDetails.tsx",
       "tags/views/TagList/TagList.tsx",
-      "tags/views/TagMachines/TagMachines.tsx",
-      "utils/getRelativeRoute.ts"
+      "tags/views/TagMachines/TagMachines.tsx"
     ],
     "loc": 101
-  },
-  "utils/table/generateEmptyStateMsg.tsx": {
-    "dependencies": [],
-    "loc": 18
   },
   "zones/components/AddZone/AddZone.tsx": {
     "dependencies": [
@@ -5319,20 +4633,8 @@
     "loc": 16
   },
   "zones/components/ZonesTable/ZonesTable.tsx": {
-    "dependencies": [
-      "base/hooks/usePagination/usePagination.ts",
-      "zones/components/ZonesTable/useZonesTableColumns/useZonesTableColumns.tsx"
-    ],
+    "dependencies": [],
     "loc": 33
-  },
-  "zones/components/ZonesTable/useZonesTableColumns/useZonesTableColumns.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx",
-      "base/urls.ts",
-      "zones/components/DeleteZone/DeleteZone.tsx",
-      "zones/components/EditZone/EditZone.tsx"
-    ],
-    "loc": 124
   },
   "zones/views/ZonesList.tsx": {
     "dependencies": [

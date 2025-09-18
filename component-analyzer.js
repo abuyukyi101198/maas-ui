@@ -60,15 +60,20 @@ function processDependencies(dependencies) {
   const processed = {};
 
   for (const [filePath, deps] of Object.entries(dependencies)) {
+    const baseName = path.basename(filePath, path.extname(filePath));
+
+    if (!/^[A-Z]/.test(baseName)) continue;
+
     if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
       const importNames = getImportsBabel(filePath);
       const filteredDeps = deps.flatMap((dep) => {
         const expandedImports = expandIndex(dep, dependencies);
         return expandedImports.filter((file) => {
           const base = path.basename(file, path.extname(file));
-          return importNames.has(base);
+          return importNames.has(base) && /^[A-Z]/.test(base);
         });
       });
+
       processed[filePath] = {
         dependencies: [...new Set(filteredDeps)],
         loc: countLoC(filePath),
