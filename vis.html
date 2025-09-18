@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8" />
-<html>
+<html lang="en">
 <head>
   <title>Code City Voronoi</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -17,18 +17,6 @@
           height: 100vh;
           display: block;
       }
-
-      .cell {
-          fill-opacity: 0.6;
-          stroke: #444;
-          stroke-width: 1px;
-      }
-
-      .label {
-          font-size: 10px;
-          text-anchor: middle;
-          pointer-events: none;
-      }
   </style>
 </head>
 <body>
@@ -39,9 +27,7 @@
   const svg = d3.select("svg").attr("width", width).attr("height", height);
   const g = svg.append("g");
 
-  // Load your dependencies JSON
   d3.json("component-dependencies.json").then(data => {
-    // Convert JSON into nodes + links
     const nodesMap = new Map();
     const links = [];
 
@@ -55,29 +41,19 @@
 
     const nodes = Array.from(nodesMap.values());
 
-    // Force simulation
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(80))
-      .force("charge", d3.forceManyBody().strength(-200))
+      .force("link", d3.forceLink(links).id(d => d.id).distance(20))
+      .force("charge", d3.forceManyBody().strength(-5))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     const link = g.selectAll("line")
       .data(links)
-      .enter().append("line")
-      .attr("stroke", "#666")
-      .attr("stroke-width", 1);
 
     const node = g.selectAll("circle")
       .data(nodes)
-      .enter().append("circle")
-      .attr("r", 3)
-      .attr("fill", "white");
 
     const label = g.selectAll("text")
       .data(nodes)
-      .enter().append("text")
-      .attr("class", "label")
-      .text(d => d.id);
 
     function updateVoronoi() {
       const delaunay = d3.Delaunay.from(nodes, d => d.x, d => d.y);
@@ -110,7 +86,6 @@
       updateVoronoi();
     });
 
-    // Zoom / pan
     svg.call(
       d3.zoom()
         .scaleExtent([0.5, 5])
