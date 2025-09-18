@@ -17,15 +17,31 @@
           height: 100vh;
           display: block;
       }
+
+      .tooltip {
+          position: absolute;
+          background: #222;
+          color: #eee;
+          padding: 6px 10px;
+          border-radius: 6px;
+          border: 1px solid #444;
+          font-size: 14px;
+          pointer-events: none;
+          visibility: hidden;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      }
   </style>
 </head>
 <body>
 <svg></svg>
+<div class="tooltip" id="tooltip"></div>
 <script>
   const width = window.innerWidth;
   const height = window.innerHeight;
   const svg = d3.select("svg").attr("width", width).attr("height", height);
   const g = svg.append("g");
+  const tooltip = d3.select("#tooltip");
 
   d3.json("component-dependencies.json").then(data => {
     const nodesMap = new Map();
@@ -76,7 +92,14 @@
         .attr("d", (d, i) => voronoi.renderCell(i))
         .attr("fill", (d, i) => d3.schemeTableau10[i % 10])
         .attr("stroke", "#111")
-        .attr("stroke-width", 0.5);
+        .attr("stroke-width", 0.5)
+        .on("click", (event, d) => {
+          tooltip
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px")
+            .style("visibility", "visible")
+            .text(d.id + "\n" + d.degree);
+        });
     }
 
     simulation.on("tick", () => {
@@ -89,11 +112,19 @@
         .on("zoom", (event) => {
           const t = event.transform;
           const k = t.k;
+
           const tx = Math.min(0, Math.max(width - width * k, t.x));
           const ty = Math.min(0, Math.max(height - height * k, t.y));
+
           g.attr("transform", `translate(${tx},${ty}) scale(${k})`);
         })
     );
+
+    svg.on("click", (event) => {
+      if (event.target.tagName === "svg") {
+        tooltip.style("visibility", "hidden");
+      }
+    });
   });
 </script>
 </body>
