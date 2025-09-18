@@ -69,7 +69,10 @@ function processDependencies(dependencies) {
           return importNames.has(base);
         });
       });
-      processed[filePath] = [...new Set(filteredDeps)];
+      processed[filePath] = {
+        dependencies: [...new Set(filteredDeps)],
+        loc: countLoC(filePath),
+      };
     }
   }
 
@@ -115,6 +118,17 @@ export function getImportsBabel(filePath) {
     }
   }
   return imports;
+}
+
+function countLoC(filePath) {
+  const absPath = path.join(SOURCE_PATH, filePath);
+  if (!fs.existsSync(absPath)) return 0;
+
+  const content = fs.readFileSync(absPath, "utf8");
+  return content
+    .split("\n")
+    .filter((line) => line.trim() !== "" && !line.trim().startsWith("//"))
+    .length;
 }
 
 // Clean up generated files
