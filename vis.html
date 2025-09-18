@@ -41,19 +41,31 @@
 
     const nodes = Array.from(nodesMap.values());
 
+    // Compute degree (number of links) for each node
+    nodes.forEach(node => {
+      node.degree = links.filter(l => l.source === node.id || l.target === node.id).length;
+      // Give initial position near center to avoid collapse
+      node.x = width / 2 + (Math.random() - 0.5) * 50;
+      node.y = height / 2 + (Math.random() - 0.5) * 50;
+    });
+
+    const maxDegree = d3.max(nodes, d => d.degree);
+
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(20))
-      .force("charge", d3.forceManyBody().strength(-5))
-      .force("center", d3.forceCenter(width / 2, height / 2));
-
-    const link = g.selectAll("line")
-      .data(links)
-
-    const node = g.selectAll("circle")
-      .data(nodes)
-
-    const label = g.selectAll("text")
-      .data(nodes)
+      .force("charge", d3.forceManyBody().strength(-10))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("radial", d3.forceRadial(
+        d => {
+          // Normalize degree: high degree closer to center
+          const normalized = maxDegree ? d.degree / maxDegree : 0;
+          const minRadius = 50; // dense downtown core
+          const maxRadius = Math.min(width, height) / 2 - 50; // suburbs near edges
+          return minRadius + (1 - normalized) * maxRadius;
+        },
+        width / 2,
+        height / 2
+      ));
 
     function updateVoronoi() {
       const delaunay = d3.Delaunay.from(nodes, d => d.x, d => d.y);
@@ -65,24 +77,12 @@
       cells.join("path")
         .attr("class", "cell")
         .attr("d", (d, i) => voronoi.renderCell(i))
-        .attr("fill", (d, i) => d3.schemeTableau10[i % 10]);
+        .attr("fill", (d, i) => d3.schemeTableau10[i % 10])
+        .attr("stroke", "#111")
+        .attr("stroke-width", 0.5);
     }
 
     simulation.on("tick", () => {
-      link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
-
-      node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
-
-      label
-        .attr("x", d => d.x)
-        .attr("y", d => d.y);
-
       updateVoronoi();
     });
 
