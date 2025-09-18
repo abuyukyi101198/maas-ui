@@ -18,30 +18,55 @@
           display: block;
       }
 
+      .cell {
+          cursor: pointer;
+          transition: stroke-width 0.2s, stroke 0.2s;
+      }
+
+      .cell.highlighted {
+          stroke: #ffeb3b;
+          stroke-width: 2.5px;
+      }
+
       .tooltip {
           position: absolute;
           background: #222;
           color: #eee;
-          padding: 6px 10px;
+          padding: 10px 12px;
           border-radius: 6px;
           border: 1px solid #444;
-          font-size: 14px;
+          font-size: 13px;
           pointer-events: none;
           visibility: hidden;
           white-space: nowrap;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+          max-width: 320px;
+      }
+
+      .tooltip-title {
+          font-size: 16px;
+          font-weight: 700;
+          margin-bottom: 6px;
+      }
+
+      .tooltip-field {
+          font-size: 13px;
+          margin-top: 2px;
+          color: #ddd;
       }
   </style>
 </head>
 <body>
 <svg></svg>
 <div class="tooltip" id="tooltip"></div>
+
 <script>
   const width = window.innerWidth;
   const height = window.innerHeight;
   const svg = d3.select("svg").attr("width", width).attr("height", height);
   const g = svg.append("g");
   const tooltip = d3.select("#tooltip");
+  let selectedCell = null;
 
   d3.json("component-dependencies.json").then(data => {
     const nodesMap = new Map();
@@ -49,10 +74,21 @@
 
     for (const [target, sources] of Object.entries(data)) {
       if (!nodesMap.has(target)) nodesMap.set(target, { id: target });
-      sources.forEach(source => {
-        if (!nodesMap.has(source)) nodesMap.set(source, { id: source });
-        links.push({ source, target });
-      });
+      if (Array.isArray(sources)) {
+        sources.forEach(source => {
+          if (!nodesMap.has(source)) nodesMap.set(source, { id: source });
+          links.push({ source, target });
+        });
+      } else if (sources && typeof sources === "object") {
+        const deps = Array.isArray(sources.dependencies) ? sources.dependencies : [];
+        deps.forEach(source => {
+          if (!nodesMap.has(source)) nodesMap.set(source, { id: source });
+          links.push({ source, target });
+        });
+        if (typeof sources.loc === "number") {
+          nodesMap.get(target).loc = sources.loc;
+        }
+      }
     }
 
     const nodes = Array.from(nodesMap.values());
@@ -61,9 +97,12 @@
       node.degree = links.filter(l => l.source === node.id || l.target === node.id).length;
       node.x = width / 2 + (Math.random() - 0.5) * 50;
       node.y = height / 2 + (Math.random() - 0.5) * 50;
+      if (node.loc === undefined && data[node.id] && typeof data[node.id] === "object" && typeof data[node.id].loc === "number") {
+        node.loc = data[node.id].loc;
+      }
     });
 
-    const maxDegree = d3.max(nodes, d => d.degree);
+    const maxDegree = d3.max(nodes, d => d.degree) || 1;
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(20))
@@ -88,18 +127,49 @@
         .data(nodes, d => d.id);
 
       cells.join("path")
-        .attr("class", "cell")
+        .attr("class", d => d === selectedCell ? "cell highlighted" : "cell")
         .attr("d", (d, i) => voronoi.renderCell(i))
         .attr("fill", (d, i) => d3.schemeTableau10[i % 10])
         .attr("stroke", "#111")
         .attr("stroke-width", 0.5)
         .on("click", (event, d) => {
-          tooltip
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY + 10) + "px")
-            .style("visibility", "visible")
-            .text(d.id + "\n" + d.degree);
+          // Toggle selection
+          if (selectedCell === d) {
+            selectedCell = null;
+            tooltip.style("visibility", "hidden");
+          } else {
+            selectedCell = d;
+            showTooltip(event, d);
+          }
+          updateVoronoi();
+          event.stopPropagation();
         });
+    }
+
+    function showTooltip(event, d) {
+      const basename = d.id.split("/").pop().replace(/\.[tj]sx?$/, "");
+      const degree = d.degree ?? 0;
+      const loc = (d.loc !== undefined) ? d.loc : (data[d.id] && data[d.id].loc !== undefined ? data[d.id].loc : "N/A");
+
+      tooltip.html(
+        `<div class="tooltip-title">${escapeHtml(basename)}</div>
+         <div class="tooltip-field">Degree: <strong>${escapeHtml(String(degree))}</strong></div>
+         <div class="tooltip-field">LoC: <strong>${escapeHtml(String(loc))}</strong></div>`
+      ).style("visibility", "visible");
+
+      requestAnimationFrame(() => {
+        const padding = 10;
+        const nodeRect = tooltip.node().getBoundingClientRect();
+        let left = event.pageX + 12;
+        let top = event.pageY + 12;
+
+        if (left + nodeRect.width + padding > window.innerWidth) left = window.innerWidth - nodeRect.width - padding;
+        if (top + nodeRect.height + padding > window.innerHeight) top = window.innerHeight - nodeRect.height - padding;
+        if (left < padding) left = padding;
+        if (top < padding) top = padding;
+
+        tooltip.style("left", left + "px").style("top", top + "px");
+      });
     }
 
     simulation.on("tick", () => {
@@ -112,20 +182,31 @@
         .on("zoom", (event) => {
           const t = event.transform;
           const k = t.k;
-
           const tx = Math.min(0, Math.max(width - width * k, t.x));
           const ty = Math.min(0, Math.max(height - height * k, t.y));
-
           g.attr("transform", `translate(${tx},${ty}) scale(${k})`);
+
+          // hide tooltip and remove highlight when zooming/panning
+          if (selectedCell) {
+            selectedCell = null;
+            tooltip.style("visibility", "hidden");
+            updateVoronoi();
+          }
         })
     );
 
     svg.on("click", (event) => {
-      if (event.target.tagName === "svg") {
+      if (event.target.tagName === "svg" && selectedCell) {
+        selectedCell = null;
         tooltip.style("visibility", "hidden");
+        updateVoronoi();
       }
     });
   });
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+  }
 </script>
 </body>
 </html>
