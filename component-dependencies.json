@@ -1684,53 +1684,41 @@
     "dependencies": [],
     "loc": 132
   },
-  "images/components/ImagesForms/DeleteImageForm/DeleteImageForm.tsx": {
+  "images/components/DeleteImages/DeleteImages.tsx": {
     "dependencies": [
       "base/components/ModelActionForm/ModelActionForm.tsx"
     ],
-    "loc": 54
-  },
-  "images/components/ImagesForms/DeleteMultipleImagesForm/DeleteMultipleImagesForm.tsx": {
-    "dependencies": [
-      "base/components/ModelActionForm/ModelActionForm.tsx"
-    ],
-    "loc": 73
-  },
-  "images/components/ImagesForms/ImagesForms.tsx": {
-    "dependencies": [
-      "images/components/ImagesForms/DeleteImageForm/DeleteImageForm.tsx",
-      "images/components/ImagesForms/DeleteMultipleImagesForm/DeleteMultipleImagesForm.tsx",
-      "images/components/ImagesForms/SelectUpstreamImagesForm/SelectUpstreamImagesForm.tsx"
-    ],
-    "loc": 58
-  },
-  "images/components/ImagesForms/SelectUpstreamImagesForm/SelectUpstreamImagesForm.tsx": {
-    "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "images/components/ImagesForms/SelectUpstreamImagesForm/SelectUpstreamImagesSelect/SelectUpstreamImagesSelect.tsx"
-    ],
-    "loc": 281
-  },
-  "images/components/ImagesForms/SelectUpstreamImagesForm/SelectUpstreamImagesSelect/SelectUpstreamImagesSelect.tsx": {
-    "dependencies": [],
     "loc": 77
   },
   "images/components/ImagesTable/ImagesTable.tsx": {
     "dependencies": [],
     "loc": 79
   },
+  "images/components/SelectUpstreamImagesForm/SelectUpstreamImagesForm.tsx": {
+    "dependencies": [
+      "base/components/FormikForm/FormikForm.tsx",
+      "images/components/SelectUpstreamImagesForm/SelectUpstreamImagesSelect/SelectUpstreamImagesSelect.tsx"
+    ],
+    "loc": 278
+  },
+  "images/components/SelectUpstreamImagesForm/SelectUpstreamImagesSelect/SelectUpstreamImagesSelect.tsx": {
+    "dependencies": [],
+    "loc": 77
+  },
   "images/views/ImageList/ImageList.tsx": {
     "dependencies": [
       "base/components/PageContent/PageContent.tsx",
-      "images/components/ImagesForms/ImagesForms.tsx",
       "images/components/ImagesTable/ImagesTable.tsx",
       "images/views/ImageList/ImageListHeader/ImageListHeader.tsx"
     ],
-    "loc": 70
+    "loc": 60
   },
   "images/views/ImageList/ImageListHeader/ImageListHeader.tsx": {
-    "dependencies": [],
-    "loc": 147
+    "dependencies": [
+      "images/components/DeleteImages/DeleteImages.tsx",
+      "images/components/SelectUpstreamImagesForm/SelectUpstreamImagesForm.tsx"
+    ],
+    "loc": 150
   },
   "intro/components/IntroCard/IntroCard.tsx": {
     "dependencies": [],
@@ -1744,13 +1732,12 @@
   },
   "intro/views/ImagesIntro/ImagesIntro.tsx": {
     "dependencies": [
-      "images/components/ImagesForms/ImagesForms.tsx",
       "images/components/ImagesTable/ImagesTable.tsx",
       "images/views/ImageList/ImageListHeader/ImageListHeader.tsx",
       "intro/components/IntroCard/IntroCard.tsx",
       "intro/components/IntroSection/IntroSection.tsx"
     ],
-    "loc": 106
+    "loc": 97
   },
   "intro/views/IncompleteCard/IncompleteCard.tsx": {
     "dependencies": [
@@ -3977,350 +3964,282 @@
     ],
     "loc": 28
   },
-  "subnets/components/DHCPSnippets/DHCPSnippets.tsx": {
+  "subnets/views/Fabrics/components/DeleteFabric/DeleteFabric.tsx": {
     "dependencies": [
-      "base/components/DHCPTable/DHCPTable.tsx"
+      "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 30
+    "loc": 80
   },
-  "subnets/components/ReservedRangeDeleteForm/ReservedRangeDeleteForm.tsx": {
-    "dependencies": [
-      "base/components/ModelActionForm/ModelActionForm.tsx"
-    ],
-    "loc": 42
-  },
-  "subnets/components/ReservedRangeForm/ReservedRangeForm.tsx": {
-    "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/components/PrefixedIpInput/PrefixedIpInput.tsx"
-    ],
-    "loc": 312
-  },
-  "subnets/components/ReservedRanges/ReservedRanges.tsx": {
-    "dependencies": [
-      "base/components/SubnetLink/SubnetLink.tsx",
-      "base/components/TableActions/TableActions.tsx",
-      "base/components/TitledSection/TitledSection.tsx"
-    ],
-    "loc": 283
-  },
-  "subnets/views/FabricDetails/EditFabric/EditFabric.tsx": {
+  "subnets/views/Fabrics/components/EditFabric/EditFabric.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 88
+    "loc": 89
   },
-  "subnets/views/FabricDetails/FabricDetails.tsx": {
+  "subnets/views/Fabrics/components/FabricDetailsHeader/FabricDetailsHeader.tsx": {
     "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/components/PageContent/PageContent.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "subnets/views/FabricDetails/FabricDetailsHeader/FabricDeleteForm/FabricDeleteForm.tsx",
-      "subnets/views/FabricDetails/FabricDetailsHeader/FabricDetailsHeader.tsx",
-      "subnets/views/FabricDetails/FabricSummary/FabricSummary.tsx",
-      "subnets/views/FabricDetails/FabricVLANsTable/FabricVLANsTable.tsx"
+      "subnets/views/Fabrics/components/DeleteFabric/DeleteFabric.tsx"
     ],
-    "loc": 90
+    "loc": 41
   },
-  "subnets/views/FabricDetails/FabricDetailsHeader/FabricDeleteForm/FabricDeleteForm.tsx": {
-    "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx"
-    ],
-    "loc": 81
-  },
-  "subnets/views/FabricDetails/FabricDetailsHeader/FabricDetailsHeader.tsx": {
-    "dependencies": [
-      "base/components/SectionHeader/SectionHeader.tsx"
-    ],
-    "loc": 38
-  },
-  "subnets/views/FabricDetails/FabricSummary/FabricController/FabricControllers.tsx": {
+  "subnets/views/Fabrics/components/FabricSummary/FabricController/FabricControllers.tsx": {
     "dependencies": [
       "base/components/ControllerLink/ControllerLink.tsx",
       "base/components/Definition/Definition.tsx"
     ],
     "loc": 45
   },
-  "subnets/views/FabricDetails/FabricSummary/FabricSummary.tsx": {
+  "subnets/views/Fabrics/components/FabricSummary/FabricSummary.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/EditableSection/EditableSection.tsx",
-      "subnets/views/FabricDetails/EditFabric/EditFabric.tsx"
+      "subnets/views/Fabrics/components/EditFabric/EditFabric.tsx"
     ],
-    "loc": 36
+    "loc": 37
   },
-  "subnets/views/FabricDetails/FabricVLANsTable/FabricVLANsTable.tsx": {
+  "subnets/views/Fabrics/components/FabricVLANsTable/FabricVLANsTable.tsx": {
     "dependencies": [
       "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 93
   },
-  "subnets/views/FormActions/FormActions.tsx": {
+  "subnets/views/Fabrics/views/FabricDetails/FabricDetails.tsx": {
     "dependencies": [
-      "subnets/views/FormActions/components/AddFabric.tsx",
-      "subnets/views/FormActions/components/AddSpace.tsx",
-      "subnets/views/FormActions/components/AddSubnet.tsx",
-      "subnets/views/FormActions/components/AddVlan.tsx"
+      "base/components/ModelNotFound/ModelNotFound.tsx",
+      "base/components/PageContent/PageContent.tsx",
+      "subnets/views/Fabrics/components/FabricDetailsHeader/FabricDetailsHeader.tsx",
+      "subnets/views/Fabrics/components/FabricSummary/FabricSummary.tsx",
+      "subnets/views/Fabrics/components/FabricVLANsTable/FabricVLANsTable.tsx"
     ],
-    "loc": 30
+    "loc": 68
   },
-  "subnets/views/FormActions/components/AddFabric.tsx": {
+  "subnets/views/Spaces/components/DeleteSpace/DeleteSpace.tsx": {
+    "dependencies": [
+      "base/components/FormikForm/FormikForm.tsx"
+    ],
+    "loc": 53
+  },
+  "subnets/views/Spaces/components/EditSpace/EditSpace.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 69
+    "loc": 62
   },
-  "subnets/views/FormActions/components/AddSpace.tsx": {
+  "subnets/views/Spaces/components/SpaceDetailsHeader/SpaceDetailsHeader.tsx": {
+    "dependencies": [
+      "base/components/SectionHeader/SectionHeader.tsx",
+      "subnets/views/Spaces/components/DeleteSpace/DeleteSpace.tsx"
+    ],
+    "loc": 35
+  },
+  "subnets/views/Spaces/components/SpaceSubnetsTable/SpaceSubnetsTable.tsx": {
+    "dependencies": [
+      "base/components/TitledSection/TitledSection.tsx"
+    ],
+    "loc": 62
+  },
+  "subnets/views/Spaces/components/SpaceSummary/SpaceSummary.tsx": {
+    "dependencies": [
+      "base/components/Definition/Definition.tsx",
+      "base/components/EditableSection/EditableSection.tsx",
+      "subnets/views/Spaces/components/EditSpace/EditSpace.tsx"
+    ],
+    "loc": 31
+  },
+  "subnets/views/Spaces/views/SpaceDetails/SpaceDetails.tsx": {
+    "dependencies": [
+      "base/components/ModelNotFound/ModelNotFound.tsx",
+      "base/components/PageContent/PageContent.tsx",
+      "subnets/views/Spaces/components/SpaceDetailsHeader/SpaceDetailsHeader.tsx",
+      "subnets/views/Spaces/components/SpaceSubnetsTable/SpaceSubnetsTable.tsx",
+      "subnets/views/Spaces/components/SpaceSummary/SpaceSummary.tsx"
+    ],
+    "loc": 68
+  },
+  "subnets/views/Subnets/components/AddFabric/AddFabric.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 59
+    "loc": 64
   },
-  "subnets/views/FormActions/components/AddSubnet.tsx": {
+  "subnets/views/Subnets/components/AddSpace/AddSpace.tsx": {
+    "dependencies": [
+      "base/components/FormikField/FormikField.tsx",
+      "base/components/FormikForm/FormikForm.tsx"
+    ],
+    "loc": 54
+  },
+  "subnets/views/Subnets/components/AddSubnet/AddSubnet.tsx": {
     "dependencies": [
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/VLANSelect/VLANSelect.tsx"
     ],
-    "loc": 157
+    "loc": 152
   },
-  "subnets/views/FormActions/components/AddVlan.tsx": {
+  "subnets/views/Subnets/components/AddVlan/AddVlan.tsx": {
     "dependencies": [
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/SpaceSelect/SpaceSelect.tsx"
     ],
-    "loc": 127
+    "loc": 122
   },
-  "subnets/views/SpaceDetails/SpaceDetails.tsx": {
-    "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/components/PageContent/PageContent.tsx",
-      "base/components/SectionHeader/SectionHeader.tsx",
-      "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDelete/SpaceDelete.tsx",
-      "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDetailsHeader.tsx",
-      "subnets/views/SpaceDetails/SpaceSubnets/SpaceSubnets.tsx",
-      "subnets/views/SpaceDetails/SpaceSummary/SpaceSummary.tsx"
-    ],
-    "loc": 90
-  },
-  "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDelete/SpaceDelete.tsx": {
+  "subnets/views/Subnets/components/DeleteSubnet/DeleteSubnet.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 53
+    "loc": 73
   },
-  "subnets/views/SpaceDetails/SpaceDetailsHeader/SpaceDetailsHeader.tsx": {
+  "subnets/views/Subnets/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx": {
     "dependencies": [
-      "base/components/SectionHeader/SectionHeader.tsx"
+      "base/components/RowCheckbox/RowCheckbox.tsx"
     ],
-    "loc": 32
+    "loc": 130
   },
-  "subnets/views/SpaceDetails/SpaceSubnets/SpaceSubnets.tsx": {
+  "subnets/views/Subnets/components/EditBootArchitectures/EditBootArchitectures.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx"
+      "base/components/FormikForm/FormikForm.tsx",
+      "subnets/views/Subnets/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx"
     ],
-    "loc": 62
+    "loc": 81
   },
-  "subnets/views/SpaceDetails/SpaceSummary/SpaceSummary.tsx": {
+  "subnets/views/Subnets/components/MapSubnet/MapSubnet.tsx": {
     "dependencies": [
-      "base/components/Definition/Definition.tsx",
-      "base/components/EditableSection/EditableSection.tsx",
-      "subnets/views/SpaceDetails/SpaceSummary/SpaceSummaryForm/SpaceSummaryForm.tsx"
-    ],
-    "loc": 31
-  },
-  "subnets/views/SpaceDetails/SpaceSummary/SpaceSummaryForm/SpaceSummaryForm.tsx": {
-    "dependencies": [
-      "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx"
     ],
-    "loc": 61
+    "loc": 73
   },
-  "subnets/views/SubnetDetails/StaticDHCPLease/DeleteDHCPLease/DeleteDHCPLease.tsx": {
+  "subnets/views/Subnets/components/StaticDHCPLease/DeleteDHCPLease/DeleteDHCPLease.tsx": {
     "dependencies": [
       "base/components/ModelActionForm/ModelActionForm.tsx"
     ],
-    "loc": 44
+    "loc": 43
   },
-  "subnets/views/SubnetDetails/StaticDHCPLease/ReserveDHCPLease/ReserveDHCPLease.tsx": {
+  "subnets/views/Subnets/components/StaticDHCPLease/ReserveDHCPLease/ReserveDHCPLease.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/MacAddressField/MacAddressField.tsx",
       "base/components/PrefixedIpInput/PrefixedIpInput.tsx"
     ],
-    "loc": 226
+    "loc": 223
   },
-  "subnets/views/SubnetDetails/StaticDHCPLease/StaticDHCPLease.tsx": {
+  "subnets/views/Subnets/components/StaticDHCPLease/StaticDHCPLease.tsx": {
     "dependencies": [
-      "subnets/views/SubnetDetails/StaticDHCPLease/StaticDHCPTable/StaticDHCPTable.tsx"
+      "subnets/views/Subnets/components/StaticDHCPLease/ReserveDHCPLease/ReserveDHCPLease.tsx",
+      "subnets/views/Subnets/components/StaticDHCPLease/StaticDHCPTable/StaticDHCPTable.tsx"
     ],
-    "loc": 45
+    "loc": 51
   },
-  "subnets/views/SubnetDetails/StaticDHCPLease/StaticDHCPTable/StaticDHCPTable.tsx": {
-    "dependencies": [
-      "base/components/TableActions/TableActions.tsx"
-    ],
-    "loc": 113
+  "subnets/views/Subnets/components/StaticDHCPLease/StaticDHCPTable/StaticDHCPTable.tsx": {
+    "dependencies": [],
+    "loc": 37
   },
-  "subnets/views/SubnetDetails/StaticRoutes/AddStaticRouteForm/AddStaticRouteForm.tsx": {
+  "subnets/views/Subnets/components/StaticRoutes/AddStaticRouteForm/AddStaticRouteForm.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/SubnetSelect/SubnetSelect.tsx"
     ],
-    "loc": 121
+    "loc": 115
   },
-  "subnets/views/SubnetDetails/StaticRoutes/DeleteStaticRouteform/DeleteStaticRouteForm.tsx": {
+  "subnets/views/Subnets/components/StaticRoutes/DeleteStaticRouteform/DeleteStaticRouteForm.tsx": {
     "dependencies": [
       "base/components/ModelActionForm/ModelActionForm.tsx"
     ],
-    "loc": 44
+    "loc": 39
   },
-  "subnets/views/SubnetDetails/StaticRoutes/EditStaticRouteForm/EditStaticRouteForm.tsx": {
+  "subnets/views/Subnets/components/StaticRoutes/EditStaticRouteForm/EditStaticRouteForm.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/SubnetSelect/SubnetSelect.tsx"
     ],
-    "loc": 128
+    "loc": 122
   },
-  "subnets/views/SubnetDetails/StaticRoutes/StaticRoutes.tsx": {
+  "subnets/views/Subnets/components/StaticRoutes/StaticRoutes.tsx": {
     "dependencies": [
-      "base/components/TitledSection/TitledSection.tsx"
+      "base/components/TitledSection/TitledSection.tsx",
+      "subnets/views/Subnets/components/StaticRoutes/AddStaticRouteForm/AddStaticRouteForm.tsx"
     ],
     "loc": 69
   },
-  "subnets/views/SubnetDetails/SubnetActionForms/SubnetActionForms.tsx": {
+  "subnets/views/Subnets/components/SubnetDetailsHeader/SubnetDetailsHeader.tsx": {
     "dependencies": [
-      "subnets/components/ReservedRangeDeleteForm/ReservedRangeDeleteForm.tsx",
-      "subnets/components/ReservedRangeForm/ReservedRangeForm.tsx",
-      "subnets/views/SubnetDetails/StaticDHCPLease/DeleteDHCPLease/DeleteDHCPLease.tsx",
-      "subnets/views/SubnetDetails/StaticDHCPLease/ReserveDHCPLease/ReserveDHCPLease.tsx",
-      "subnets/views/SubnetDetails/StaticRoutes/AddStaticRouteForm/AddStaticRouteForm.tsx",
-      "subnets/views/SubnetDetails/StaticRoutes/DeleteStaticRouteform/DeleteStaticRouteForm.tsx",
-      "subnets/views/SubnetDetails/StaticRoutes/EditStaticRouteForm/EditStaticRouteForm.tsx",
-      "subnets/views/SubnetDetails/SubnetActionForms/components/DeleteSubnet/DeleteSubnet.tsx",
-      "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/EditBootArchitectures.tsx",
-      "subnets/views/SubnetDetails/SubnetActionForms/components/MapSubnet/MapSubnet.tsx"
-    ],
-    "loc": 53
-  },
-  "subnets/views/SubnetDetails/SubnetActionForms/components/DeleteSubnet/DeleteSubnet.tsx": {
-    "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "base/components/TitledSection/TitledSection.tsx"
-    ],
-    "loc": 70
-  },
-  "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx": {
-    "dependencies": [
-      "base/components/RowCheckbox/RowCheckbox.tsx"
-    ],
-    "loc": 130
-  },
-  "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/EditBootArchitectures.tsx": {
-    "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx",
-      "subnets/views/SubnetDetails/SubnetActionForms/components/EditBootArchitectures/BootArchitecturesTable/BootArchitecturesTable.tsx"
-    ],
-    "loc": 80
-  },
-  "subnets/views/SubnetDetails/SubnetActionForms/components/MapSubnet/MapSubnet.tsx": {
-    "dependencies": [
-      "base/components/FormikForm/FormikForm.tsx"
-    ],
-    "loc": 72
-  },
-  "subnets/views/SubnetDetails/SubnetDetails.tsx": {
-    "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/components/PageContent/PageContent.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "subnets/components/DHCPSnippets/DHCPSnippets.tsx",
-      "subnets/components/ReservedRanges/ReservedRanges.tsx",
-      "subnets/views/SubnetDetails/StaticDHCPLease/StaticDHCPLease.tsx",
-      "subnets/views/SubnetDetails/StaticRoutes/StaticRoutes.tsx",
-      "subnets/views/SubnetDetails/SubnetActionForms/SubnetActionForms.tsx",
-      "subnets/views/SubnetDetails/SubnetDetailsHeader/SubnetDetailsHeader.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/SubnetSummary.tsx",
-      "subnets/views/SubnetDetails/SubnetUsedIPs/SubnetUsedIPs.tsx"
+      "subnets/views/Subnets/components/DeleteSubnet/DeleteSubnet.tsx",
+      "subnets/views/Subnets/components/EditBootArchitectures/EditBootArchitectures.tsx",
+      "subnets/views/Subnets/components/MapSubnet/MapSubnet.tsx"
     ],
-    "loc": 146
+    "loc": 106
   },
-  "subnets/views/SubnetDetails/SubnetDetailsHeader/SubnetDetailsHeader.tsx": {
-    "dependencies": [
-      "base/components/SectionHeader/SectionHeader.tsx"
-    ],
-    "loc": 76
-  },
-  "subnets/views/SubnetDetails/SubnetSummary/SubnetSummary.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/SubnetSummary.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/EditableSection/EditableSection.tsx",
       "base/components/FabricLink/FabricLink.tsx",
       "base/components/VLANLink/VLANLink.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/SubnetSummaryForm/SubnetSummaryForm.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx"
+      "subnets/views/Subnets/components/SubnetSummary/SubnetSummaryForm/SubnetSummaryForm.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx"
     ],
     "loc": 90
   },
-  "subnets/views/SubnetDetails/SubnetSummary/SubnetSummaryForm/SubnetSummaryForm.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/SubnetSummaryForm/SubnetSummaryForm.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/SubnetSummaryForm/SubnetSummaryFormFields/SubnetSummaryFormFields.tsx"
+      "subnets/views/Subnets/components/SubnetSummary/SubnetSummaryForm/SubnetSummaryFormFields/SubnetSummaryFormFields.tsx"
     ],
     "loc": 103
   },
-  "subnets/views/SubnetDetails/SubnetSummary/SubnetSummaryForm/SubnetSummaryFormFields/SubnetSummaryFormFields.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/SubnetSummaryForm/SubnetSummaryFormFields/SubnetSummaryFormFields.tsx": {
     "dependencies": [
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/VLANSelect/VLANSelect.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx",
-      "subnets/views/SubnetDetails/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx"
+      "subnets/views/Subnets/components/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx"
     ],
     "loc": 105
   },
-  "subnets/views/SubnetDetails/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/components/ActiveDiscoveryLabel/ActiveDiscoveryLabel.tsx": {
     "dependencies": [
       "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 13
   },
-  "subnets/views/SubnetDetails/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/components/AllowDNSResolutionLabel/AllowDNSResolutionLabel.tsx": {
     "dependencies": [
       "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 18
   },
-  "subnets/views/SubnetDetails/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/components/ManagedAllocationLabel/ManagedAllocationLabel.tsx": {
     "dependencies": [
       "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 13
   },
-  "subnets/views/SubnetDetails/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/components/ProxyAccessLabel/ProxyAccessLabel.tsx": {
     "dependencies": [
       "base/components/TooltipButton/TooltipButton.tsx"
     ],
     "loc": 19
   },
-  "subnets/views/SubnetDetails/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx": {
+  "subnets/views/Subnets/components/SubnetSummary/components/SubnetSpace/SubnetSpace.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/SpaceLink/SpaceLink.tsx",
@@ -4328,55 +4247,80 @@
     ],
     "loc": 26
   },
-  "subnets/views/SubnetDetails/SubnetUsedIPs/SubnetUsedIPs.tsx": {
+  "subnets/views/Subnets/components/SubnetUsedIPs/SubnetUsedIPs.tsx": {
     "dependencies": [
       "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 84
   },
-  "subnets/views/SubnetDetails/Utilisation/SubnetUtilisation.tsx": {
+  "subnets/views/Subnets/components/SubnetUtilisation/SubnetUtilisation.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/TitledSection/TitledSection.tsx"
     ],
     "loc": 29
   },
-  "subnets/views/SubnetsList/SubnetsControls/SubnetsControls.tsx": {
+  "subnets/views/Subnets/components/SubnetsListHeader/SubnetsListHeader.tsx": {
     "dependencies": [
-      "base/components/DebounceSearchBox/DebounceSearchBox.tsx"
+      "base/components/DebounceSearchBox/DebounceSearchBox.tsx",
+      "subnets/views/Subnets/components/AddFabric/AddFabric.tsx",
+      "subnets/views/Subnets/components/AddSpace/AddSpace.tsx",
+      "subnets/views/Subnets/components/AddSubnet/AddSubnet.tsx",
+      "subnets/views/Subnets/components/AddVlan/AddVlan.tsx"
     ],
-    "loc": 20
+    "loc": 125
   },
-  "subnets/views/SubnetsList/SubnetsList.tsx": {
-    "dependencies": [
-      "base/components/GroupSelect/GroupSelect.tsx",
-      "base/components/PageContent/PageContent.tsx",
-      "subnets/views/FormActions/FormActions.tsx",
-      "subnets/views/SubnetsList/SubnetsControls/SubnetsControls.tsx",
-      "subnets/views/SubnetsList/SubnetsTable/SubnetsTable.tsx"
-    ],
-    "loc": 121
-  },
-  "subnets/views/SubnetsList/SubnetsTable/SubnetsTable.tsx": {
+  "subnets/views/Subnets/components/SubnetsTable/SubnetsTable.tsx": {
     "dependencies": [],
     "loc": 49
   },
-  "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCP.tsx": {
+  "subnets/views/Subnets/views/SubnetDetails/SubnetDetails.tsx": {
+    "dependencies": [
+      "base/components/ModelNotFound/ModelNotFound.tsx",
+      "base/components/PageContent/PageContent.tsx",
+      "subnets/views/Subnets/components/StaticDHCPLease/StaticDHCPLease.tsx",
+      "subnets/views/Subnets/components/StaticRoutes/StaticRoutes.tsx",
+      "subnets/views/Subnets/components/SubnetDetailsHeader/SubnetDetailsHeader.tsx",
+      "subnets/views/Subnets/components/SubnetSummary/SubnetSummary.tsx",
+      "subnets/views/Subnets/components/SubnetUsedIPs/SubnetUsedIPs.tsx",
+      "subnets/views/Subnets/components/SubnetUtilisation/SubnetUtilisation.tsx",
+      "subnets/views/VLANs/components/DHCPSnippets/DHCPSnippets.tsx",
+      "subnets/views/VLANs/components/ReservedRangesTable/ReservedRangesTable.tsx"
+    ],
+    "loc": 129
+  },
+  "subnets/views/Subnets/views/SubnetsList/SubnetsList.tsx": {
+    "dependencies": [
+      "base/components/PageContent/PageContent.tsx",
+      "subnets/views/Subnets/components/SubnetsListHeader/SubnetsListHeader.tsx",
+      "subnets/views/Subnets/components/SubnetsTable/SubnetsTable.tsx"
+    ],
+    "loc": 45
+  },
+  "subnets/views/VLANs/components/AddReservedRange/AddReservedRange.tsx": {
+    "dependencies": [
+      "base/components/FormikField/FormikField.tsx",
+      "base/components/FormikForm/FormikForm.tsx",
+      "base/components/PrefixedIpInput/PrefixedIpInput.tsx"
+    ],
+    "loc": 287
+  },
+  "subnets/views/VLANs/components/ConfigureDHCP/ConfigureDHCP.tsx": {
     "dependencies": [
       "base/components/FormikForm/FormikForm.tsx",
-      "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx",
-      "subnets/views/VLANDetails/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx"
+      "subnets/views/VLANs/components/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx",
+      "subnets/views/VLANs/components/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx"
     ],
     "loc": 230
   },
-  "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx": {
+  "subnets/views/VLANs/components/ConfigureDHCP/ConfigureDHCPFields/ConfigureDHCPFields.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/VLANSelect/VLANSelect.tsx"
     ],
     "loc": 187
   },
-  "subnets/views/VLANDetails/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx": {
+  "subnets/views/VLANs/components/ConfigureDHCP/DHCPReservedRanges/DHCPReservedRanges.tsx": {
     "dependencies": [
       "base/components/FormikField/FormikField.tsx",
       "base/components/SubnetLink/SubnetLink.tsx",
@@ -4385,70 +4329,65 @@
     ],
     "loc": 197
   },
-  "subnets/views/VLANDetails/DHCPStatus/DHCPStatus.tsx": {
+  "subnets/views/VLANs/components/DHCPSnippets/DHCPSnippets.tsx": {
+    "dependencies": [
+      "base/components/DHCPTable/DHCPTable.tsx"
+    ],
+    "loc": 30
+  },
+  "subnets/views/VLANs/components/DHCPStatus/DHCPStatus.tsx": {
     "dependencies": [
       "base/components/ControllerLink/ControllerLink.tsx",
       "base/components/Definition/Definition.tsx",
-      "base/components/TitledSection/TitledSection.tsx"
+      "base/components/TitledSection/TitledSection.tsx",
+      "subnets/views/VLANs/components/ConfigureDHCP/ConfigureDHCP.tsx"
     ],
-    "loc": 147
+    "loc": 154
   },
-  "subnets/views/VLANDetails/EditVLAN/EditVLAN.tsx": {
+  "subnets/views/VLANs/components/DeleteReservedRange/DeleteReservedRange.tsx": {
+    "dependencies": [
+      "base/components/ModelActionForm/ModelActionForm.tsx"
+    ],
+    "loc": 36
+  },
+  "subnets/views/VLANs/components/DeleteVLAN/DeleteVLAN.tsx": {
+    "dependencies": [
+      "base/components/FabricLink/FabricLink.tsx",
+      "base/components/FormikForm/FormikForm.tsx"
+    ],
+    "loc": 66
+  },
+  "subnets/views/VLANs/components/EditVLAN/EditVLAN.tsx": {
     "dependencies": [
       "base/components/FabricSelect/FabricSelect.tsx",
       "base/components/FormikField/FormikField.tsx",
       "base/components/FormikForm/FormikForm.tsx",
       "base/components/SpaceSelect/SpaceSelect.tsx",
-      "subnets/views/VLANDetails/VLANSummary/VLANControllers/VLANControllers.tsx"
+      "subnets/views/VLANs/components/VLANSummary/VLANControllers/VLANControllers.tsx"
     ],
-    "loc": 127
+    "loc": 122
   },
-  "subnets/views/VLANDetails/VLANActionForms/VLANActionForms.tsx": {
+  "subnets/views/VLANs/components/ReservedRangesTable/ReservedRangesTable.tsx": {
     "dependencies": [
-      "subnets/components/ReservedRangeDeleteForm/ReservedRangeDeleteForm.tsx",
-      "subnets/components/ReservedRangeForm/ReservedRangeForm.tsx",
-      "subnets/views/VLANDetails/ConfigureDHCP/ConfigureDHCP.tsx",
-      "subnets/views/VLANDetails/EditVLAN/EditVLAN.tsx",
-      "subnets/views/VLANDetails/VLANDeleteForm/VLANDeleteForm.tsx"
+      "base/components/TitledSection/TitledSection.tsx",
+      "subnets/views/VLANs/components/AddReservedRange/AddReservedRange.tsx"
     ],
-    "loc": 53
+    "loc": 147
   },
-  "subnets/views/VLANDetails/VLANDeleteForm/VLANDeleteForm.tsx": {
+  "subnets/views/VLANs/components/VLANDetailsHeader/VLANDetailsHeader.tsx": {
     "dependencies": [
-      "base/components/FabricLink/FabricLink.tsx",
-      "base/components/FormikForm/FormikForm.tsx"
-    ],
-    "loc": 71
-  },
-  "subnets/views/VLANDetails/VLANDetails.tsx": {
-    "dependencies": [
-      "base/components/ModelNotFound/ModelNotFound.tsx",
-      "base/components/PageContent/PageContent.tsx",
       "base/components/SectionHeader/SectionHeader.tsx",
-      "subnets/components/DHCPSnippets/DHCPSnippets.tsx",
-      "subnets/components/ReservedRanges/ReservedRanges.tsx",
-      "subnets/views/VLANDetails/DHCPStatus/DHCPStatus.tsx",
-      "subnets/views/VLANDetails/VLANActionForms/VLANActionForms.tsx",
-      "subnets/views/VLANDetails/VLANDetailsHeader/VLANDetailsHeader.tsx",
-      "subnets/views/VLANDetails/VLANSubnets/VLANSubnets.tsx",
-      "subnets/views/VLANDetails/VLANSummary/VLANSummary.tsx"
+      "subnets/views/VLANs/components/DeleteVLAN/DeleteVLAN.tsx"
     ],
-    "loc": 96
+    "loc": 73
   },
-  "subnets/views/VLANDetails/VLANDetailsHeader/VLANDetailsHeader.tsx": {
+  "subnets/views/VLANs/components/VLANSubnetsTable/VLANSubnetsTable.tsx": {
     "dependencies": [
-      "base/components/SectionHeader/SectionHeader.tsx"
-    ],
-    "loc": 69
-  },
-  "subnets/views/VLANDetails/VLANSubnets/VLANSubnets.tsx": {
-    "dependencies": [
-      "base/components/SubnetLink/SubnetLink.tsx",
       "base/components/TitledSection/TitledSection.tsx"
     ],
-    "loc": 120
+    "loc": 40
   },
-  "subnets/views/VLANDetails/VLANSummary/VLANControllers/VLANControllers.tsx": {
+  "subnets/views/VLANs/components/VLANSummary/VLANControllers/VLANControllers.tsx": {
     "dependencies": [
       "base/components/ControllerLink/ControllerLink.tsx",
       "base/components/Definition/Definition.tsx",
@@ -4456,15 +4395,29 @@
     ],
     "loc": 59
   },
-  "subnets/views/VLANDetails/VLANSummary/VLANSummary.tsx": {
+  "subnets/views/VLANs/components/VLANSummary/VLANSummary.tsx": {
     "dependencies": [
       "base/components/Definition/Definition.tsx",
       "base/components/FabricLink/FabricLink.tsx",
       "base/components/SpaceLink/SpaceLink.tsx",
       "base/components/TitledSection/TitledSection.tsx",
-      "subnets/views/VLANDetails/VLANSummary/VLANControllers/VLANControllers.tsx"
+      "subnets/views/VLANs/components/VLANSummary/VLANControllers/VLANControllers.tsx",
+      "subnets/views/VLANs/components/EditVLAN/EditVLAN.tsx"
     ],
-    "loc": 60
+    "loc": 65
+  },
+  "subnets/views/VLANs/views/VLANDetails/VLANDetails.tsx": {
+    "dependencies": [
+      "base/components/ModelNotFound/ModelNotFound.tsx",
+      "base/components/PageContent/PageContent.tsx",
+      "subnets/views/VLANs/components/DHCPSnippets/DHCPSnippets.tsx",
+      "subnets/views/VLANs/components/ReservedRangesTable/ReservedRangesTable.tsx",
+      "subnets/views/VLANs/components/DHCPStatus/DHCPStatus.tsx",
+      "subnets/views/VLANs/components/VLANDetailsHeader/VLANDetailsHeader.tsx",
+      "subnets/views/VLANs/components/VLANSubnetsTable/VLANSubnetsTable.tsx",
+      "subnets/views/VLANs/components/VLANSummary/VLANSummary.tsx"
+    ],
+    "loc": 81
   },
   "tags/components/AddTagForm/AddTagForm.tsx": {
     "dependencies": [

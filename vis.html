@@ -91,55 +91,6 @@
       }
     }
 
-    const barrenNodes = [];
-    const barrenCount = 80;
-    for (let i = 0; i < barrenCount; i++) {
-      barrenNodes.push({
-        id: "barren_" + i,
-        x: Math.random() * width,
-        y: Math.random() * height,
-        barren: true,
-        degree: 0,
-        loc: 0,
-      });
-    }
-
-    const nodes = Array.from(nodesMap.values());
-
-    nodes.forEach(node => {
-      node.degree = links.filter(l => l.source === node.id || l.target === node.id).length;
-      node.x = width / 2 + (Math.random() - 0.5) * 50;
-      node.y = height / 2 + (Math.random() - 0.5) * 50;
-      if (node.loc === undefined && data[node.id] && typeof data[node.id] === "object" && typeof data[node.id].loc === "number") {
-        node.loc = data[node.id].loc;
-      }
-    });
-
-    const allNodes = [...nodes, ...barrenNodes];
-
-    const maxDegree = d3.max(nodes, d => d.degree) || 1;
-    const cityRadius = Math.min(width, height) / 4;
-    const maxLoC = d3.max(nodes, d => d.loc || 1);
-
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(200))
-      .force("charge", d3.forceManyBody().strength(-1))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("radial", d3.forceRadial(
-        d => {
-          if (d.barren) return Math.min(width, height);
-          const normalized = maxDegree ? d.degree / maxDegree : 0;
-          const minRadius = 20;
-          return minRadius + (1 - normalized) * cityRadius;
-        },
-        width / 2,
-        height / 2,
-      ))
-      .force("collision", d3.forceCollide().radius(d => {
-        const locWeight = (d.loc || 10) / maxLoC;
-        return (10 + locWeight * 100) / 5;
-      }));
-
     const categories = [
       "base", "controllers", "devices", "domains", "images", "intro", "kvm",
       "machines", "networkDiscovery", "pools", "preferences", "settings",
@@ -175,6 +126,71 @@
       return palette[category] || "#999";
     }
 
+    const barrenNodes = [];
+    const barrenCount = 80;
+    for (let i = 0; i < barrenCount; i++) {
+      barrenNodes.push({
+        id: "barren_" + i,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        barren: true,
+        degree: 0,
+        loc: 0,
+      });
+    }
+
+    const nodes = Array.from(nodesMap.values());
+
+    nodes.forEach(node => {
+      node.degree = links.filter(l => l.source === node.id || l.target === node.id).length;
+      node.category = getCategory(node.id);
+      node.x = width / 2 + (Math.random() - 0.5) * 50;
+      node.y = height / 2 + (Math.random() - 0.5) * 50;
+      if (node.loc === undefined && data[node.id] && typeof data[node.id] === "object" && typeof data[node.id].loc === "number") {
+        node.loc = data[node.id].loc;
+      }
+    });
+
+    const allNodes = [...nodes, ...barrenNodes];
+    const categoryNodes = d3.groups(nodes, d => d.category);
+
+    const categoryLinks = [];
+    categoryNodes.forEach(([cat, catNodes]) => {
+      for (let i = 0; i < catNodes.length; i++) {
+        for (let j = i + 1; j < catNodes.length; j++) {
+          categoryLinks.push({ source: catNodes[i].id, target: catNodes[j].id });
+        }
+      }
+    });
+
+    const maxDegree = d3.max(nodes, d => d.degree) || 1;
+    const cityRadius = Math.min(width, height) / 4;
+    const maxLoC = d3.max(nodes, d => d.loc || 1);
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(200))
+      .force("categoryLink", d3.forceLink(categoryLinks)
+        .id(d => d.id)
+        .distance(250)
+        .strength(0.01),
+      )
+      .force("charge", d3.forceManyBody().strength(-1))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("radial", d3.forceRadial(
+        d => {
+          if (d.barren) return Math.min(width, height);
+          const normalized = maxDegree ? d.degree / maxDegree : 0;
+          const minRadius = 20;
+          return minRadius + (1 - normalized) * cityRadius;
+        },
+        width / 2,
+        height / 2,
+      ))
+      .force("collision", d3.forceCollide().radius(d => {
+        const locWeight = (d.loc || 10) / maxLoC;
+        return (10 + locWeight * d.degree) / 10;
+      }));
+
     function updateVoronoi() {
       const delaunay = d3.Delaunay.from(allNodes, d => d.x, d => d.y);
       const voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -199,15 +215,29 @@
           updateVoronoi();
           event.stopPropagation();
         });
+
+      // const nodeCircles = g.selectAll("circle.node")
+      //   .data(allNodes, d => d.id);
+      //
+      // nodeCircles.join("circle")
+      //   .attr("class", "node")
+      //   .attr("r", d => d.barren ? 3 : 5)
+      //   .attr("cx", d => d.x)
+      //   .attr("cy", d => d.y)
+      //   .attr("fill", d => d.barren ? "#888" : getCategoryColor(d.id))
+      //   .attr("stroke", "#000")
+      //   .attr("stroke-width", 0.5);
     }
 
     function showTooltip(event, d) {
       const basename = d.id.split("/").pop().replace(/\.[tj]sx?$/, "");
+      const category = d.category;
       const degree = d.degree ?? 0;
       const loc = (d.loc !== undefined) ? d.loc : (data[d.id] && data[d.id].loc !== undefined ? data[d.id].loc : "N/A");
 
       tooltip.html(
         `<div class="tooltip-title">${escapeHtml(basename)}</div>
+         <div class="tooltip-field">Category: <strong>${escapeHtml(String(category))}</strong></div>
          <div class="tooltip-field">Degree: <strong>${escapeHtml(String(degree))}</strong></div>
          <div class="tooltip-field">LoC: <strong>${escapeHtml(String(loc))}</strong></div>`,
       ).style("visibility", "visible");
