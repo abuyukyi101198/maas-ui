@@ -39,7 +39,7 @@
           pointer-events: none;
           visibility: hidden;
           white-space: nowrap;
-          box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
           max-width: 320px;
       }
 
@@ -59,7 +59,6 @@
 <body>
 <svg></svg>
 <div class="tooltip" id="tooltip"></div>
-
 <script>
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -91,6 +90,19 @@
       }
     }
 
+    const barrenNodes = [];
+    const barrenCount = 80;
+    for (let i = 0; i < barrenCount; i++) {
+      barrenNodes.push({
+        id: "barren_" + i,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        barren: true,
+        degree: 0,
+        loc: 0
+      });
+    }
+
     const nodes = Array.from(nodesMap.values());
 
     nodes.forEach(node => {
@@ -102,38 +114,66 @@
       }
     });
 
+    const allNodes = [...nodes, ...barrenNodes];
+
     const maxDegree = d3.max(nodes, d => d.degree) || 1;
 
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(20))
-      .force("charge", d3.forceManyBody().strength(-10))
+      .force("link", d3.forceLink(links).id(d => d.id).distance(200))
+      .force("charge", d3.forceManyBody().strength(-1))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("radial", d3.forceRadial(
         d => {
           const normalized = maxDegree ? d.degree / maxDegree : 0;
-          const minRadius = 50;
+          const minRadius = 10;
           const maxRadius = Math.min(width, height) / 2 - 50;
           return minRadius + (1 - normalized) * maxRadius;
         },
         width / 2,
-        height / 2
+        height / 2,
       ));
 
+    const categories = [
+      "base", "controllers", "devices", "domains", "images", "intro", "kvm",
+      "machines", "networkDiscovery", "pools", "preferences", "settings",
+      "subnets", "tags", "zones"
+    ];
+
+    const palette = d3.schemeSet3.concat(d3.schemeCategory10).slice(0, categories.length);
+
+    const categoryColor = {};
+    categories.forEach((cat, i) => {
+      categoryColor[cat] = palette[i % palette.length];
+    });
+
+    function getCategory(filePath) {
+      const firstSegment = filePath.split("/")[0];
+      return categories.includes(firstSegment) ? firstSegment : "other";
+    }
+
+    function getCategoryColor(filePath) {
+      const category = getCategory(filePath);
+      return categoryColor[category] || "#999"; // grey for "other"
+    }
+
     function updateVoronoi() {
-      const delaunay = d3.Delaunay.from(nodes, d => d.x, d => d.y);
+      const delaunay = d3.Delaunay.from(allNodes, d => d.x, d => d.y);
       const voronoi = delaunay.voronoi([0, 0, width, height]);
 
       const cells = g.selectAll("path.cell")
         .data(nodes, d => d.id);
 
       cells.join("path")
-        .attr("class", d => d === selectedCell ? "cell highlighted" : "cell")
+        .attr("class", d => {
+          if (d.barren) return "cell barren";
+          return d === selectedCell ? "cell highlighted" : "cell";
+        })
         .attr("d", (d, i) => voronoi.renderCell(i))
-        .attr("fill", (d, i) => d3.schemeTableau10[i % 10])
+        .attr("fill", d => d.barren ? "#222" : getCategoryColor(d.id))
         .attr("stroke", "#111")
         .attr("stroke-width", 0.5)
         .on("click", (event, d) => {
-          // Toggle selection
+          if (d.barren) return; // barren lands not clickable
           if (selectedCell === d) {
             selectedCell = null;
             tooltip.style("visibility", "hidden");
@@ -154,7 +194,7 @@
       tooltip.html(
         `<div class="tooltip-title">${escapeHtml(basename)}</div>
          <div class="tooltip-field">Degree: <strong>${escapeHtml(String(degree))}</strong></div>
-         <div class="tooltip-field">LoC: <strong>${escapeHtml(String(loc))}</strong></div>`
+         <div class="tooltip-field">LoC: <strong>${escapeHtml(String(loc))}</strong></div>`,
       ).style("visibility", "visible");
 
       requestAnimationFrame(() => {
@@ -186,13 +226,12 @@
           const ty = Math.min(0, Math.max(height - height * k, t.y));
           g.attr("transform", `translate(${tx},${ty}) scale(${k})`);
 
-          // hide tooltip and remove highlight when zooming/panning
           if (selectedCell) {
             selectedCell = null;
             tooltip.style("visibility", "hidden");
             updateVoronoi();
           }
-        })
+        }),
     );
 
     svg.on("click", (event) => {
@@ -205,7 +244,7 @@
   });
 
   function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+    return str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
   }
 </script>
 </body>
