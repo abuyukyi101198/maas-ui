@@ -119,6 +119,7 @@
 
     const maxDegree = d3.max(nodes, d => d.degree) || 1;
     const cityRadius = Math.min(width, height) / 4;
+    const maxLoC = d3.max(nodes, d => d.loc || 1);
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(200))
@@ -133,7 +134,11 @@
         },
         width / 2,
         height / 2,
-      ));
+      ))
+      .force("collision", d3.forceCollide().radius(d => {
+        const locWeight = (d.loc || 10) / maxLoC;
+        return (10 + locWeight * 100) / 5;
+      }));
 
     const categories = [
       "base", "controllers", "devices", "domains", "images", "intro", "kvm",
@@ -157,7 +162,7 @@
       subnets: "#5e5b84",
       tags: "#7f824b",
       zones: "#7f6b55",
-      other: "#598680"
+      other: "#598680",
     };
 
     function getCategory(filePath) {
@@ -178,16 +183,11 @@
         .data(nodes, d => d.id);
 
       cells.join("path")
-        .attr("class", d => {
-          if (d.barren) return "cell barren";
-          return d === selectedCell ? "cell highlighted" : "cell";
-        })
+        .attr("class", d => d === selectedCell ? "cell highlighted" : "cell")
         .attr("d", (d, i) => voronoi.renderCell(i))
-        .attr("fill", d => {
-          return getCategoryColor(d.id);
-        })
-        .attr("stroke", "#111")
-        .attr("stroke-width", 0.5)
+        .attr("fill", d => getCategoryColor(d.id))
+        .attr("stroke", "#FEF1C7")
+        .attr("stroke-width", 2)
         .on("click", (event, d) => {
           if (selectedCell === d) {
             selectedCell = null;
