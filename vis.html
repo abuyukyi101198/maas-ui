@@ -16,7 +16,7 @@
           width: 100vw;
           height: 100vh;
           display: block;
-          background: #FEF1C7;
+          background: #f5f5f5;
       }
 
       .cell {
@@ -98,19 +98,19 @@
     ];
 
     const palette = {
-      base: "#DA916E",
-      controllers: "#C1937C",
-      devices: "#C1AB74",
-      domains: "#D9A665",
-      images: "#C1A17C",
-      intro: "#869A81",
-      kvm: "#7c7fc1",
-      machines: "#c17c96",
-      networkDiscovery: "#c1c07c",
-      pools: "#83c17c",
-      preferences: "#aac17c",
-      settings: "#7cb1c1",
-      subnets: "#5e5b84",
+      base: "#e25322",
+      controllers: "#e53147",
+      devices: "#ef9514",
+      domains: "#3fad4f",
+      images: "#1bafe4",
+      intro: "#73266f",
+      kvm: "#4c4b3a",
+      machines: "#645cc5",
+      networkDiscovery: "#1e55ad",
+      pools: "#2c4e50",
+      preferences: "#3b501c",
+      settings: "#8d292f",
+      subnets: "#204d37",
       tags: "#7f824b",
       zones: "#7f6b55",
       other: "#598680",
@@ -123,7 +123,7 @@
 
     function getCategoryColor(filePath) {
       const category = getCategory(filePath);
-      return palette[category] || "#999";
+      return palette[category];
     }
 
     const barrenNodes = [];
@@ -202,7 +202,7 @@
         .attr("class", d => d === selectedCell ? "cell highlighted" : "cell")
         .attr("d", (d, i) => voronoi.renderCell(i))
         .attr("fill", d => getCategoryColor(d.id))
-        .attr("stroke", "#FEF1C7")
+        .attr("stroke", "#f5f5f5")
         .attr("stroke-width", 2)
         .on("click", (event, d) => {
           if (selectedCell === d) {
