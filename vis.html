@@ -166,6 +166,34 @@
     const maxDegree = d3.max(nodes, d => d.degree) || 1;
     const cityRadius = Math.min(width, height) / 4;
     const maxLoC = d3.max(nodes, d => d.loc || 1);
+    const districts = d3.group(nodes, d => d.category);
+
+    function districtCentroid(nodes) {
+      let x = 0, y = 0;
+      nodes.forEach(n => { x += n.x; y += n.y; });
+      return [x / nodes.length, y / nodes.length];
+    }
+
+    function forceDistrictRepulsion(categories, center, strength = 0.02) {
+      return () => {
+        categories.forEach(nodes => {
+          if (!nodes.length) return;
+
+          const [cx, cy] = districtCentroid(nodes);
+          const dx = cx - center[0];
+          const dy = cy - center[1];
+          const dist = Math.sqrt(dx * dx + dy * dy) + 0.01;
+
+          // force magnitude grows with distance from center
+          const f = strength * dist;
+
+          nodes.forEach(node => {
+            node.vx += (dx / dist) * f;
+            node.vy += (dy / dist) * f;
+          });
+        });
+      };
+    }
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(200))
@@ -180,7 +208,7 @@
         d => {
           if (d.barren) return Math.min(width, height);
           const normalized = maxDegree ? d.degree / maxDegree : 0;
-          const minRadius = 20;
+          const minRadius = 50;
           return minRadius + (1 - normalized) * cityRadius;
         },
         width / 2,
@@ -188,8 +216,9 @@
       ))
       .force("collision", d3.forceCollide().radius(d => {
         const locWeight = (d.loc || 10) / maxLoC;
-        return (10 + locWeight * d.degree) / 10;
-      }));
+        return (10 + locWeight * d.degree) / 2;
+      }))
+      .force("districtRepulsion", forceDistrictRepulsion(districts, [width / 2, height / 2], 0.005));
 
     function updateVoronoi() {
       const delaunay = d3.Delaunay.from(allNodes, d => d.x, d => d.y);
@@ -229,6 +258,25 @@
       //   .attr("stroke-width", 0.5);
     }
 
+    function updateHull() {
+      const hullPoints = d3.polygonHull(nodes.map(d => [d.x, d.y]));
+      if (!hullPoints) return;
+
+      const hullPath = d3.line()
+        .x(d => d[0])
+        .y(d => d[1])
+        .curve(d3.curveCardinalClosed.tension(0.001)); // makes it softer
+
+      let clip = svg.select("clipPath#hull-clip");
+      if (clip.empty()) {
+        clip = svg.append("clipPath").attr("id", "hull-clip");
+        clip.append("path");
+        g.attr("clip-path", "url(#hull-clip)");
+      }
+
+      clip.select("path").attr("d", hullPath(hullPoints));
+    }
+
     function showTooltip(event, d) {
       const basename = d.id.split("/").pop().replace(/\.[tj]sx?$/, "");
       const category = d.category;
@@ -259,6 +307,7 @@
 
     simulation.on("tick", () => {
       updateVoronoi();
+      // updateHull();
     });
 
     svg.call(
