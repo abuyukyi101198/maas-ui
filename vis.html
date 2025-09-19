@@ -16,6 +16,7 @@
           width: 100vw;
           height: 100vh;
           display: block;
+          background: #FEF1C7;
       }
 
       .cell {
@@ -99,7 +100,7 @@
         y: Math.random() * height,
         barren: true,
         degree: 0,
-        loc: 0
+        loc: 0,
       });
     }
 
@@ -117,6 +118,7 @@
     const allNodes = [...nodes, ...barrenNodes];
 
     const maxDegree = d3.max(nodes, d => d.degree) || 1;
+    const cityRadius = Math.min(width, height) / 4;
 
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(200))
@@ -124,10 +126,10 @@
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("radial", d3.forceRadial(
         d => {
+          if (d.barren) return Math.min(width, height);
           const normalized = maxDegree ? d.degree / maxDegree : 0;
-          const minRadius = 10;
-          const maxRadius = Math.min(width, height) / 2 - 50;
-          return minRadius + (1 - normalized) * maxRadius;
+          const minRadius = 20;
+          return minRadius + (1 - normalized) * cityRadius;
         },
         width / 2,
         height / 2,
@@ -136,15 +138,27 @@
     const categories = [
       "base", "controllers", "devices", "domains", "images", "intro", "kvm",
       "machines", "networkDiscovery", "pools", "preferences", "settings",
-      "subnets", "tags", "zones"
+      "subnets", "tags", "zones",
     ];
 
-    const palette = d3.schemeSet3.concat(d3.schemeCategory10).slice(0, categories.length);
-
-    const categoryColor = {};
-    categories.forEach((cat, i) => {
-      categoryColor[cat] = palette[i % palette.length];
-    });
+    const palette = {
+      base: "#DA916E",
+      controllers: "#C1937C",
+      devices: "#C1AB74",
+      domains: "#D9A665",
+      images: "#C1A17C",
+      intro: "#869A81",
+      kvm: "#7c7fc1",
+      machines: "#c17c96",
+      networkDiscovery: "#c1c07c",
+      pools: "#83c17c",
+      preferences: "#aac17c",
+      settings: "#7cb1c1",
+      subnets: "#5e5b84",
+      tags: "#7f824b",
+      zones: "#7f6b55",
+      other: "#598680"
+    };
 
     function getCategory(filePath) {
       const firstSegment = filePath.split("/")[0];
@@ -153,7 +167,7 @@
 
     function getCategoryColor(filePath) {
       const category = getCategory(filePath);
-      return categoryColor[category] || "#999"; // grey for "other"
+      return palette[category] || "#999";
     }
 
     function updateVoronoi() {
@@ -169,11 +183,12 @@
           return d === selectedCell ? "cell highlighted" : "cell";
         })
         .attr("d", (d, i) => voronoi.renderCell(i))
-        .attr("fill", d => d.barren ? "#222" : getCategoryColor(d.id))
+        .attr("fill", d => {
+          return getCategoryColor(d.id);
+        })
         .attr("stroke", "#111")
         .attr("stroke-width", 0.5)
         .on("click", (event, d) => {
-          if (d.barren) return; // barren lands not clickable
           if (selectedCell === d) {
             selectedCell = null;
             tooltip.style("visibility", "hidden");
@@ -244,7 +259,13 @@
   });
 
   function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+    return str.replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;",
+    }[c]));
   }
 </script>
 </body>
