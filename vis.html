@@ -4,12 +4,18 @@
 <head>
   <title>Code City Voronoi</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
       body {
           margin: 0;
-          font-family: sans-serif;
-          background: #111;
+          font-family: 'Ubuntu', sans-serif;
+          background: #121212;
           color: #eee;
+      }
+
+      .legend {
+          font-family: 'Ubuntu', sans-serif;
+          color: #3a3a3b;
       }
 
       svg {
@@ -31,16 +37,14 @@
 
       .tooltip {
           position: absolute;
-          background: #222;
-          color: #eee;
+          background: #f5f5f5;
+          color: #121212;
           padding: 10px 12px;
-          border-radius: 6px;
-          border: 1px solid #444;
+          border: 1px solid #c5c5c5;
           font-size: 13px;
           pointer-events: none;
           visibility: hidden;
           white-space: nowrap;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
           max-width: 320px;
       }
 
@@ -53,7 +57,7 @@
       .tooltip-field {
           font-size: 13px;
           margin-top: 2px;
-          color: #ddd;
+          color: #5b5b5b;
       }
   </style>
 </head>
@@ -164,13 +168,16 @@
     });
 
     const maxDegree = d3.max(nodes, d => d.degree) || 1;
-    const cityRadius = Math.min(width, height) / 4;
+    const cityRadius = Math.min(width, height) / 20;
     const maxLoC = d3.max(nodes, d => d.loc || 1);
     const districts = d3.group(nodes, d => d.category);
 
     function districtCentroid(nodes) {
       let x = 0, y = 0;
-      nodes.forEach(n => { x += n.x; y += n.y; });
+      nodes.forEach(n => {
+        x += n.x;
+        y += n.y;
+      });
       return [x / nodes.length, y / nodes.length];
     }
 
@@ -184,7 +191,7 @@
           const dy = cy - center[1];
           const dist = Math.sqrt(dx * dx + dy * dy) + 0.01;
 
-          // force magnitude grows with distance from center
+
           const f = strength * dist;
 
           nodes.forEach(node => {
@@ -216,9 +223,9 @@
       ))
       .force("collision", d3.forceCollide().radius(d => {
         const locWeight = (d.loc || 10) / maxLoC;
-        return (10 + locWeight * d.degree) / 2;
+        return (10 + locWeight * d.degree) / 10;
       }))
-      .force("districtRepulsion", forceDistrictRepulsion(districts, [width / 2, height / 2], 0.005));
+      .force("districtRepulsion", forceDistrictRepulsion(districts, [width / 2, height / 2], 0.01));
 
     function updateVoronoi() {
       const delaunay = d3.Delaunay.from(allNodes, d => d.x, d => d.y);
@@ -244,18 +251,6 @@
           updateVoronoi();
           event.stopPropagation();
         });
-
-      // const nodeCircles = g.selectAll("circle.node")
-      //   .data(allNodes, d => d.id);
-      //
-      // nodeCircles.join("circle")
-      //   .attr("class", "node")
-      //   .attr("r", d => d.barren ? 3 : 5)
-      //   .attr("cx", d => d.x)
-      //   .attr("cy", d => d.y)
-      //   .attr("fill", d => d.barren ? "#888" : getCategoryColor(d.id))
-      //   .attr("stroke", "#000")
-      //   .attr("stroke-width", 0.5);
     }
 
     function updateHull() {
@@ -265,7 +260,7 @@
       const hullPath = d3.line()
         .x(d => d[0])
         .y(d => d[1])
-        .curve(d3.curveCardinalClosed.tension(0.001)); // makes it softer
+        .curve(d3.curveCardinalClosed.tension(0.001));
 
       let clip = svg.select("clipPath#hull-clip");
       if (clip.empty()) {
@@ -305,7 +300,41 @@
       });
     }
 
+    function renderLegend(categories) {
+      const legend = d3.select("body")
+        .append("div")
+        .attr("class", "legend")
+        .style("position", "absolute")
+        .style("bottom", "10px")
+        .style("right", "10px")
+        .style("padding", "8px")
+        .style("font-size", "12px");
+
+      const items = legend.selectAll(".legend-item")
+        .data(categories)
+        .enter()
+        .append("div")
+        .attr("class", "legend-item")
+        .style("display", "flex")
+        .style("align-items", "center")
+        .style("margin-bottom", "4px");
+
+      items.append("div")
+        .style("width", "16px")
+        .style("height", "16px")
+        .style("background", d => getCategoryColor(d))
+        .style("margin-right", "6px");
+
+      items.append("span").text(d => d);
+    }
+
+    renderLegend(categories);
+
     simulation.on("tick", () => {
+      nodes.forEach(d => {
+        d.x = Math.max(0, Math.min(width - 20, d.x));
+        d.y = Math.max(0, Math.min(height - 20, d.y));
+      });
       updateVoronoi();
       updateHull();
     });
