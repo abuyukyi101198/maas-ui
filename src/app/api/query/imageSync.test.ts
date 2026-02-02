@@ -1,10 +1,7 @@
-import {
-  resetSilentPolling,
-  useStartImageSync,
-  useStopImageSync,
-} from "@/app/api/query/imageSync";
+import { useStartImageSync, useStopImageSync } from "@/app/api/query/imageSync";
 import { ACTIVE_DOWNLOAD_REFETCH_INTERVAL } from "@/app/api/query/images";
 import * as sdk from "@/app/apiclient/sdk.gen";
+import { resetSilentPolling } from "@/app/images/hooks/useOptimisticImages/utils/silentPolling";
 import { imageStatusFactory } from "@/testing/factories";
 import { imageSyncResolvers } from "@/testing/resolvers/imageSync";
 import { imageResolvers } from "@/testing/resolvers/images";
