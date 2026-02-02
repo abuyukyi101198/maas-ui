@@ -8,7 +8,7 @@ export const MAAS_IO_DEFAULTS = {
 } as const;
 
 export const VALID_IMAGE_FILE_TYPES: Accept = {
-  "": [
+  "application/octet-stream": [
     ".tgz",
     ".tbz",
     ".txz",
