@@ -151,6 +151,66 @@ describe("useStartImageSync", () => {
     await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(3);
   });
+
+  it("discards failed poll requests and continues polling until backend returns `Downloading`", async () => {
+    const listSelectionStatusSpy = vi
+      .spyOn(sdk, "listSelectionStatus")
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockRejectedValueOnce(new Error("Another network error"))
+      .mockResolvedValueOnce(
+        // @ts-expect-error partial return since the whole response object is not needed for this test
+        {
+          data: {
+            items: [
+              imageStatusFactory.build({
+                id: 0,
+                status: "Waiting for download",
+              }),
+            ],
+            total: 1,
+          },
+        }
+      )
+      .mockResolvedValueOnce(
+        // @ts-expect-error partial return since the whole response object is not needed for this test
+        {
+          data: {
+            items: [imageStatusFactory.build({ id: 0, status: "Downloading" })],
+            total: 1,
+          },
+        }
+      );
+
+    const { result } = renderHookWithProviders(() => useStartImageSync());
+
+    result.current.mutate({
+      path: { boot_source_id: 0, id: 0 },
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    // First poll - fails with network error
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
+
+    // Second poll - fails again
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
+
+    // Third poll - succeeds but status is still "Waiting for download"
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(3);
+
+    // Fourth poll - succeeds with "Downloading" status, polling stops
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(4);
+
+    // Verify polling has stopped
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(4);
+  });
 });
 
 describe("useStopImageSync", () => {

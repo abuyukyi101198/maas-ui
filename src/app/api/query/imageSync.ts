@@ -79,36 +79,48 @@ const startOrExtendSilentPolling = (queryClient: QueryClient) => {
   silentPoll.active = true;
 
   const poll = async () => {
-    // Fetch latest status from backend without triggering UI updates
-    const [selectionResult, customImageResult] = await Promise.all([
-      listSelectionStatus(),
-      listCustomImagesStatus(),
-    ]);
+    try {
+      // Fetch latest status from backend without triggering UI updates
+      const [selectionResult, customImageResult] = await Promise.all([
+        listSelectionStatus(),
+        listCustomImagesStatus(),
+      ]);
 
-    const selectionItems = selectionResult?.data?.items ?? [];
-    const customItems = customImageResult?.data?.items ?? [];
+      const selectionItems = selectionResult?.data?.items ?? [];
+      const customItems = customImageResult?.data?.items ?? [];
 
-    // Check each tracked image to see if it has resolved
-    for (const [imageId, entry] of silentPoll.entries) {
-      entry.attempts++;
+      // Check each tracked image to see if it has resolved
+      for (const [imageId, entry] of silentPoll.entries) {
+        entry.attempts++;
 
-      // Find the image's current status from backend
-      const backendSyncStatus =
-        selectionItems.find((i) => i.id === imageId)?.status ??
-        customItems.find((i) => i.id === imageId)?.status;
+        // Find the image's current status from backend
+        const backendSyncStatus =
+          selectionItems.find((i) => i.id === imageId)?.status ??
+          customItems.find((i) => i.id === imageId)?.status;
 
-      const backendUpdateStatus =
-        selectionItems.find((i) => i.id === imageId)?.update_status ??
-        customItems.find((i) => i.id === imageId)?.update_status;
+        const backendUpdateStatus =
+          selectionItems.find((i) => i.id === imageId)?.update_status ??
+          customItems.find((i) => i.id === imageId)?.update_status;
 
-      // Image is resolved if it's actively downloading, or we've exceeded max attempts
-      const resolved =
-        backendSyncStatus === "Downloading" ||
-        backendUpdateStatus === "Downloading" ||
-        entry.attempts >= MAX_ATTEMPTS_PER_IMAGE;
+        // Image is resolved if it's actively downloading, or we've exceeded max attempts
+        const resolved =
+          backendSyncStatus === "Downloading" ||
+          backendUpdateStatus === "Downloading" ||
+          entry.attempts >= MAX_ATTEMPTS_PER_IMAGE;
 
-      if (resolved) {
-        silentPoll.entries.delete(imageId);
+        if (resolved) {
+          silentPoll.entries.delete(imageId);
+        }
+      }
+    } catch {
+      // Failed poll is treated as "condition not met yet"
+      // Increment attempts and check for timeout on all tracked images
+      for (const [imageId, entry] of silentPoll.entries) {
+        entry.attempts++;
+
+        if (entry.attempts >= MAX_ATTEMPTS_PER_IMAGE) {
+          silentPoll.entries.delete(imageId);
+        }
       }
     }
 
