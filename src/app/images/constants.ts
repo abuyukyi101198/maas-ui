@@ -8,7 +8,7 @@ export const MAAS_IO_DEFAULTS = {
 } as const;
 
 export const VALID_IMAGE_FILE_TYPES: Accept = {
-  "application/octet-stream": [
+  "": [
     ".tgz",
     ".tbz",
     ".txz",
@@ -24,10 +24,6 @@ export const VALID_IMAGE_FILE_TYPES: Accept = {
 } as const;
 
 export const OPERATING_SYSTEM_NAMES = [
-  {
-    label: "Ubuntu",
-    value: "Ubuntu",
-  },
   {
     label: "Ubuntu Core",
     value: "Ubuntu Core",
