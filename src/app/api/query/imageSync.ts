@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   ACTIVE_DOWNLOAD_REFETCH_INTERVAL,
+  IMAGES_WORKFLOW_KEY,
   withImagesWorkflow,
 } from "@/app/api/query/images";
 import { mutationOptionsWithHeaders } from "@/app/api/utils";
@@ -177,12 +178,128 @@ export const resetSilentPolling = () => {
   silentPoll.timer = null;
 };
 
-type MutateStartImageSyncResult = {
+type OptimisticMutateProps = {
+  queryClient: QueryClient;
+  imageId: number;
+};
+
+type OptimisticMutateResult = {
   selectionStatusKey: readonly unknown[];
   customImageStatusKey: readonly unknown[];
   previousSelectionStatuses?: ListSelectionStatusResponse;
   previousCustomImageStatuses?: ListCustomImagesStatusResponse;
   imageId: number;
+};
+
+export const optimisticMutate = async ({
+  queryClient,
+  imageId,
+}: OptimisticMutateProps): Promise<OptimisticMutateResult> => {
+  // Cancel all queries to prevent overwrites
+  await queryClient.cancelQueries();
+
+  // Get data using predicate instead of exact key match
+  const selectionStatusQueries =
+    queryClient.getQueriesData<ListSelectionStatusResponse>({
+      predicate: (query) => {
+        const key = query.queryKey;
+        return (
+          Array.isArray(key) &&
+          key[0] === IMAGES_WORKFLOW_KEY[0] &&
+          typeof key[1] === "object" &&
+          key[1]?._id === "listSelectionStatus"
+        );
+      },
+    });
+
+  const customImageStatusQueries =
+    queryClient.getQueriesData<ListCustomImagesStatusResponse>({
+      predicate: (query) => {
+        const key = query.queryKey;
+        return (
+          Array.isArray(key) &&
+          key[0] === IMAGES_WORKFLOW_KEY[0] &&
+          typeof key[1] === "object" &&
+          key[1]?._id === "listCustomImagesStatus"
+        );
+      },
+    });
+
+  // Extract the actual query keys and data
+  const [selectionStatusKey, previousSelectionStatuses] =
+    selectionStatusQueries[0] || [null, null];
+  const [customImageStatusKey, previousCustomImageStatuses] =
+    customImageStatusQueries[0] || [null, null];
+
+  // Optimistically update selection statuses to "Optimistic"
+  if (selectionStatusKey && previousSelectionStatuses) {
+    const updatedSelectionStatuses = {
+      ...previousSelectionStatuses,
+      items: previousSelectionStatuses.items.map((item) => {
+        if (item.id === imageId && item.status === "Waiting for download") {
+          return {
+            ...item,
+            status: "Optimistic" as ImageStatus,
+            sync_percentage: 0,
+          };
+        } else if (
+          item.id === imageId &&
+          item.update_status === "Update available"
+        ) {
+          return {
+            ...item,
+            update_status: "Optimistic" as ImageUpdateStatus,
+            sync_percentage: 0,
+          };
+        }
+        return item;
+      }),
+    };
+
+    queryClient.setQueryData<ListSelectionStatusResponse>(
+      selectionStatusKey,
+      updatedSelectionStatuses
+    );
+  }
+
+  // Optimistically update custom image statuses to "Optimistic"
+  if (customImageStatusKey && previousCustomImageStatuses) {
+    const updatedCustomImageStatuses = {
+      ...previousCustomImageStatuses,
+      items: previousCustomImageStatuses.items.map((item) => {
+        if (item.id === imageId && item.status === "Waiting for download") {
+          return {
+            ...item,
+            status: "Optimistic" as ImageStatus,
+            sync_percentage: 0,
+          };
+        } else if (
+          item.id === imageId &&
+          item.update_status === "Update available"
+        ) {
+          return {
+            ...item,
+            update_status: "Optimistic" as ImageUpdateStatus,
+            sync_percentage: 0,
+          };
+        }
+        return item;
+      }),
+    };
+
+    queryClient.setQueryData<ListCustomImagesStatusResponse>(
+      customImageStatusKey,
+      updatedCustomImageStatuses
+    );
+  }
+
+  return {
+    selectionStatusKey,
+    customImageStatusKey,
+    previousSelectionStatuses,
+    previousCustomImageStatuses,
+    imageId,
+  };
 };
 
 export const useStartImageSync = (
@@ -197,120 +314,15 @@ export const useStartImageSync = (
       SyncBootsourceBootsourceselectionData
     >(mutationOptions, syncBootsourceBootsourceselection),
 
-    onMutate: async (variables): Promise<MutateStartImageSyncResult> => {
+    onMutate: async (variables): Promise<OptimisticMutateResult> => {
       const imageId = variables.path.id;
-
-      // Cancel all queries to prevent overwrites
-      await queryClient.cancelQueries();
-
-      // Get data using predicate instead of exact key match
-      const selectionStatusQueries =
-        queryClient.getQueriesData<ListSelectionStatusResponse>({
-          predicate: (query) => {
-            const key = query.queryKey;
-            return (
-              Array.isArray(key) &&
-              key[0] === "images-workflow" &&
-              typeof key[1] === "object" &&
-              key[1]?._id === "listSelectionStatus"
-            );
-          },
-        });
-
-      const customImageStatusQueries =
-        queryClient.getQueriesData<ListCustomImagesStatusResponse>({
-          predicate: (query) => {
-            const key = query.queryKey;
-            return (
-              Array.isArray(key) &&
-              key[0] === "images-workflow" &&
-              typeof key[1] === "object" &&
-              key[1]?._id === "listCustomImagesStatus"
-            );
-          },
-        });
-
-      // Extract the actual query keys and data
-      const [selectionStatusKey, previousSelectionStatuses] =
-        selectionStatusQueries[0] || [null, null];
-      const [customImageStatusKey, previousCustomImageStatuses] =
-        customImageStatusQueries[0] || [null, null];
-
-      // Optimistically update selection statuses to "Optimistic"
-      if (selectionStatusKey && previousSelectionStatuses) {
-        const updatedSelectionStatuses = {
-          ...previousSelectionStatuses,
-          items: previousSelectionStatuses.items.map((item) => {
-            if (item.id === imageId && item.status === "Waiting for download") {
-              return {
-                ...item,
-                status: "Optimistic" as ImageStatus,
-                sync_percentage: 0,
-              };
-            } else if (
-              item.id === imageId &&
-              item.update_status === "Update available"
-            ) {
-              return {
-                ...item,
-                update_status: "Optimistic" as ImageUpdateStatus,
-                sync_percentage: 0,
-              };
-            }
-            return item;
-          }),
-        };
-
-        queryClient.setQueryData<ListSelectionStatusResponse>(
-          selectionStatusKey,
-          updatedSelectionStatuses
-        );
-      }
-
-      // Optimistically update custom image statuses to "Optimistic"
-      if (customImageStatusKey && previousCustomImageStatuses) {
-        const updatedCustomImageStatuses = {
-          ...previousCustomImageStatuses,
-          items: previousCustomImageStatuses.items.map((item) => {
-            if (item.id === imageId && item.status === "Waiting for download") {
-              return {
-                ...item,
-                status: "Optimistic" as ImageStatus,
-                sync_percentage: 0,
-              };
-            } else if (
-              item.id === imageId &&
-              item.update_status === "Update available"
-            ) {
-              return {
-                ...item,
-                update_status: "Optimistic" as ImageUpdateStatus,
-                sync_percentage: 0,
-              };
-            }
-            return item;
-          }),
-        };
-
-        queryClient.setQueryData<ListCustomImagesStatusResponse>(
-          customImageStatusKey,
-          updatedCustomImageStatuses
-        );
-      }
-
-      return {
-        selectionStatusKey,
-        customImageStatusKey,
-        previousSelectionStatuses,
-        previousCustomImageStatuses,
-        imageId,
-      };
+      return optimisticMutate({ queryClient, imageId });
     },
 
     onError: (
       _err,
       _variables,
-      onMutateResult: MutateStartImageSyncResult | undefined,
+      onMutateResult: OptimisticMutateResult | undefined,
       _context
     ) => {
       if (!onMutateResult) return;
@@ -338,7 +350,7 @@ export const useStartImageSync = (
     onSuccess: async (
       _data,
       _variables,
-      onMutateResult: MutateStartImageSyncResult,
+      onMutateResult: OptimisticMutateResult,
       _context
     ) => {
       if (!onMutateResult) return;
@@ -389,7 +401,7 @@ export const useStopImageSync = (
             const key = query.queryKey;
             return (
               Array.isArray(key) &&
-              key[0] === "images-workflow" &&
+              key[0] === IMAGES_WORKFLOW_KEY[0] &&
               typeof key[1] === "object" &&
               key[1]?._id === "listSelectionStatus"
             );
@@ -402,7 +414,7 @@ export const useStopImageSync = (
             const key = query.queryKey;
             return (
               Array.isArray(key) &&
-              key[0] === "images-workflow" &&
+              key[0] === IMAGES_WORKFLOW_KEY[0] &&
               typeof key[1] === "object" &&
               key[1]?._id === "listCustomImagesStatus"
             );
