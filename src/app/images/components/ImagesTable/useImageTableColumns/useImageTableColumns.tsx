@@ -155,6 +155,7 @@ const useImageTableColumns = ({
             },
           }) => {
             const isOptimistic = update_status === "Optimistic";
+            const isStopping = update_status === "Stopping";
             return isStatusLoading ? (
               <Spinner />
             ) : (
@@ -162,18 +163,25 @@ const useImageTableColumns = ({
                 primary={
                   isUpstream ? (
                     update_status === "Downloading" ||
-                    update_status === "Optimistic" ? (
+                    update_status === "Optimistic" ||
+                    update_status === "Stopping" ? (
                       <>
-                        <div className="p-progress">
-                          <div
-                            className="p-progress__value"
-                            style={{
-                              width: `${isOptimistic ? 100 : sync_percentage}%`,
-                            }}
-                          />
-                        </div>
+                        {!isStopping ? (
+                          <div className="p-progress">
+                            <div
+                              className="p-progress__value"
+                              style={{
+                                width: `${isOptimistic ? 100 : isStopping ? 0 : sync_percentage}%`,
+                              }}
+                            />
+                          </div>
+                        ) : null}
                         <small className="u-text--muted">
-                          {isOptimistic ? "Queueing..." : `${sync_percentage}%`}
+                          {isOptimistic
+                            ? "Queueing..."
+                            : isStopping
+                              ? "Stopping..."
+                              : `${sync_percentage}%`}
                         </small>
                       </>
                     ) : update_status === "No updates available" ? (
@@ -233,24 +241,33 @@ const useImageTableColumns = ({
                 icon = null;
             }
             const isOptimistic = status === "Optimistic";
+            const isStopping = status === "Stopping";
             return isStatusLoading ? (
               <Spinner />
             ) : (
               <DoubleRow
                 icon={icon}
                 primary={
-                  status === "Downloading" || status === "Optimistic" ? (
+                  status === "Downloading" ||
+                  status === "Optimistic" ||
+                  status === "Stopping" ? (
                     <>
-                      <div className="p-progress">
-                        <div
-                          className="p-progress__value"
-                          style={{
-                            width: `${isOptimistic ? 100 : sync_percentage}%`,
-                          }}
-                        />
-                      </div>
+                      {!isStopping ? (
+                        <div className="p-progress">
+                          <div
+                            className="p-progress__value"
+                            style={{
+                              width: `${isOptimistic ? 100 : sync_percentage}%`,
+                            }}
+                          />
+                        </div>
+                      ) : null}
                       <small className="u-text--muted">
-                        {isOptimistic ? "Queueing..." : `${sync_percentage}%`}
+                        {isOptimistic
+                          ? "Queueing..."
+                          : isStopping
+                            ? "Stopping..."
+                            : `${sync_percentage}%`}
                       </small>
                     </>
                   ) : (
@@ -295,6 +312,9 @@ const useImageTableColumns = ({
 
             const isOptimistic =
               status === "Optimistic" || update_status === "Optimistic";
+
+            const isStopping =
+              status === "Stopping" || update_status === "Stopping";
 
             const downloadInProgress = isSyncing || isUpdating;
 
@@ -347,7 +367,10 @@ const useImageTableColumns = ({
                       appearance="base"
                       className="is-dense u-table-cell-padding-overlap"
                       disabled={
-                        !downloadAvailable || stopSync.isPending || isCustom
+                        !downloadAvailable ||
+                        stopSync.isPending ||
+                        isStopping ||
+                        isCustom
                       }
                       hasIcon
                       onClick={() => {

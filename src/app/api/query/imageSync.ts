@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   ACTIVE_DOWNLOAD_REFETCH_INTERVAL,
-  IMAGES_WORKFLOW_KEY,
   withImagesWorkflow,
 } from "@/app/api/query/images";
 import { mutationOptionsWithHeaders } from "@/app/api/utils";
@@ -35,6 +34,7 @@ import {
 
 type PollEntry = {
   attempts: number;
+  action: "start" | "stop";
 };
 
 type SilentPollState = {
@@ -102,11 +102,22 @@ const startOrExtendSilentPolling = (queryClient: QueryClient) => {
           selectionItems.find((i) => i.id === imageId)?.update_status ??
           customItems.find((i) => i.id === imageId)?.update_status;
 
-        // Image is resolved if it's actively downloading, or we've exceeded max attempts
-        const resolved =
-          backendSyncStatus === "Downloading" ||
-          backendUpdateStatus === "Downloading" ||
-          entry.attempts >= MAX_ATTEMPTS_PER_IMAGE;
+        // Determine if image is resolved based on action type
+        let resolved = false;
+
+        if (entry.action === "start") {
+          // For start action: resolved when status becomes "Downloading"
+          resolved =
+            backendSyncStatus === "Downloading" ||
+            backendUpdateStatus === "Downloading" ||
+            entry.attempts >= MAX_ATTEMPTS_PER_IMAGE;
+        } else if (entry.action === "stop") {
+          // For stop action: resolved when status is NOT "Downloading"
+          resolved =
+            (backendSyncStatus !== "Downloading" &&
+              backendUpdateStatus !== "Downloading") ||
+            entry.attempts >= MAX_ATTEMPTS_PER_IMAGE;
+        }
 
         if (resolved) {
           silentPoll.entries.delete(imageId);
@@ -334,13 +345,24 @@ export const useStartImageSync = (
 
       const imageId = onMutateResult?.imageId;
 
-      if (!silentPoll.entries.has(imageId)) {
-        silentPoll.entries.set(imageId, { attempts: 0 });
+      if (
+        !silentPoll.entries.has(imageId) ||
+        silentPoll.entries.get(imageId)?.action === "stop"
+      ) {
+        silentPoll.entries.set(imageId, { attempts: 0, action: "start" });
       }
 
       startOrExtendSilentPolling(queryClient);
     },
   });
+};
+
+type MutateStopImageSyncResult = {
+  selectionStatusKey: readonly unknown[];
+  customImageStatusKey: readonly unknown[];
+  previousSelectionStatuses?: ListSelectionStatusResponse;
+  previousCustomImageStatuses?: ListCustomImagesStatusResponse;
+  imageId: number;
 };
 
 export const useStopImageSync = (
@@ -353,10 +375,159 @@ export const useStopImageSync = (
       StopSyncBootsourceBootsourceselectionErrors,
       StopSyncBootsourceBootsourceselectionData
     >(mutationOptions, stopSyncBootsourceBootsourceselection),
-    onSuccess: () => {
-      return queryClient.invalidateQueries({
-        queryKey: IMAGES_WORKFLOW_KEY,
-      });
+
+    onMutate: async (variables): Promise<MutateStopImageSyncResult> => {
+      const imageId = variables.path.id;
+
+      // Cancel all queries to prevent overwrites
+      await queryClient.cancelQueries();
+
+      // Get data using predicate instead of exact key match
+      const selectionStatusQueries =
+        queryClient.getQueriesData<ListSelectionStatusResponse>({
+          predicate: (query) => {
+            const key = query.queryKey;
+            return (
+              Array.isArray(key) &&
+              key[0] === "images-workflow" &&
+              typeof key[1] === "object" &&
+              key[1]?._id === "listSelectionStatus"
+            );
+          },
+        });
+
+      const customImageStatusQueries =
+        queryClient.getQueriesData<ListCustomImagesStatusResponse>({
+          predicate: (query) => {
+            const key = query.queryKey;
+            return (
+              Array.isArray(key) &&
+              key[0] === "images-workflow" &&
+              typeof key[1] === "object" &&
+              key[1]?._id === "listCustomImagesStatus"
+            );
+          },
+        });
+
+      // Extract the actual query keys and data
+      const [selectionStatusKey, previousSelectionStatuses] =
+        selectionStatusQueries[0] || [null, null];
+      const [customImageStatusKey, previousCustomImageStatuses] =
+        customImageStatusQueries[0] || [null, null];
+
+      // Optimistically update selection statuses to "Stopping"
+      if (selectionStatusKey && previousSelectionStatuses) {
+        const updatedSelectionStatuses = {
+          ...previousSelectionStatuses,
+          items: previousSelectionStatuses.items.map((item) => {
+            if (item.id === imageId && item.status === "Downloading") {
+              return {
+                ...item,
+                status: "Stopping" as ImageStatus,
+              };
+            } else if (
+              item.id === imageId &&
+              item.update_status === "Downloading"
+            ) {
+              return {
+                ...item,
+                update_status: "Stopping" as ImageUpdateStatus,
+              };
+            }
+            return item;
+          }),
+        };
+
+        queryClient.setQueryData<ListSelectionStatusResponse>(
+          selectionStatusKey,
+          updatedSelectionStatuses
+        );
+      }
+
+      // Optimistically update custom image statuses to "Stopping"
+      if (customImageStatusKey && previousCustomImageStatuses) {
+        const updatedCustomImageStatuses = {
+          ...previousCustomImageStatuses,
+          items: previousCustomImageStatuses.items.map((item) => {
+            if (item.id === imageId && item.status === "Downloading") {
+              return {
+                ...item,
+                status: "Stopping" as ImageStatus,
+              };
+            } else if (
+              item.id === imageId &&
+              item.update_status === "Downloading"
+            ) {
+              return {
+                ...item,
+                update_status: "Stopping" as ImageUpdateStatus,
+              };
+            }
+            return item;
+          }),
+        };
+
+        queryClient.setQueryData<ListCustomImagesStatusResponse>(
+          customImageStatusKey,
+          updatedCustomImageStatuses
+        );
+      }
+
+      return {
+        selectionStatusKey,
+        customImageStatusKey,
+        previousSelectionStatuses,
+        previousCustomImageStatuses,
+        imageId,
+      };
+    },
+
+    onError: (
+      _err,
+      _variables,
+      onMutateResult: MutateStopImageSyncResult | undefined,
+      _context
+    ) => {
+      if (!onMutateResult) return;
+      // Rollback to previous state if mutation fails
+      if (
+        onMutateResult?.selectionStatusKey &&
+        onMutateResult?.previousSelectionStatuses
+      ) {
+        queryClient.setQueryData(
+          onMutateResult.selectionStatusKey,
+          onMutateResult.previousSelectionStatuses
+        );
+      }
+      if (
+        onMutateResult?.customImageStatusKey &&
+        onMutateResult?.previousCustomImageStatuses
+      ) {
+        queryClient.setQueryData(
+          onMutateResult.customImageStatusKey,
+          onMutateResult.previousCustomImageStatuses
+        );
+      }
+    },
+
+    onSuccess: async (
+      _data,
+      _variables,
+      onMutateResult: MutateStopImageSyncResult,
+      _context
+    ) => {
+      if (!onMutateResult) return;
+
+      const imageId = onMutateResult?.imageId;
+
+      if (
+        !silentPoll.entries.has(imageId) ||
+        silentPoll.entries.get(imageId)?.action === "start"
+      ) {
+        silentPoll.entries.set(imageId, { attempts: 0, action: "stop" });
+      }
+
+      startOrExtendSilentPolling(queryClient);
     },
   });
 };

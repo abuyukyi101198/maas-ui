@@ -1,4 +1,8 @@
-import { useStartImageSync, useStopImageSync } from "@/app/api/query/imageSync";
+import {
+  resetSilentPolling,
+  useStartImageSync,
+  useStopImageSync,
+} from "@/app/api/query/imageSync";
 import { ACTIVE_DOWNLOAD_REFETCH_INTERVAL } from "@/app/api/query/images";
 import * as sdk from "@/app/apiclient/sdk.gen";
 import { imageStatusFactory } from "@/testing/factories";
@@ -24,6 +28,7 @@ describe("useStartImageSync", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    resetSilentPolling();
   });
 
   it("starts image sync and stops polling when backend returns `Downloading`", async () => {
@@ -214,6 +219,15 @@ describe("useStartImageSync", () => {
 });
 
 describe("useStopImageSync", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    resetSilentPolling();
+  });
+
   it("stops image sync", async () => {
     const { result } = renderHookWithProviders(() => useStopImageSync());
     result.current.mutate({
@@ -225,5 +239,70 @@ describe("useStopImageSync", () => {
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
+  });
+
+  it("stops image sync and polls until backend status is NOT `Downloading`", async () => {
+    const listSelectionStatusSpy = vi
+      .spyOn(sdk, "listSelectionStatus")
+      .mockResolvedValueOnce(
+        // @ts-expect-error partial return since the whole response object is not needed for this test
+        {
+          data: {
+            items: [
+              imageStatusFactory.build({
+                id: 0,
+                status: "Downloading",
+              }),
+            ],
+            total: 1,
+          },
+        }
+      )
+      .mockResolvedValueOnce(
+        // @ts-expect-error partial return since the whole response object is not needed for this test
+        {
+          data: {
+            items: [
+              imageStatusFactory.build({
+                id: 0,
+                status: "Waiting for download",
+              }),
+            ],
+            total: 1,
+          },
+        }
+      );
+
+    const listCustomImagesStatusSpy = vi
+      .spyOn(sdk, "listCustomImagesStatus")
+      .mockResolvedValue(
+        // @ts-expect-error partial return
+        {
+          data: {
+            items: [],
+            total: 0,
+          },
+        }
+      );
+
+    const { result } = renderHookWithProviders(() => useStopImageSync());
+
+    result.current.mutate({
+      path: { boot_source_id: 0, id: 0 },
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
+    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
+    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
+    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(2);
   });
 });
