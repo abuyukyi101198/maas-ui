@@ -1,16 +1,13 @@
 import type { QueryClient } from "@tanstack/react-query";
 
-import {
-  ACTIVE_DOWNLOAD_REFETCH_INTERVAL,
-  withImagesWorkflow,
-} from "@/app/api/query/images";
+import { withImagesWorkflow } from "@/app/api/query/images";
 import { listSelectionStatus } from "@/app/apiclient";
 import {
   listSelectionStatisticQueryKey,
   listSelectionStatusQueryKey,
 } from "@/app/apiclient/@tanstack/react-query.gen";
 
-const POLL_INTERVAL = ACTIVE_DOWNLOAD_REFETCH_INTERVAL;
+export const POLL_INTERVAL = 5000;
 const MAX_ATTEMPTS_PER_IMAGE = 10;
 
 type PollEntry = {
