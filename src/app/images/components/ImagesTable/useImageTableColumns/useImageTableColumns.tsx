@@ -27,7 +27,7 @@ const TOOLTIP_MESSAGES = {
   DELETE_IMAGE: "Delete this image.",
   DELETE_COMMISSIONING:
     "Cannot delete images of the default commissioning release.",
-  DELETE_IMPORTING: "Cannot delete images that are currently being imported.",
+  DELETE_IMPORTING: "Cannot delete images that are currently being downloaded.",
 } as const;
 
 export const filterCells = (
@@ -316,7 +316,7 @@ const useImageTableColumns = ({
             const isStopping =
               status === "Stopping" || update_status === "Stopping";
 
-            const downloadInProgress = isSyncing || isUpdating;
+            const downloadInProgress = isSyncing || isUpdating || isStopping;
 
             const downloadAvailable =
               status === "Waiting for download" ||
