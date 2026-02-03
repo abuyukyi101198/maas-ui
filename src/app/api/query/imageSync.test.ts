@@ -1,7 +1,9 @@
 import { useStartImageSync, useStopImageSync } from "@/app/api/query/imageSync";
-import { ACTIVE_DOWNLOAD_REFETCH_INTERVAL } from "@/app/api/query/images";
 import * as sdk from "@/app/apiclient/sdk.gen";
-import { resetSilentPolling } from "@/app/images/hooks/useOptimisticImages/utils/silentPolling";
+import {
+  POLL_INTERVAL,
+  resetSilentPolling,
+} from "@/app/images/hooks/useOptimisticImages/utils/silentPolling";
 import { imageStatusFactory } from "@/testing/factories";
 import { imageSyncResolvers } from "@/testing/resolvers/imageSync";
 import { imageResolvers } from "@/testing/resolvers/images";
@@ -13,7 +15,6 @@ import {
 
 setupMockServer(
   imageResolvers.listSelectionStatuses.handler(),
-  imageResolvers.listCustomImageStatuses.handler(),
   imageSyncResolvers.startSynchronization.handler(),
   imageSyncResolvers.stopSynchronization.handler()
 );
@@ -65,11 +66,11 @@ describe("useStartImageSync", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL / 2);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -135,7 +136,7 @@ describe("useStartImageSync", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL / 2);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
 
     result.current.mutate({
@@ -146,11 +147,11 @@ describe("useStartImageSync", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(3);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(3);
   });
 
@@ -194,23 +195,23 @@ describe("useStartImageSync", () => {
     });
 
     // First poll - fails with network error
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL / 2);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
 
     // Second poll - fails again
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
 
     // Third poll - succeeds but status is still "Waiting for download"
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(3);
 
     // Fourth poll - succeeds with "Downloading" status, polling stops
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(4);
 
     // Verify polling has stopped
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(4);
   });
 });
@@ -270,18 +271,6 @@ describe("useStopImageSync", () => {
         }
       );
 
-    const listCustomImagesStatusSpy = vi
-      .spyOn(sdk, "listCustomImagesStatus")
-      .mockResolvedValue(
-        // @ts-expect-error partial return
-        {
-          data: {
-            items: [],
-            total: 0,
-          },
-        }
-      );
-
     const { result } = renderHookWithProviders(() => useStopImageSync());
 
     result.current.mutate({
@@ -292,14 +281,11 @@ describe("useStopImageSync", () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL / 2);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL / 2);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(1);
-    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
-    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(2);
-    await vi.advanceTimersByTimeAsync(ACTIVE_DOWNLOAD_REFETCH_INTERVAL);
+    await vi.advanceTimersByTimeAsync(POLL_INTERVAL);
     expect(listSelectionStatusSpy).toHaveBeenCalledTimes(2);
-    expect(listCustomImagesStatusSpy).toHaveBeenCalledTimes(2);
   });
 });
