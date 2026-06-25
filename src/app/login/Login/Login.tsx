@@ -40,6 +40,7 @@ export type LoginValues = {
 
 export const Labels = {
   APILoginForm: "Login",
+  Back: "Back",
   ExternalLoginButton: "Go to login page",
   NoUsers: "No admin user has been created yet",
   Password: "Password",
@@ -60,6 +61,7 @@ export const Login = (): ReactElement => {
   const externalAuthURL = useSelector(statusSelectors.externalAuthURL);
   const externalLoginURL = useSelector(statusSelectors.externalLoginURL);
   const authenticationError = useSelector(statusSelectors.authenticationError);
+  const authenticated = useSelector(statusSelectors.authenticated);
   const noUsers = useSelector(statusSelectors.noUsers);
 
   const [searchParams] = useSearchParams();
@@ -95,18 +97,33 @@ export const Login = (): ReactElement => {
   }, [navigate, redirect]);
 
   useEffect(() => {
-    if (authenticate.isSuccess) {
+    if (authenticate.isSuccess || authenticated) {
       handleRedirect();
     }
-  }, [authenticate.isSuccess, handleRedirect]);
+  }, [authenticate.isSuccess, authenticated, handleRedirect]);
 
   useWindowTitle("Login");
 
   useEffect(() => {
-    if (externalAuthURL) {
+    if (externalAuthURL && !authenticated) {
       dispatch(statusActions.externalLogin());
     }
-  }, [dispatch, externalAuthURL]);
+  }, [authenticated, dispatch, externalAuthURL]);
+
+  const handleBack = useCallback(
+    (
+      _values: LoginValues,
+      formikContext: {
+        setFieldTouched: (field: string, isTouched?: boolean) => void;
+        setFieldValue: (field: string, value: string) => void;
+      }
+    ) => {
+      setSubmittedUsername(null);
+      formikContext.setFieldValue("password", "");
+      formikContext.setFieldTouched("password", false);
+    },
+    [setSubmittedUsername]
+  );
 
   const handleSubmit = (values: LoginValues) => {
     authenticate.mutate({
@@ -165,10 +182,12 @@ export const Login = (): ReactElement => {
                 ) : (
                   <FormikForm<LoginValues, LoginError>
                     aria-label={Labels.APILoginForm}
+                    cancelLabel={Labels.Back}
                     initialValues={{
                       password: "",
                       username: "",
                     }}
+                    onCancel={hasEnteredUsername ? handleBack : null}
                     onSubmit={(values) => {
                       if (!hasEnteredUsername) {
                         setSubmittedUsername(values.username);
@@ -207,9 +226,8 @@ export const Login = (): ReactElement => {
                       </p>
                     ) : null}
                     <FormikField
-                      aria-hidden={hasEnteredUsername}
-                      hidden={hasEnteredUsername}
-                      label={hasEnteredUsername ? "" : Labels.Username}
+                      disabled={hasEnteredUsername}
+                      label={Labels.Username}
                       name="username"
                       required={true}
                       takeFocus={!hasEnteredUsername}

@@ -24,6 +24,7 @@ const FormikForm = <V extends object, E = null>({
   buttonsHelpClassName,
   buttonsHelp,
   cancelDisabled,
+  cancelLabel,
   children,
   className,
   cleanup,
@@ -67,6 +68,7 @@ const FormikForm = <V extends object, E = null>({
         buttonsHelp={buttonsHelp}
         buttonsHelpClassName={buttonsHelpClassName}
         cancelDisabled={cancelDisabled}
+        cancelLabel={cancelLabel}
         className={className}
         cleanup={cleanup}
         editable={editable}
