@@ -430,11 +430,28 @@ function buildAuthCookies(origin, { accessToken, refreshToken }) {
 // The SPA renders asynchronously and shows a "Loading" state before content
 // is ready. Mirroring the e2e `waitForPageToLoad`, wait until the page has
 // settled: a heading has rendered, no "loading" text remains, and nothing
-// is still flagged as busy. This avoids snapshotting the loading shell.
+// is still flagged as busy or showing a loading spinner/skeleton. This avoids
+// snapshotting the loading shell.
+//
+// WebSocket-heavy views (notably the Machines list) are the tricky case: they
+// render a real heading plus ~5 skeleton placeholder rows *before* the data
+// arrives over the socket. That shell satisfies the naive "heading exists"
+// check, sets no aria-busy, and its skeletons animate purely in CSS (no DOM
+// mutations) — so neither the heading check nor a "DOM is quiet" check can
+// tell it apart from the loaded page. We therefore detect MAAS's concrete
+// loading markers directly.
 async function waitForAppReady(page, timeout) {
   try {
     await page.waitForFunction(
       () => {
+        const isVisible = (el) => {
+          if (!el) return false;
+          const rect = el.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return false;
+          const style = window.getComputedStyle(el);
+          return style.visibility !== "hidden" && style.display !== "none";
+        };
+
         // 1. Some real content heading has rendered.
         const hasHeading = document.querySelector("h1, h2, [role='heading']");
         if (!hasHeading) return false;
@@ -444,17 +461,34 @@ async function waitForAppReady(page, timeout) {
           document.querySelectorAll("body *")
         ).some((el) => {
           if (el.children.length > 0) return false; // leaf nodes only
-          const rect = el.getBoundingClientRect();
-          const visible = rect.width > 0 && rect.height > 0;
-          return visible && /loading/i.test(el.textContent || "");
+          return isVisible(el) && /loading/i.test(el.textContent || "");
         });
         if (hasLoadingText) return false;
 
-        // 3. Nothing is still flagged as busy (aria-busy / role=progressbar).
-        const hasBusy = document.querySelector(
-          "[aria-busy='true'], [role='progressbar'], [aria-live][aria-busy]"
-        );
-        return !hasBusy;
+        // 3. No loading indicator still rendering. MAAS shows these while
+        //    websocket data loads; none of them set aria-busy and the
+        //    skeletons animate in CSS (no DOM mutations), so they must be
+        //    detected explicitly:
+        //      - aria-busy / progressbar (generic)
+        //      - Vanilla Spinner: .p-icon--spinner / .u-animation--spin
+        //      - skeleton placeholders: .p-placeholder, [data-testid=placeholder]
+        //      - BEM loading modifiers, e.g. .machine-list--loading
+        //      - elements labelled as loading, e.g. grid aria-label="Loading machines"
+        const LOADING_SELECTORS = [
+          "[aria-busy='true']",
+          "[role='progressbar']",
+          ".p-icon--spinner",
+          ".u-animation--spin",
+          ".p-spinner",
+          ".p-placeholder",
+          "[data-testid='placeholder']",
+          "[class*='--loading']",
+          "[aria-label*='loading' i]",
+        ];
+        const stillLoading = Array.from(
+          document.querySelectorAll(LOADING_SELECTORS.join(","))
+        ).some(isVisible);
+        return !stillLoading;
       },
       { timeout, polling: 250 }
     );
@@ -510,13 +544,18 @@ async function waitForDomQuiet(page, quietMs, timeout) {
   }
 }
 
-// Settle a page before snapshotting or reading its links: ensure it's ready,
-// wait for async (websocket) content to stop mutating the DOM, then re-check
-// readiness in case a spinner appeared while data loaded.
+// Settle a page before snapshotting or reading its links: wait until it's
+// ready (no spinner/skeleton), let async (websocket) content stop mutating
+// the DOM, then re-check readiness in case data only just started loading —
+// and give the newly rendered real content a final chance to settle. The
+// trailing quiet matters for WS-heavy views (e.g. Machines): once the
+// skeleton clears, the real rows render and mutate the DOM, so we wait for
+// those to stop before capturing.
 async function settlePage(page, timeout, settleMs) {
   await waitForAppReady(page, timeout);
   await waitForDomQuiet(page, settleMs, timeout);
   await waitForAppReady(page, timeout);
+  await waitForDomQuiet(page, settleMs, timeout);
 }
 
 /* -------------------------------------------------------------------- */
@@ -614,13 +653,51 @@ async function detectMajorRoutes(
 // A path segment is treated as a dynamic identifier (record id) when it looks
 // like one: a numeric id, a UUID, or a mixed alphanumeric token (e.g. a MAAS
 // system_id like "w8aqpg"). Note: not all ids contain digits (e.g. "rwrqae"),
-// so this is only one of the signals used by isSameView below.
+// so this is only one of the signals used by isSameView below — see
+// isIdLikeSegment, which also uses the parent segment for context.
 function isDynamicSegment(seg) {
   if (!seg) return false;
   if (/^\d+$/.test(seg)) return true; // pure numeric id
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(seg)) return true; // uuid
   if (/\d/.test(seg) && /[a-z]/i.test(seg)) return true; // mixed alphanumeric
   return false;
+}
+
+// MAAS detail routes put a record id directly after a singular resource noun
+// (e.g. /machine/<system_id>, /subnet/<id>, /kvm/lxd/<id>). Many ids — notably
+// machine/device/controller system_ids — are all-letters (e.g. "aspfkw"), so
+// isDynamicSegment can't recognise them on its own. The preceding segment is a
+// reliable, low-false-positive signal that the next segment is an id, which
+// lets us collapse base detail pages of different records even though the id
+// is the final path segment. Derived from the app's route definitions.
+const RESOURCE_ID_PARENTS = new Set([
+  "machine",
+  "device",
+  "controller",
+  "domain",
+  "tag",
+  "fabric",
+  "space",
+  "subnet",
+  "vlan",
+  "zone",
+  "pool",
+  "pod",
+  "lxd", // /kvm/lxd/<id>
+  "virsh", // /kvm/virsh/<id>
+  "cluster", // /kvm/lxd/cluster/<id>
+  "host", // /kvm/lxd/cluster/<id>/host/<id>
+  "group", // /settings/user-management/group/<id>
+]);
+
+// Whether the segment at `index` occupies a record-id position: either it
+// already looks id-like, or its parent segment is a known resource prefix
+// whose next segment is always an id.
+function isIdLikeSegment(segments, index) {
+  if (isDynamicSegment(segments[index])) return true;
+  return (
+    index > 0 && RESOURCE_ID_PARENTS.has(segments[index - 1].toLowerCase())
+  );
 }
 
 function pathSegments(pathname) {
@@ -631,11 +708,13 @@ function pathSegments(pathname) {
 // Two paths render the "same view" when they share the same structure and
 // differ only in record-id positions. A differing segment is treated as an id
 // (and thus ignored for view identity) when it is NOT the final segment — ids
-// are containers with sub-views, e.g. /device/<id>/summary — or when either
-// value already looks id-like (covers /device/<id> base pages). This collapses
-// the detail pages of different records (/device/A/summary == /device/B/summary)
-// while keeping genuinely different leaf pages distinct, e.g. tabs
-// (.../summary vs .../network) and siblings (/images vs /devices).
+// are containers with sub-views, e.g. /device/<id>/summary — or when it
+// occupies a record-id position (see isIdLikeSegment): either it looks id-like
+// or it directly follows a resource prefix such as /machine/<system_id>. This
+// collapses the detail pages of different records (/device/A == /device/B and
+// /device/A/summary == /device/B/summary) while keeping genuinely different
+// leaf pages distinct, e.g. tabs (.../summary vs .../network) and siblings
+// (/images vs /devices).
 function isSameView(a, b) {
   const sa = pathSegments(a);
   const sb = pathSegments(b);
@@ -644,7 +723,7 @@ function isSameView(a, b) {
   for (let i = 0; i < sa.length; i++) {
     if (sa[i].toLowerCase() === sb[i].toLowerCase()) continue;
     const differingSegmentIsId =
-      i !== lastIndex || isDynamicSegment(sa[i]) || isDynamicSegment(sb[i]);
+      i !== lastIndex || isIdLikeSegment(sa, i) || isIdLikeSegment(sb, i);
     if (!differingSegmentIsId) return false;
   }
   return true;
@@ -1628,6 +1707,309 @@ function isGroundedFinding(finding, names, roles) {
   return referencesRealName;
 }
 
+/* ---- Context confidence annotation (tags, never drops) -------------- */
+
+// Confidence scoring tags each LLM context finding with a reliability level and
+// the data-driven signals behind it, so a human engineer is warned about
+// shaky findings WITHOUT any finding being silently removed. Every signal looks
+// at the finding's own wording and the captured tree — nothing app-specific.
+
+// Interactive roles that legitimately carry an accessible name a user acts on.
+const INTERACTIVE_ROLES = new Set([
+  "button",
+  "link",
+  "checkbox",
+  "radio",
+  "switch",
+  "tab",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "textbox",
+  "combobox",
+  "searchbox",
+  "slider",
+  "spinbutton",
+]);
+
+// Roles that can receive focus (used by interaction-related criteria).
+const FOCUSABLE_ROLES = new Set([
+  ...INTERACTIVE_ROLES,
+  "treegrid",
+  "grid",
+  "gridcell",
+  "row",
+  "tablist",
+]);
+
+// Role vocabulary used only to parse the cited element's role out of a
+// finding's free-text location (lowercased to match outline tokens such as
+// RootWebArea / StaticText / LabelText).
+const ROLE_VOCAB = new Set([
+  ...FOCUSABLE_ROLES,
+  "rootwebarea",
+  "main",
+  "banner",
+  "navigation",
+  "complementary",
+  "contentinfo",
+  "region",
+  "form",
+  "search",
+  "heading",
+  "sectionheader",
+  "sectionfooter",
+  "list",
+  "listitem",
+  "columnheader",
+  "rowgroup",
+  "table",
+  "cell",
+  "separator",
+  "image",
+  "img",
+  "paragraph",
+  "statictext",
+  "labeltext",
+  "generic",
+  "group",
+  "alert",
+  "status",
+  "dialog",
+  "strong",
+  "emphasis",
+  "code",
+  "tree",
+  "menulistpopup",
+]);
+
+// Generic WCAG criterion → roles the criterion can apply to (WCAG semantics,
+// not anything MAAS-specific). Criteria with no rule here are always allowed.
+function criterionAllowsRole(wcag, role) {
+  if (!role) return true; // role indeterminate → no signal
+  switch (wcag) {
+    case "2.4.4": // Link Purpose (In Context)
+      return role === "link";
+    case "2.5.3": // Label in Name
+      return INTERACTIVE_ROLES.has(role);
+    case "2.4.7": // Focus Visible
+    case "2.1.1": // Keyboard
+    case "2.1.2": // No Keyboard Trap
+    case "2.1.4": // Character Key Shortcuts
+      return FOCUSABLE_ROLES.has(role);
+    default:
+      return true;
+  }
+}
+
+// Phrasing detectors inspect what the finding CLAIMS (never page identity).
+function assertsMissingName(text) {
+  return (
+    /\b(lacks?|missing|without|has no|have no|no)\b[^.]*\b(accessible\s+)?(name|label|text|description)\b/i.test(
+      text
+    ) ||
+    /\bdoes not (have|provide)\b[^.]*\b(name|label|text|description|clear|meaningful|descriptive)\b/i.test(
+      text
+    ) ||
+    /\bnot\s+(descriptive|unique|meaningful|clear|concise)\b/i.test(text)
+  );
+}
+
+function assertsDuplicateName(text) {
+  return (
+    /\b(same|identical|duplicate|duplicated)\b[^.]*\b(name|label|text)\b/i.test(
+      text
+    ) ||
+    /\b(multiple controls|ambiguous|indistinguishable)\b/i.test(text) ||
+    /\bdistinguish\b/i.test(text)
+  );
+}
+
+function isSubjectiveStyle(text) {
+  return (
+    /\bnot\s+(descriptive|unique|meaningful|clear|concise)\b/i.test(text) ||
+    /\b(rephrase|reword|rename)\b/i.test(text) ||
+    /\bupdate the (heading|button|label|text|static text)\b/i.test(text) ||
+    /\bprovide (more )?context\b/i.test(text) ||
+    /\badd (a |an )?(descriptive|brief|clear|concise|meaningful|unique)\b/i.test(
+      text
+    ) ||
+    /\bdoes not provide (sufficient|a clear|a meaningful|a descriptive)\b/i.test(
+      text
+    ) ||
+    /\blacks? (a |an )?(clear|concise|meaningful|unique|descriptive)\b/i.test(
+      text
+    )
+  );
+}
+
+// "Verifiable" findings point at a relationship checkable from the tree
+// (duplicate/ambiguous name, mismatch, or missing association) rather than a
+// single-element opinion.
+function hasVerifiableAnchor(text) {
+  return (
+    assertsDuplicateName(text) ||
+    /\b(mismatch|contradicts?|does not match|inconsistent with|conflicts?)\b/i.test(
+      text
+    ) ||
+    /\b(missing|no)\b[^.]*\b(label|relationship|association|programmatic)\b/i.test(
+      text
+    )
+  );
+}
+
+// Parse the cited element's role: the role token just before the first quoted
+// name in the location (falling back to the last role token anywhere).
+function citedTargetRole(finding) {
+  const loc = finding.location || "";
+  const firstQuote = loc.search(/['"]/);
+  const head = firstQuote >= 0 ? loc.slice(0, firstQuote) : loc;
+  const headWords = head.toLowerCase().match(/[a-z]+/g) || [];
+  for (let i = headWords.length - 1; i >= 0; i--) {
+    if (ROLE_VOCAB.has(headWords[i])) return headWords[i];
+  }
+  const allWords = loc.toLowerCase().match(/[a-z]+/g) || [];
+  for (let i = allWords.length - 1; i >= 0; i--) {
+    if (ROLE_VOCAB.has(allWords[i])) return allWords[i];
+  }
+  return null;
+}
+
+// Build a per-page index for annotation: names under <main>, interactive
+// control names that recur (≥2×, so duplicate claims can be confirmed), and
+// the page title.
+function buildAnnotationIndex(tree) {
+  const names = new Set();
+  const namesInMain = new Set();
+  const interactiveNameCounts = new Map();
+  const pageTitle =
+    tree && typeof tree.name === "string" ? tree.name.trim().toLowerCase() : "";
+  const walk = (node, inMain) => {
+    if (!node) return;
+    const role = (node.role || "").toLowerCase();
+    const isMain = inMain || role === "main";
+    const name = typeof node.name === "string" ? node.name.trim() : "";
+    if (name) {
+      const low = name.toLowerCase();
+      names.add(low);
+      if (isMain) namesInMain.add(low);
+      if (INTERACTIVE_ROLES.has(role)) {
+        interactiveNameCounts.set(
+          low,
+          (interactiveNameCounts.get(low) || 0) + 1
+        );
+      }
+    }
+    (node.children || []).forEach((child) => walk(child, isMain));
+  };
+  walk(tree, false);
+  const duplicateInteractiveNames = new Set(
+    [...interactiveNameCounts]
+      .filter(([, count]) => count >= 2)
+      .map(([name]) => name)
+  );
+  return { names, namesInMain, duplicateInteractiveNames, pageTitle };
+}
+
+// Flags that indicate a likely-unreliable finding (lower confidence).
+const LOW_CONFIDENCE_FLAGS = new Set([
+  "contradiction",
+  "criterion-role",
+  "unverified-duplicate",
+  "outside-main",
+]);
+
+// Score one context finding: returns { confidence, flags } and never drops.
+function scoreContextFinding(finding, index) {
+  const text = `${finding.location || ""} ${finding.issue || ""}`;
+  const quotedRealNames = quotedTokens(text)
+    .map((q) => q.trim().toLowerCase())
+    .filter((q) => index.names.has(q));
+  const targetRole = citedTargetRole(finding);
+  const flags = [];
+
+  // Duplicate/ambiguity is the one claim we can positively confirm.
+  if (assertsDuplicateName(text)) {
+    const confirmed = quotedRealNames.some((n) =>
+      index.duplicateInteractiveNames.has(n)
+    );
+    if (confirmed) return { confidence: "high", flags: ["verified-duplicate"] };
+    flags.push("unverified-duplicate");
+  }
+  // Claims a missing/empty name while quoting a real, non-empty name.
+  if (assertsMissingName(text) && quotedRealNames.length > 0) {
+    flags.push("contradiction");
+  }
+  // Cited element exists only outside <main> (likely dev/browser tooling).
+  if (
+    quotedRealNames.length > 0 &&
+    quotedRealNames.every((n) => !index.namesInMain.has(n))
+  ) {
+    flags.push("outside-main");
+  }
+  // Cited WCAG criterion cannot apply to the cited role.
+  if (!criterionAllowsRole(finding.wcag, targetRole)) {
+    flags.push("criterion-role");
+  }
+  // Heading/landmark whose name is already the page title.
+  const titleRedundant =
+    index.pageTitle &&
+    quotedRealNames.some((n) => n.length > 1 && index.pageTitle.includes(n));
+  if (
+    (targetRole === "heading" || targetRole === "sectionheader") &&
+    isSubjectiveStyle(text) &&
+    titleRedundant
+  ) {
+    flags.push("title-redundant");
+  }
+  // Subjective single-element rewrite with no verifiable anchor.
+  if (isSubjectiveStyle(text) && !hasVerifiableAnchor(text)) {
+    flags.push("subjective");
+  }
+
+  let confidence = "medium";
+  if (flags.some((f) => LOW_CONFIDENCE_FLAGS.has(f))) confidence = "low";
+  else if (flags.length === 0 && hasVerifiableAnchor(text)) confidence = "high";
+  return { confidence, flags };
+}
+
+// Attach { confidence, flags } to every context finding (no dropping).
+function annotateContextFindings(findings, tree) {
+  const index = buildAnnotationIndex(tree);
+  return findings.map((finding) => {
+    const { confidence, flags } = scoreContextFinding(finding, index);
+    return { ...finding, confidence, flags };
+  });
+}
+
+// Render a finding's confidence as a colourised console annotation line, or ""
+// for non-context findings (axe/keyboard are deterministic, not annotated).
+function confidenceConsoleLine(finding) {
+  if (finding.source !== "ai" || !finding.confidence) return "";
+  const color =
+    finding.confidence === "high"
+      ? pc.green
+      : finding.confidence === "low"
+        ? pc.red
+        : pc.yellow;
+  const flagStr =
+    finding.flags && finding.flags.length
+      ? pc.dim(` — ${finding.flags.join(", ")}`)
+      : "";
+  return `\n    ${pc.dim("confidence:")} ${color(finding.confidence)}${flagStr}`;
+}
+
+// Plain-text confidence suffix appended to a context finding's report cell.
+function confidenceMarkdownSuffix(finding) {
+  if (finding.source !== "ai" || !finding.confidence) return "";
+  const flagStr =
+    finding.flags && finding.flags.length
+      ? `; flags: ${finding.flags.join(", ")}`
+      : "";
+  return ` _(confidence: ${finding.confidence}${flagStr})_`;
+}
+
 // Compact, deterministic one-finding-per-block rendering for the console.
 function formatFindingsForConsole(audit) {
   if (audit.findings.length === 0) {
@@ -1649,7 +2031,8 @@ function formatFindingsForConsole(audit) {
         `    ${pc.dim("where:")} ${f.location || pc.dim("n/a")}${count}\n` +
         `    ${pc.dim("issue:")} ${f.issue}\n` +
         `    ${pc.dim("fix:  ")} ${pc.italic(f.fix)}` +
-        (f.helpUrl ? `\n    ${pc.dim(f.helpUrl)}` : "")
+        (f.helpUrl ? `\n    ${pc.dim(f.helpUrl)}` : "") +
+        confidenceConsoleLine(f)
       );
     })
     .join("\n\n");
@@ -1661,14 +2044,26 @@ function formatFindingsForMarkdown(audit) {
   if (audit.findings.length === 0) {
     return ["_No findings._"];
   }
-  const cell = (s) => String(s ?? "").replace(/\|/g, "\\|");
+  // Make arbitrary text safe inside a Markdown table cell: escape pipes (the
+  // column separator), collapse newlines (cells are single-line), and
+  // neutralise raw angle brackets so selector chains and HTML-like text such
+  // as "<ul>/<ol>/<li>" or "<script>" aren't interpreted as HTML (which
+  // corrupts the row/table). Backslashes are escaped first to avoid
+  // double-processing the escapes we add.
+  const cell = (s) =>
+    String(s ?? "")
+      .replace(/\\/g, "\\\\")
+      .replace(/\|/g, "\\|")
+      .replace(/\r?\n/g, " ")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   const rows = audit.findings.map((f) => {
     const ref = f.helpUrl ? `[ref](${f.helpUrl})` : "";
     return `| ${cell(f.severity)} | ${cell(f.source)} | ${cell(
       f.wcag
     )} | ${cell(f.id)} | ${cell(f.count)} | ${cell(
       f.location || "n/a"
-    )} | ${cell(f.issue)} | ${cell(f.fix)} | ${ref} |`;
+    )} | ${cell(f.issue) + confidenceMarkdownSuffix(f)} | ${cell(f.fix)} | ${ref} |`;
   });
   return [
     "| Severity | Source | WCAG | ID | Count | Location | Issue | Fix | Ref |",
@@ -1825,15 +2220,19 @@ async function main() {
   const allMajorPrefixes = majorRoutes.map(
     (route) => `${appBase}${sectionPrefix(route.path)}`
   );
-  // Shared across sections: collapses near-identical views (e.g. the detail
-  // pages of different records) so we don't audit dozens of clones.
-  const similarityFilter = createSimilarityFilter(opts.samplesPerPattern);
+  // Per-section de-duplication: collapse near-identical views *within* a
+  // section (e.g. the detail pages of different records) without leaking
+  // across sections. Cross-section navigation is already prevented during the
+  // crawl, and isSameView treats a differing non-final segment as an id — so a
+  // shared filter would wrongly collapse e.g. /machine/<id>/network against
+  // /device/<id>/network. A fresh filter per section avoids that.
+  let totalSkippedPaths = 0;
   const auditTargets = [];
   for (const route of selectedSections) {
     const ownPrefix = `${appBase}${sectionPrefix(route.path)}`;
     const otherMajorPrefixes = allMajorPrefixes.filter((p) => p !== ownPrefix);
     const sectionRootUrl = `${origin}${appBase}${route.path}`;
-    const skippedBefore = similarityFilter.skipped;
+    const similarityFilter = createSimilarityFilter(opts.samplesPerPattern);
     const paths = await withSpinner(
       `Crawling ${pc.cyan(route.path)}`,
       (setText) =>
@@ -1848,7 +2247,8 @@ async function main() {
           opts.settle,
           similarityFilter
         ).then((found) => {
-          const skipped = similarityFilter.skipped - skippedBefore;
+          const skipped = similarityFilter.skipped;
+          totalSkippedPaths += skipped;
           setText(
             `Crawled ${pc.cyan(route.path)} ${pc.dim(
               `— ${found.length} path(s)${
@@ -2099,11 +2499,14 @@ async function main() {
       return;
     }
     // Anti-hallucination guard: drop findings that cite elements not present
-    // in the captured tree.
+    // in the captured tree. Surviving findings are kept and annotated with a
+    // confidence level (never dropped) so unreliable ones are flagged, not
+    // silently removed.
     const { names, roles } = collectTreeText(cap.tree);
     const grounded = findings.filter((f) => isGroundedFinding(f, names, roles));
+    const annotated = annotateContextFindings(grounded, cap.tree);
     contextSlots[i] = {
-      findings: grounded,
+      findings: annotated,
       dropped: findings.length - grounded.length,
       usage,
       outlineLines: treeOutline.split("\n").length,
@@ -2206,10 +2609,10 @@ async function main() {
       )
     );
   }
-  if (similarityFilter.skipped > 0) {
+  if (totalSkippedPaths > 0) {
     console.log(
       pc.dim(
-        `  de-duplicated ${similarityFilter.skipped} near-identical path(s) ` +
+        `  de-duplicated ${totalSkippedPaths} near-identical path(s) ` +
           `(--samples-per-pattern ${opts.samplesPerPattern})`
       )
     );
