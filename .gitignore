@@ -46,6 +46,8 @@ sitespeed.io/results
 /playwright/.cache/
 coverage/
 .coverage/
+/a11y-audit.json
+/a11y-audit.md
 
 # openapi-ts error logs
 openapi-ts-error-*.log

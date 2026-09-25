@@ -1,0 +1,55 @@
+# Conventional MAAS UI labels that are clear in context.
+#
+# The context review is told not to flag these as unclear, and any context
+# finding about one of them is marked low confidence. One label per line;
+# matching is case-insensitive; "#" starts a comment.
+# Pass your own file with --allow-labels <file>, or --no-allow-labels to disable.
+
+# Generic actions
+Add
+Cancel
+Close
+Delete
+Edit
+Filters
+Remove
+Save
+Save changes
+Search
+Take action
+
+# MAAS actions and controls
+Add device
+Add domain
+Add hardware
+Add interface
+Add machine
+Add pool
+Add tag
+Add zone
+Columns
+Commission
+Deploy
+Help
+Log out
+Refresh
+Release
+
+# Tabs and navigation
+Commissioning
+Configuration
+Controllers
+Devices
+DNS
+Events
+Homepage
+Images
+Logs
+Machines
+Network
+Settings
+Storage
+Summary
+Tags
+Tests
+Usage
