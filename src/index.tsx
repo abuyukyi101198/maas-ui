@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 
+import { SidePanelContextProvider } from "@canonical/maas-react-components";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
@@ -8,22 +9,16 @@ import { RouterProvider } from "react-router";
 
 import packageInfo from "../package.json";
 
-import {
-  checkExternalSessionExpired,
-  configureAuthInterceptor,
-} from "./app/api/auth-interceptor";
+import { configureAuthInterceptor } from "./app/api/auth-interceptor";
 import { createQueryClient } from "./app/api/query-client";
 import useDarkMode from "./app/base/hooks/useDarkMode/useDarkMode";
 import { store } from "./redux-store";
 
-import NewSidePanelContextProvider from "@/app/base/side-panel-context";
 import { WebSocketProvider } from "@/app/base/websocket-context";
 import { router } from "@/router";
 import "./scss/index.scss";
 
 configureAuthInterceptor();
-// TODO [candid/rbac] Delete this when we remove support for candid/rbac
-checkExternalSessionExpired();
 
 export const Root = () => {
   const queryClient = createQueryClient();
@@ -32,9 +27,9 @@ export const Root = () => {
     <Provider store={store}>
       <WebSocketProvider>
         <QueryClientProvider client={queryClient}>
-          <NewSidePanelContextProvider>
+          <SidePanelContextProvider>
             <RouterProvider router={router} />
-          </NewSidePanelContextProvider>
+          </SidePanelContextProvider>
           <ReactQueryDevtools
             buttonPosition="bottom-left"
             initialIsOpen={

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useEffect } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import * as Yup from "yup";
@@ -10,7 +10,6 @@ import MarkBrokenFormFields from "./MarkBrokenFormFields";
 
 import ActionForm from "@/app/base/components/ActionForm";
 import NodeActionWarning from "@/app/base/components/node/NodeActionWarning";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { machineActions } from "@/app/store/machine";
 import machineSelectors from "@/app/store/machine/selectors";
 import type { MachineEventErrors } from "@/app/store/machine/types";
@@ -64,7 +63,7 @@ export const MarkBrokenForm = ({
   );
 
   if (selectedCountLoading) {
-    return <Spinner text={"Loading..."} />;
+    return <SidePanel.Skeleton />;
   }
 
   return (

@@ -2343,6 +2343,7 @@ export type OAuthProviderRequest = {
    */
   redirect_uri: string;
   token_type: OAuthTokenTypeChoices;
+  vendor: OAuthVendorChoices;
   /**
    * Scopes
    *
@@ -2403,6 +2404,7 @@ export type OAuthProviderResponse = {
    */
   user_count?: number;
   token_type: OAuthTokenTypeChoices;
+  vendor: OAuthVendorChoices;
 };
 
 /**
@@ -2431,6 +2433,11 @@ export type OAuthProvidersListResponse = {
  * OAuthTokenTypeChoices
  */
 export type OAuthTokenTypeChoices = "JWT" | "Opaque";
+
+/**
+ * OAuthVendorChoices
+ */
+export type OAuthVendorChoices = "Auth0" | "EntraID" | "Generic" | "Keycloak";
 
 /**
  * OpenFGAEntitlementResourceType
@@ -2519,6 +2526,82 @@ export type OperationStatus =
   | "COMPLETED"
   | "FAILED"
   | "RUNNING";
+
+/**
+ * OperationTaskResponse
+ */
+export type OperationTaskResponse = {
+  _links?: BaseHal;
+  /**
+   * Embedded
+   */
+  _embedded?: Record<string, unknown>;
+  /**
+   * Kind
+   */
+  kind?: string;
+  /**
+   * Id
+   */
+  id: number;
+  /**
+   * Started At
+   */
+  started_at?: string;
+  /**
+   * Finished At
+   */
+  finished_at?: string;
+  /**
+   * Name
+   */
+  name: string;
+  status: OperationTaskStatus;
+  /**
+   * Result
+   */
+  result?: Record<string, unknown>;
+  /**
+   * Task Number
+   */
+  task_number: number;
+  /**
+   * Operation Uuid
+   */
+  operation_uuid: string;
+};
+
+/**
+ * OperationTaskStatus
+ */
+export type OperationTaskStatus =
+  | "CANCELLED"
+  | "COMPLETED"
+  | "FAILED"
+  | "RUNNING"
+  | "WAITING";
+
+/**
+ * OperationTasksListResponse
+ */
+export type OperationTasksListResponse = {
+  /**
+   * Items
+   */
+  items: OperationTaskResponse[];
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Next
+   */
+  next?: string;
+  /**
+   * Kind
+   */
+  kind?: string;
+};
 
 /**
  * OperationType
@@ -2996,6 +3079,7 @@ export type PublicConfigName =
   | "enable_kernel_crash_dump"
   | "enable_third_party_drivers"
   | "enlist_commissioning"
+  | "experimental_switch_provisioning"
   | "force_v1_network_yaml"
   | "hardware_sync_interval"
   | "http_proxy"
@@ -3747,6 +3831,101 @@ export type SpacesListResponse = {
 };
 
 /**
+ * SshHostKeyRequest
+ */
+export type SshHostKeyRequest = {
+  /**
+   * Host
+   *
+   * The hostname or IP address.
+   */
+  host: string;
+  /**
+   * Key Type
+   *
+   * The SSH key type (e.g. ssh-rsa).
+   */
+  key_type: string;
+  /**
+   * Public Key
+   *
+   * The Base64-encoded public key.
+   */
+  public_key: string;
+  /**
+   * Label
+   *
+   * An optional human-readable label.
+   */
+  label?: string;
+};
+
+/**
+ * SshHostKeyResponse
+ */
+export type SshHostKeyResponse = {
+  _links?: BaseHal;
+  /**
+   * Embedded
+   */
+  _embedded?: Record<string, unknown>;
+  /**
+   * Kind
+   */
+  kind?: string;
+  /**
+   * Id
+   */
+  id: number;
+  /**
+   * Created
+   */
+  created: string;
+  /**
+   * Updated
+   */
+  updated: string;
+  /**
+   * Host
+   */
+  host: string;
+  /**
+   * Key Type
+   */
+  key_type: string;
+  /**
+   * Public Key
+   */
+  public_key: string;
+  /**
+   * Label
+   */
+  label?: string;
+};
+
+/**
+ * SshHostKeysListResponse
+ */
+export type SshHostKeysListResponse = {
+  /**
+   * Items
+   */
+  items: SshHostKeyResponse[];
+  /**
+   * Total
+   */
+  total: number;
+  /**
+   * Next
+   */
+  next?: string;
+  /**
+   * Kind
+   */
+  kind?: string;
+};
+
+/**
  * SshKeyImportFromSourceRequest
  */
 export type SshKeyImportFromSourceRequest = {
@@ -4063,6 +4242,10 @@ export type SwitchRequest = {
    */
   mac_address: string;
   /**
+   * Name
+   */
+  name?: string;
+  /**
    * Image
    *
    * Boot resource name for the NOS to install on the switch. Supports full format (e.g., 'onie/mellanox-3.8.0') or short format for ONIE images (e.g., 'mellanox-3.8.0').
@@ -4092,6 +4275,14 @@ export type SwitchResponse = {
    */
   id: number;
   /**
+   * Name
+   */
+  name?: string;
+  /**
+   * Management Mac
+   */
+  management_mac?: string;
+  /**
    * Target Image Id
    */
   target_image_id?: number;
@@ -4107,6 +4298,10 @@ export type SwitchResponse = {
  * Request model for updating a switch.
  */
 export type SwitchUpdateRequest = {
+  /**
+   * Name
+   */
+  name?: string;
   /**
    * Image
    *
@@ -4598,6 +4793,20 @@ export type UsbDevicesListResponse = {
  */
 export type UserChangePasswordRequest = {
   /**
+   * Current Password
+   */
+  current_password: string;
+  /**
+   * New Password
+   */
+  new_password: string;
+};
+
+/**
+ * UserChangePasswordRequestAdmin
+ */
+export type UserChangePasswordRequestAdmin = {
+  /**
    * Password
    */
   password: string;
@@ -4818,24 +5027,6 @@ export type UserGroupsStatisticsListResponse = {
 };
 
 /**
- * UserInfoResponse
- */
-export type UserInfoResponse = {
-  /**
-   * Id
-   */
-  id: number;
-  /**
-   * Username
-   */
-  username: string;
-  /**
-   * Entitlements
-   */
-  entitlements: EntitlementResponse[];
-};
-
-/**
  * UserResponse
  */
 export type UserResponse = {
@@ -4918,9 +5109,9 @@ export type UserStatisticsResponse = {
 };
 
 /**
- * UserUpdateRequest
+ * UserUpdateRequestAdmin
  */
-export type UserUpdateRequest = {
+export type UserUpdateRequestAdmin = {
   /**
    * Username
    */
@@ -4947,6 +5138,36 @@ export type UserUpdateRequest = {
    * The IDs of the groups the user will be a member of.
    */
   groups?: number[];
+};
+
+/**
+ * UserUpdateRequestSelf
+ */
+export type UserUpdateRequestSelf = {
+  /**
+   * Username
+   */
+  username: string;
+  /**
+   * First Name
+   */
+  first_name: string;
+  /**
+   * Last Name
+   */
+  last_name: string;
+  /**
+   * Email
+   */
+  email?: string;
+  /**
+   * Current Password
+   */
+  current_password?: string;
+  /**
+   * New Password
+   */
+  new_password?: string;
 };
 
 /**
@@ -8910,7 +9131,14 @@ export type CancelOperationData = {
      */
     operation_uuid: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * Force
+     *
+     * If true, force termination of the related workflow instead of requesting cancellation.
+     */
+    force?: boolean;
+  };
   url: "/MAAS/a/v3/operations/{operation_uuid}";
 };
 
@@ -8976,6 +9204,51 @@ export type GetOperationResponses = {
 
 export type GetOperationResponse =
   GetOperationResponses[keyof GetOperationResponses];
+
+export type GetOperationTasksData = {
+  body?: never;
+  path: {
+    /**
+     * Operation Uuid
+     */
+    operation_uuid: string;
+  };
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Size
+     */
+    size?: number;
+  };
+  url: "/MAAS/a/v3/operations/{operation_uuid}/tasks";
+};
+
+export type GetOperationTasksErrors = {
+  /**
+   * Not Found
+   */
+  404: NotFoundBodyResponse;
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type GetOperationTasksError =
+  GetOperationTasksErrors[keyof GetOperationTasksErrors];
+
+export type GetOperationTasksResponses = {
+  /**
+   * Successful Response
+   */
+  200: OperationTasksListResponse;
+};
+
+export type GetOperationTasksResponse =
+  GetOperationTasksResponses[keyof GetOperationTasksResponses];
 
 export type ListOperationsData = {
   body?: never;
@@ -10856,6 +11129,150 @@ export type ListUserSslkeysStatisticsResponses = {
 export type ListUserSslkeysStatisticsResponse =
   ListUserSslkeysStatisticsResponses[keyof ListUserSslkeysStatisticsResponses];
 
+export type ListSshHostKeysData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page
+     */
+    page?: number;
+    /**
+     * Size
+     */
+    size?: number;
+  };
+  url: "/MAAS/a/v3/ssh-host-keys";
+};
+
+export type ListSshHostKeysErrors = {
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type ListSshHostKeysError =
+  ListSshHostKeysErrors[keyof ListSshHostKeysErrors];
+
+export type ListSshHostKeysResponses = {
+  /**
+   * Successful Response
+   */
+  200: SshHostKeysListResponse;
+};
+
+export type ListSshHostKeysResponse =
+  ListSshHostKeysResponses[keyof ListSshHostKeysResponses];
+
+export type CreateSshHostKeyData = {
+  body: SshHostKeyRequest;
+  path?: never;
+  query?: never;
+  url: "/MAAS/a/v3/ssh-host-keys";
+};
+
+export type CreateSshHostKeyErrors = {
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type CreateSshHostKeyError =
+  CreateSshHostKeyErrors[keyof CreateSshHostKeyErrors];
+
+export type CreateSshHostKeyResponses = {
+  /**
+   * Successful Response
+   */
+  201: SshHostKeyResponse;
+};
+
+export type CreateSshHostKeyResponse =
+  CreateSshHostKeyResponses[keyof CreateSshHostKeyResponses];
+
+export type DeleteSshHostKeyData = {
+  body?: never;
+  headers?: {
+    /**
+     * If-Match
+     */
+    "if-match"?: string;
+  };
+  path: {
+    /**
+     * Ssh Host Key Id
+     */
+    ssh_host_key_id: number;
+  };
+  query?: never;
+  url: "/MAAS/a/v3/ssh-host-keys/{ssh_host_key_id}";
+};
+
+export type DeleteSshHostKeyErrors = {
+  /**
+   * Not Found
+   */
+  404: NotFoundBodyResponse;
+  /**
+   * Precondition Failed
+   */
+  412: PreconditionFailedBodyResponse;
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type DeleteSshHostKeyError =
+  DeleteSshHostKeyErrors[keyof DeleteSshHostKeyErrors];
+
+export type DeleteSshHostKeyResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteSshHostKeyResponse =
+  DeleteSshHostKeyResponses[keyof DeleteSshHostKeyResponses];
+
+export type GetSshHostKeyData = {
+  body?: never;
+  path: {
+    /**
+     * Ssh Host Key Id
+     */
+    ssh_host_key_id: number;
+  };
+  query?: never;
+  url: "/MAAS/a/v3/ssh-host-keys/{ssh_host_key_id}";
+};
+
+export type GetSshHostKeyErrors = {
+  /**
+   * Not Found
+   */
+  404: NotFoundBodyResponse;
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type GetSshHostKeyError = GetSshHostKeyErrors[keyof GetSshHostKeyErrors];
+
+export type GetSshHostKeyResponses = {
+  /**
+   * Successful Response
+   */
+  200: SshHostKeyResponse;
+};
+
+export type GetSshHostKeyResponse =
+  GetSshHostKeyResponses[keyof GetSshHostKeyResponses];
+
 export type ListFabricVlanSubnetsData = {
   body?: never;
   path: {
@@ -12156,11 +12573,76 @@ export type GetUserInfoResponses = {
   /**
    * Successful Response
    */
-  200: UserInfoResponse;
+  200: UserResponse;
 };
 
 export type GetUserInfoResponse =
   GetUserInfoResponses[keyof GetUserInfoResponses];
+
+export type UpdateUserMeData = {
+  body: UserUpdateRequestSelf;
+  path?: never;
+  query?: never;
+  url: "/MAAS/a/v3/users/me";
+};
+
+export type UpdateUserMeErrors = {
+  /**
+   * Bad Request
+   */
+  400: BadRequestBodyResponse;
+  /**
+   * Unauthorized
+   */
+  401: UnauthorizedBodyResponse;
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type UpdateUserMeError = UpdateUserMeErrors[keyof UpdateUserMeErrors];
+
+export type UpdateUserMeResponses = {
+  /**
+   * Successful Response
+   */
+  200: UserResponse;
+};
+
+export type UpdateUserMeResponse =
+  UpdateUserMeResponses[keyof UpdateUserMeResponses];
+
+export type GetUserEntitlementsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/MAAS/a/v3/users/me:get_entitlements";
+};
+
+export type GetUserEntitlementsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: UnauthorizedBodyResponse;
+  /**
+   * Unprocessable Content
+   */
+  422: ValidationErrorBodyResponse;
+};
+
+export type GetUserEntitlementsError =
+  GetUserEntitlementsErrors[keyof GetUserEntitlementsErrors];
+
+export type GetUserEntitlementsResponses = {
+  /**
+   * Successful Response
+   */
+  200: EntitlementsListResponse;
+};
+
+export type GetUserEntitlementsResponse =
+  GetUserEntitlementsResponses[keyof GetUserEntitlementsResponses];
 
 export type CompleteIntroData = {
   body?: never;
@@ -12204,6 +12686,10 @@ export type ChangePasswordUserData = {
 };
 
 export type ChangePasswordUserErrors = {
+  /**
+   * Bad Request
+   */
+  400: BadRequestBodyResponse;
   /**
    * Unauthorized
    */
@@ -12398,7 +12884,7 @@ export type GetUserResponses = {
 export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type UpdateUserData = {
-  body: UserUpdateRequest;
+  body: UserUpdateRequestAdmin;
   path: {
     /**
      * User Id
@@ -12410,6 +12896,10 @@ export type UpdateUserData = {
 };
 
 export type UpdateUserErrors = {
+  /**
+   * Bad Request
+   */
+  400: BadRequestBodyResponse;
   /**
    * Not Found
    */
@@ -12432,7 +12922,7 @@ export type UpdateUserResponses = {
 export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
 
 export type ChangePasswordAdminData = {
-  body: UserChangePasswordRequest;
+  body: UserChangePasswordRequestAdmin;
   path: {
     /**
      * User Id
@@ -12445,9 +12935,9 @@ export type ChangePasswordAdminData = {
 
 export type ChangePasswordAdminErrors = {
   /**
-   * Unauthorized
+   * Bad Request
    */
-  401: UnauthorizedBodyResponse;
+  400: BadRequestBodyResponse;
   /**
    * Not Found
    */

@@ -1,10 +1,11 @@
 import FabricsTable from "./FabricsTable";
 
 import { DeleteFabric } from "@/app/networks/views/Fabrics/components";
+import { authResolvers } from "@/testing/resolvers/auth";
 import { fabricsResolvers, mockFabrics } from "@/testing/resolvers/fabrics";
 import {
   mockIsPending,
-  mockSidePanel,
+  mockModal,
   renderWithProviders,
   screen,
   setupMockServer,
@@ -12,8 +13,12 @@ import {
   waitFor,
 } from "@/testing/utils";
 
-const { mockOpen } = await mockSidePanel();
-const mockServer = setupMockServer(fabricsResolvers.listFabrics.handler());
+const { mockOpen } = await mockModal();
+const mockServer = setupMockServer(
+  fabricsResolvers.listFabrics.handler(),
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
 
 describe("FabricsTable", () => {
   describe("display", () => {
@@ -66,6 +71,11 @@ describe("FabricsTable", () => {
         ).toBeInTheDocument();
       });
 
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole("button", { name: "Delete" })[0]
+        ).not.toBeAriaDisabled();
+      });
       await userEvent.click(
         screen.getAllByRole("button", { name: "Delete" })[0]
       );
@@ -78,6 +88,23 @@ describe("FabricsTable", () => {
             id: mockFabrics.items[0].id,
           },
         });
+      });
+    });
+
+    it("disables the table actions without the edit entitlement", async () => {
+      mockServer.use(authResolvers.getMeEntitlements.handler([]));
+      renderWithProviders(<FabricsTable />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(`${mockFabrics.items[0].name}`)
+        ).toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole("button", { name: "Delete" })[0]
+        ).toBeAriaDisabled();
       });
     });
   });

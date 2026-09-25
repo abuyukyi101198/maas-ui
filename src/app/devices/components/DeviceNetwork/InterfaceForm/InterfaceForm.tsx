@@ -1,3 +1,4 @@
+import { useSidePanel } from "@canonical/maas-react-components";
 import type { PropsWithSpread } from "@canonical/react-components";
 import { Spinner } from "@canonical/react-components";
 import { useSelector } from "react-redux";
@@ -9,7 +10,6 @@ import type { FormikFormProps } from "@/app/base/components/FormikForm";
 import FormikForm from "@/app/base/components/FormikForm";
 import { TAG_SELECTOR_INPUT_NAME } from "@/app/base/components/TagSelector/TagSelector";
 import { useFetchActions, useIsAllNetworkingDisabled } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { MAC_ADDRESS_REGEX } from "@/app/base/validation";
 import { deviceActions } from "@/app/store/device";
 import deviceSelectors from "@/app/store/device/selectors";
@@ -126,7 +126,7 @@ const InterfaceForm = ({
         ip_assignment: nic?.ip_assignment || DeviceIpAssignment.DYNAMIC,
         mac_address: nic?.mac_address || "",
         name: nic?.name || nextName || "",
-        subnet: subnet?.id || "",
+        subnet: subnet?.id ?? "",
         tags: nic?.tags || [],
         [TAG_SELECTOR_INPUT_NAME]: "",
       }}

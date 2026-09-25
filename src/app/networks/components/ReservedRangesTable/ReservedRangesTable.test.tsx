@@ -1,18 +1,28 @@
 import ReservedRangesTable, { Labels } from "./ReservedRangesTable";
 
+import AddReservedRange from "@/app/networks/components/AddReservedRange";
 import type { IPRange } from "@/app/store/iprange/types";
 import { IPRangeType } from "@/app/store/iprange/types";
 import type { RootState } from "@/app/store/root/types";
 import type { Subnet } from "@/app/store/subnet/types";
 import type { VLAN } from "@/app/store/vlan/types";
 import * as factory from "@/testing/factories";
+import { authResolvers } from "@/testing/resolvers/auth";
 import {
+  mockSidePanel,
   renderWithProviders,
   screen,
+  setupMockServer,
   userEvent,
   waitFor,
   within,
 } from "@/testing/utils";
+
+const mockServer = setupMockServer(
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
+const { mockOpen } = await mockSidePanel();
 
 let ipRange: IPRange;
 let state: RootState;
@@ -58,7 +68,7 @@ describe("ReservedRangesTable", () => {
       screen.getByRole("region", {
         name: "Reserved ranges",
       })
-    ).getByRole("grid");
+    ).getByRole("treegrid");
 
     [
       Labels.Actions,
@@ -99,7 +109,7 @@ describe("ReservedRangesTable", () => {
       screen.getByRole("region", {
         name: "Reserved ranges",
       })
-    ).getByRole("grid");
+    ).getByRole("treegrid");
 
     [
       Labels.Actions,
@@ -169,14 +179,18 @@ describe("ReservedRangesTable", () => {
       screen.getByRole("region", {
         name: "Reserved ranges",
       })
-    ).getByRole("grid");
+    ).getByRole("treegrid");
 
     expect(
-      within(ReservedRangesTableTable).getAllByRole("cell", { name: "Dynamic" })
+      within(ReservedRangesTableTable).getAllByRole("gridcell", {
+        name: "Dynamic",
+      })
     ).toHaveLength(2);
 
     expect(
-      within(ReservedRangesTableTable).getAllByRole("cell", { name: "MAAS" })
+      within(ReservedRangesTableTable).getAllByRole("gridcell", {
+        name: "MAAS",
+      })
     ).toHaveLength(1);
   });
 
@@ -191,16 +205,18 @@ describe("ReservedRangesTable", () => {
       screen.getByRole("region", {
         name: "Reserved ranges",
       })
-    ).getByRole("grid");
+    ).getByRole("treegrid");
 
     expect(
-      within(ReservedRangesTableTable).getAllByRole("cell", {
+      within(ReservedRangesTableTable).getAllByRole("gridcell", {
         name: "Reserved",
       })
     ).toHaveLength(1);
 
     expect(
-      within(ReservedRangesTableTable).getAllByRole("cell", { name: "wombat" })
+      within(ReservedRangesTableTable).getAllByRole("gridcell", {
+        name: "wombat",
+      })
     ).toHaveLength(1);
   });
 
@@ -222,6 +238,11 @@ describe("ReservedRangesTable", () => {
     state.iprange.items = [ipRange];
     renderWithProviders(<ReservedRangesTable subnetId={subnet.id} />, {
       state,
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryAllByRole("button", { name: Labels.ReserveRange })[0]
+      ).not.toBeAriaDisabled();
     });
     await userEvent.click(
       screen.queryAllByRole("button", {
@@ -250,5 +271,92 @@ describe("ReservedRangesTable", () => {
     expect(
       screen.getByRole("button", { name: Labels.ReserveRange })
     ).toBeAriaDisabled();
+  });
+
+  describe.each(["subnet", "VLAN"])("actions from a %s", (view) => {
+    it.each([
+      [IPRangeType.Reserved, Labels.ReserveRange],
+      [IPRangeType.Dynamic, Labels.ReserveDynamicRange],
+    ])(
+      "opens the %s form with the correct subnet context",
+      async (type, label) => {
+        renderWithProviders(
+          view === "subnet" ? (
+            <ReservedRangesTable subnetId={subnet.id} />
+          ) : (
+            <ReservedRangesTable hasVLANSubnets vlanId={vlan.id} />
+          ),
+          { state }
+        );
+
+        const button = screen.getByRole("button", {
+          name: Labels.ReserveRange,
+        });
+        await waitFor(() => {
+          expect(button).not.toBeAriaDisabled();
+        });
+        await userEvent.click(button);
+        await userEvent.click(screen.getByRole("menuitem", { name: label }));
+
+        expect(mockOpen).toHaveBeenCalledWith({
+          component: AddReservedRange,
+          title: label,
+          props: {
+            createType: type,
+            subnetId: view === "subnet" ? subnet.id : undefined,
+          },
+        });
+      }
+    );
+
+    it.each([IPRangeType.Reserved, IPRangeType.Dynamic])(
+      "edits a %s range using its own subnet",
+      async (type) => {
+        ipRange.type = type;
+        ipRange.vlan = vlan.id;
+        renderWithProviders(
+          view === "subnet" ? (
+            <ReservedRangesTable subnetId={subnet.id} />
+          ) : (
+            <ReservedRangesTable hasVLANSubnets vlanId={vlan.id} />
+          ),
+          { state }
+        );
+
+        await waitFor(() => {
+          expect(
+            screen.getByRole("button", { name: "Edit" })
+          ).not.toBeAriaDisabled();
+        });
+        await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+
+        expect(mockOpen).toHaveBeenCalledWith({
+          component: AddReservedRange,
+          title: "Edit reserved range",
+          props: {
+            createType: type,
+            ipRangeId: ipRange.id,
+            subnetId: subnet.id,
+          },
+        });
+      }
+    );
+  });
+
+  it("disables the Reserve range dropdown and table actions without the edit entitlement", async () => {
+    mockServer.use(authResolvers.getMeEntitlements.handler([]));
+    ipRange.type = IPRangeType.Reserved;
+    state.iprange.items = [ipRange];
+    renderWithProviders(<ReservedRangesTable subnetId={subnet.id} />, {
+      state,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: Labels.ReserveRange })
+      ).toBeAriaDisabled();
+    });
+    expect(screen.getByRole("button", { name: "Edit" })).toBeAriaDisabled();
+    expect(screen.getByRole("button", { name: "Delete" })).toBeAriaDisabled();
   });
 });

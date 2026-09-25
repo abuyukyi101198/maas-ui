@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button, Spinner } from "@canonical/react-components";
 import type { RowSelectionState } from "@tanstack/react-table";
 import { useSelector } from "react-redux";
@@ -8,11 +8,13 @@ import { useSelector } from "react-redux";
 import DebounceSearchBox from "@/app/base/components/DebounceSearchBox";
 import ModelListSubtitle from "@/app/base/components/ModelListSubtitle";
 import NodeActionMenu from "@/app/base/components/NodeActionMenu";
-import { useSendAnalytics } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements, useSendAnalytics } from "@/app/base/hooks";
+import { useModal } from "@/app/base/modal-context";
 import type { SetSearchFilter } from "@/app/base/types";
 import AddController from "@/app/controllers/components/ControllerForms/AddController";
 import ControllerActionFormWrapper from "@/app/controllers/components/ControllerForms/ControllerActionFormWrapper";
+import { ControllerActionConfirmations } from "@/app/controllers/constants";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import controllerSelectors from "@/app/store/controller/selectors";
 import type { ControllerActions } from "@/app/store/controller/types";
 import { getNodeActionTitle } from "@/app/store/utils";
@@ -35,8 +37,10 @@ const ControllerListHeader = ({
   );
   const sendAnalytics = useSendAnalytics();
   const [searchText, setSearchText] = useState(searchFilter);
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_CONTROLLERS]);
 
   const { openSidePanel } = useSidePanel();
+  const { openModal } = useModal();
 
   useEffect(() => {
     // If the filters change then update the search input text.
@@ -70,7 +74,7 @@ const ControllerListHeader = ({
         />
         <Button
           data-testid="add-controller-button"
-          disabled={selectedControllers.length > 0}
+          disabled={selectedControllers.length > 0 || !canEdit}
           onClick={() => {
             openSidePanel({
               component: AddController,
@@ -81,6 +85,7 @@ const ControllerListHeader = ({
           Add rack controller
         </Button>
         <NodeActionMenu
+          disabled={!canEdit}
           filterActions
           hasSelection={selectedControllers.length > 0}
           nodeDisplay="controller"
@@ -88,7 +93,13 @@ const ControllerListHeader = ({
           onActionClick={(action) => {
             const title = getNodeActionTitle(action);
             sendAnalytics("Controller list action form", title, "Open");
-            openSidePanel({
+            const openForm = ControllerActionConfirmations.some(
+              (nodeAction) => nodeAction === action
+            )
+              ? openModal
+              : openSidePanel;
+
+            openForm({
               component: ControllerActionFormWrapper,
               props: {
                 // action is a NodeAction, but is guarenteed to be a NodeAction that comprises ControllerActions.

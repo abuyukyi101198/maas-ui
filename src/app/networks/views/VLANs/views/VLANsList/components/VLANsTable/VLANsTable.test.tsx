@@ -7,15 +7,23 @@ import {
   vlan as vlanFactory,
   vlanState as vlanStateFactory,
 } from "@/testing/factories";
+import { authResolvers } from "@/testing/resolvers/auth";
 import {
+  mockModal,
   mockSidePanel,
   renderWithProviders,
   screen,
+  setupMockServer,
   userEvent,
   waitFor,
 } from "@/testing/utils";
 
+const mockServer = setupMockServer(
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
 const { mockOpen } = await mockSidePanel();
+const { mockOpen: mockOpenModal } = await mockModal();
 
 describe("VLANsTable", () => {
   let state: RootState;
@@ -71,6 +79,11 @@ describe("VLANsTable", () => {
     it("opens the Edit VLAN form when the Edit button is clicked", async () => {
       renderWithProviders(<VLANsTable />, { state });
 
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "Edit" })
+        ).not.toBeAriaDisabled();
+      });
       await userEvent.click(screen.getByRole("button", { name: "Edit" }));
 
       await waitFor(() => {
@@ -87,10 +100,15 @@ describe("VLANsTable", () => {
     it("opens the Delete VLAN form when the Delete button is clicked", async () => {
       renderWithProviders(<VLANsTable />, { state });
 
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "Delete" })
+        ).not.toBeAriaDisabled();
+      });
       await userEvent.click(screen.getByRole("button", { name: "Delete" }));
 
       await waitFor(() => {
-        expect(mockOpen).toHaveBeenCalledWith({
+        expect(mockOpenModal).toHaveBeenCalledWith({
           component: DeleteVLAN,
           title: "Delete VLAN",
           props: {
@@ -98,6 +116,16 @@ describe("VLANsTable", () => {
           },
         });
       });
+    });
+
+    it("disables the table actions without the edit entitlement", async () => {
+      mockServer.use(authResolvers.getMeEntitlements.handler([]));
+      renderWithProviders(<VLANsTable />, { state });
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Edit" })).toBeAriaDisabled();
+      });
+      expect(screen.getByRole("button", { name: "Delete" })).toBeAriaDisabled();
     });
   });
 });

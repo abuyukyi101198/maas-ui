@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 
+import { useSidePanel } from "@canonical/maas-react-components";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import DhcpSnippetType from "../../DhcpSnippetType";
 import TableActions from "../../TableActions";
 
-import { useSidePanel } from "@/app/base/side-panel-context";
 import DhcpEdit from "@/app/settings/views/Dhcp/DhcpEdit";
 import type { DHCPSnippet } from "@/app/store/dhcpsnippet/types";
 import type { IPRange } from "@/app/store/iprange/types";
@@ -20,12 +20,14 @@ type Props = {
   originalNode?: Node;
   subnets?: Subnet[];
   ipranges?: IPRange[];
+  editDisabled?: boolean;
 };
 
 const useDHCPTableColumns = ({
   originalNode,
   subnets,
   ipranges,
+  editDisabled = false,
 }: Props): DHCPTableColumnDef[] => {
   const { openSidePanel } = useSidePanel();
   return useMemo(
@@ -93,6 +95,7 @@ const useDHCPTableColumns = ({
           },
         }) => (
           <TableActions
+            editDisabled={editDisabled}
             onEdit={() => {
               openSidePanel({
                 component: DhcpEdit,
@@ -104,7 +107,7 @@ const useDHCPTableColumns = ({
         ),
       },
     ],
-    [ipranges, openSidePanel, subnets, originalNode]
+    [editDisabled, ipranges, openSidePanel, subnets, originalNode]
   );
 };
 

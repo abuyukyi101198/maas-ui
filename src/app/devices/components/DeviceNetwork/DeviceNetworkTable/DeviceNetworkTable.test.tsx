@@ -18,14 +18,6 @@ import {
 
 const { mockOpen } = await mockSidePanel();
 
-vi.mock("@/app/base/side-panel-context", async () => {
-  const actual = await vi.importActual("@/app/base/side-panel-context");
-  return {
-    ...actual,
-    useSidePanel: vi.fn(),
-  };
-});
-
 describe("DeviceNetworkTable", () => {
   let state: RootState;
   beforeEach(() => {
@@ -60,7 +52,7 @@ describe("DeviceNetworkTable", () => {
     it("displays a table when loaded", () => {
       renderWithProviders(<DeviceNetworkTable systemId="abc123" />, { state });
 
-      expect(screen.getByRole("grid")).toBeInTheDocument();
+      expect(screen.getByRole("treegrid")).toBeInTheDocument();
     });
 
     it("displays the columns correctly", () => {
@@ -107,7 +99,7 @@ describe("DeviceNetworkTable", () => {
 
       renderWithProviders(<DeviceNetworkTable systemId="abc123" />, { state });
       expect(
-        within(screen.getAllByRole("row")[1]).getAllByRole("cell")[3]
+        within(screen.getAllByRole("row")[1]).getAllByRole("gridcell")[3]
       ).toHaveTextContent("Unconfigured");
     });
 
@@ -242,6 +234,16 @@ describe("DeviceNetworkTable", () => {
           },
         });
       });
+    });
+
+    it("disables the table actions when the user cannot edit the device", () => {
+      state.device.items = [{ ...device, permissions: [] }];
+      renderWithProviders(<DeviceNetworkTable systemId="abc123" />, {
+        state,
+      });
+
+      expect(screen.getByRole("button", { name: "Edit" })).toBeAriaDisabled();
+      expect(screen.getByRole("button", { name: "Delete" })).toBeAriaDisabled();
     });
   });
 });

@@ -1,11 +1,12 @@
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 
 import AddTagForm from "../AddTagForm";
 
 import SearchBox from "@/app/base/components/SearchBox";
 import SegmentedControl from "@/app/base/components/SegmentedControl";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import { TagSearchFilter } from "@/app/store/tag/selectors";
 
 export type Props = {
@@ -32,6 +33,7 @@ export const TagsListHeader = ({
   setSearchText,
 }: Props): React.ReactElement => {
   const { openSidePanel } = useSidePanel();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
   return (
     <MainToolbar>
       <MainToolbar.Title>Tags</MainToolbar.Title>
@@ -64,6 +66,7 @@ export const TagsListHeader = ({
         </>
         <Button
           appearance="positive"
+          disabled={!canEdit}
           onClick={() => {
             openSidePanel({
               component: AddTagForm,

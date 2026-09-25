@@ -1,7 +1,10 @@
 import FabricsList from "./FabricsList";
 
+import { DeleteFabric } from "@/app/networks/views/Fabrics/components";
+import { authResolvers } from "@/testing/resolvers/auth";
 import { fabricsResolvers, mockFabrics } from "@/testing/resolvers/fabrics";
 import {
+  mockModal,
   renderWithProviders,
   screen,
   setupMockServer,
@@ -9,7 +12,12 @@ import {
   waitFor,
 } from "@/testing/utils";
 
-setupMockServer(fabricsResolvers.listFabrics.handler());
+setupMockServer(
+  fabricsResolvers.listFabrics.handler(),
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
+const { mockOpen } = await mockModal();
 
 describe("FabricsList", () => {
   it("uses the correct window title", async () => {
@@ -22,7 +30,7 @@ describe("FabricsList", () => {
     renderWithProviders(<FabricsList />);
 
     expect(
-      screen.getByRole("grid", { name: "Fabrics table" })
+      screen.getByRole("treegrid", { name: "Fabrics table" })
     ).toBeInTheDocument();
   });
 
@@ -35,10 +43,19 @@ describe("FabricsList", () => {
       ).toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", { name: "Delete" })[0]
+      ).not.toBeAriaDisabled();
+    });
     await userEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
 
-    expect(
-      screen.getByRole("complementary", { name: "Delete fabric" })
-    ).toBeInTheDocument();
+    expect(mockOpen).toHaveBeenCalledWith({
+      component: DeleteFabric,
+      title: "Delete fabric",
+      props: {
+        id: mockFabrics.items[0].id,
+      },
+    });
   });
 });

@@ -4,6 +4,7 @@ import {
   ContentSection,
   GenericTable,
   MainToolbar,
+  useSidePanel,
 } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,7 +15,6 @@ import useScriptsTableColumns from "./hooks/useScriptsTableColumns/useScriptsTab
 
 import SearchBox from "@/app/base/components/SearchBox";
 import { useHasEntitlements, useWindowTitle } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import ScriptsUpload from "@/app/settings/views/Scripts/ScriptsUpload";
 import type { RootState } from "@/app/store/root/types";
 import { scriptActions } from "@/app/store/script";
@@ -42,7 +42,7 @@ const ScriptsList = ({ type = "commissioning" }: Props): React.ReactElement => {
     scriptSelectors.search(state, searchText, type)
   );
 
-  const columns = useScriptsTableColumns({ canEdit });
+  const columns = useScriptsTableColumns({ canEdit, type });
 
   useWindowTitle(`${type[0].toUpperCase()}${type.slice(1)} scripts`);
 
@@ -74,9 +74,7 @@ const ScriptsList = ({ type = "commissioning" }: Props): React.ReactElement => {
                   openSidePanel({
                     component: ScriptsUpload,
                     title: `Upload ${type} script`,
-                    props: {
-                      type,
-                    },
+                    props: { type },
                   });
                 }}
               >

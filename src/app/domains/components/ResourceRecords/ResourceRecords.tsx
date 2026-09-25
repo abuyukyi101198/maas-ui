@@ -1,11 +1,12 @@
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button, Col, Row, Spinner, Strip } from "@canonical/react-components";
 import { useSelector } from "react-redux";
 
 import AddRecordForm from "../DomainDetailsHeader/AddRecordForm";
 
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
 import { ResourceRecordsTable } from "@/app/domains/components";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import domainsSelectors from "@/app/store/domain/selectors";
 import type { Domain } from "@/app/store/domain/types";
 import { isDomainDetails } from "@/app/store/domain/utils";
@@ -25,6 +26,7 @@ const ResourceRecords = ({ id }: Props): React.ReactElement | null => {
     domainsSelectors.getById(state, id)
   );
   const loading = useSelector(domainsSelectors.loading);
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
 
   if (loading) {
     return (
@@ -49,6 +51,7 @@ const ResourceRecords = ({ id }: Props): React.ReactElement | null => {
             <MainToolbar.Controls>
               <Button
                 data-testid="add-record"
+                disabled={!canEdit}
                 key="add-record"
                 onClick={() => {
                   openSidePanel({

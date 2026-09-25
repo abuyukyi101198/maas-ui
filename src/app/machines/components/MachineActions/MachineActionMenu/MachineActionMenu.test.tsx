@@ -1,20 +1,46 @@
 import MachineActionMenu from "./MachineActionMenu";
 
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import type { RootState } from "@/app/store/root/types";
 import { NodeActions } from "@/app/store/types/node";
 import { getNodeActionTitle } from "@/app/store/utils";
 import * as factory from "@/testing/factories";
+import { authResolvers } from "@/testing/resolvers/auth";
 import {
+  mockModal,
   mockSidePanel,
   renderWithProviders,
   screen,
+  setupMockServer,
   userEvent,
+  waitFor,
 } from "@/testing/utils";
+
+const mockServer = setupMockServer(
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
+
+// Actions migrated from a side panel to a modal.
+const modalActions = [
+  NodeActions.ACQUIRE,
+  NodeActions.ABORT,
+  NodeActions.ON,
+  NodeActions.OFF,
+  NodeActions.SOFT_OFF,
+  NodeActions.RESCUE_MODE,
+  NodeActions.EXIT_RESCUE_MODE,
+  NodeActions.MARK_FIXED,
+  NodeActions.LOCK,
+  NodeActions.UNLOCK,
+  NodeActions.DELETE,
+];
 
 describe("MachineActionMenu", async () => {
   let state: RootState;
 
   const { mockOpen } = await mockSidePanel();
+  const { mockOpen: mockOpenModal } = await mockModal();
 
   const machineActions = Object.values(NodeActions).filter(
     (action) =>
@@ -169,9 +195,11 @@ describe("MachineActionMenu", async () => {
     machineActions
       .filter(
         (action) =>
-          ![NodeActions.CHECK_POWER, NodeActions.SOFT_OFF].some(
-            (filterAction) => action === filterAction
-          )
+          ![
+            NodeActions.CHECK_POWER,
+            NodeActions.SOFT_OFF,
+            ...modalActions,
+          ].some((filterAction) => action === filterAction)
       )
       .forEach((action) => {
         const actionTitle = getNodeActionTitle(action);
@@ -190,14 +218,45 @@ describe("MachineActionMenu", async () => {
         });
       });
 
-    it("opens the 'Power off' form with props for 'Soft power off' when 'Soft power off' is clicked", async () => {
+    modalActions
+      .filter(
+        (action) => ![NodeActions.OFF, NodeActions.SOFT_OFF].includes(action)
+      )
+      .forEach((action) => {
+        const actionTitle = getNodeActionTitle(action);
+        it(`opens the ${actionTitle} modal when the ${actionTitle} button is clicked`, async () => {
+          renderWithProviders(<MachineActionMenu />, { state });
+
+          await openMenu();
+
+          await userEvent.click(getActionButton(action));
+
+          expect(mockOpenModal).toHaveBeenCalledWith(
+            expect.objectContaining({ title: actionTitle })
+          );
+        });
+      });
+
+    it("opens the 'Power off' modal when 'Power off' is clicked", async () => {
+      renderWithProviders(<MachineActionMenu />, { state });
+
+      await openMenu();
+
+      await userEvent.click(getActionButton(NodeActions.OFF));
+
+      expect(mockOpenModal).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "Power off" })
+      );
+    });
+
+    it("opens the 'Power off' modal with props for 'Soft power off' when 'Soft power off' is clicked", async () => {
       renderWithProviders(<MachineActionMenu />, { state });
 
       await openMenu();
 
       await userEvent.click(getActionButton(NodeActions.SOFT_OFF));
 
-      expect(mockOpen).toHaveBeenCalledWith(
+      expect(mockOpenModal).toHaveBeenCalledWith(
         expect.objectContaining({ title: "Soft power off" })
       );
     });
@@ -210,6 +269,9 @@ describe("MachineActionMenu", async () => {
 
       await openMenu();
 
+      await waitFor(() => {
+        expect(getActionButton(NodeActions.CHECK_POWER)).not.toBeAriaDisabled();
+      });
       await userEvent.click(getActionButton(NodeActions.CHECK_POWER));
 
       expect(
@@ -228,6 +290,83 @@ describe("MachineActionMenu", async () => {
         },
         type: "machine/checkPower",
       });
+    });
+  });
+});
+
+describe("MachineActionMenu entitlements gating", () => {
+  let state: RootState;
+
+  const openMenu = async () => {
+    await userEvent.click(screen.getByRole("button", { name: "Menu" }));
+  };
+
+  const getActionButton = (action: NodeActions) =>
+    screen.getByRole("menuitem", {
+      name: new RegExp(getNodeActionTitle(action)),
+    });
+
+  beforeEach(() => {
+    state = factory.rootState({
+      machine: factory.machineState({
+        items: [
+          factory.machine({
+            system_id: "abc123",
+            pool: factory.modelRef({ id: 2, name: "pool-2" }),
+          }),
+        ],
+        selected: { items: ["abc123"] },
+      }),
+    });
+  });
+
+  it("enables Deploy with only an edit entitlement (edit implies deploy)", async () => {
+    mockServer.use(
+      authResolvers.getMeEntitlements.handler([
+        factory.entitlement({
+          entitlement: Entitlement.CAN_EDIT_MACHINES,
+          resource_type: "pool",
+          resource_id: 2,
+        }),
+      ])
+    );
+    renderWithProviders(<MachineActionMenu />, { state });
+
+    await openMenu();
+
+    await waitFor(() => {
+      expect(getActionButton(NodeActions.DEPLOY)).not.toBeAriaDisabled();
+    });
+  });
+
+  it("enables Deploy but disables other actions for a deploy-only user", async () => {
+    mockServer.use(
+      authResolvers.getMeEntitlements.handler([
+        factory.entitlement({
+          entitlement: Entitlement.CAN_DEPLOY_MACHINES,
+          resource_type: "pool",
+          resource_id: 2,
+        }),
+      ])
+    );
+    renderWithProviders(<MachineActionMenu />, { state });
+
+    await openMenu();
+
+    await waitFor(() => {
+      expect(getActionButton(NodeActions.DEPLOY)).not.toBeAriaDisabled();
+    });
+    expect(getActionButton(NodeActions.RELEASE)).toBeAriaDisabled();
+  });
+
+  it("disables Deploy without an edit or deploy entitlement", async () => {
+    mockServer.use(authResolvers.getMeEntitlements.handler([]));
+    renderWithProviders(<MachineActionMenu />, { state });
+
+    await openMenu();
+
+    await waitFor(() => {
+      expect(getActionButton(NodeActions.DEPLOY)).toBeAriaDisabled();
     });
   });
 });

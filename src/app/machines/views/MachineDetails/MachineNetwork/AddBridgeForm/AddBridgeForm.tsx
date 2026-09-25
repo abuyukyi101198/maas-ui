@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useEffect, useState, useCallback } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
@@ -20,7 +20,6 @@ import type {
   SetSelected,
 } from "@/app/base/components/node/networking/types";
 import { useFetchActions } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { MAC_ADDRESS_REGEX } from "@/app/base/validation";
 import { useMachineDetailsForm } from "@/app/machines/hooks";
 import {
@@ -90,7 +89,7 @@ const AddBridgeForm = ({
     )
   );
   const vlan = useSelector((state: RootState) =>
-    vlanSelectors.getById(state, bridgeVLAN || firstNic?.vlan_id)
+    vlanSelectors.getById(state, bridgeVLAN ?? firstNic?.vlan_id)
   );
   const vlansLoading = useSelector(vlanSelectors.loading);
   const { errors, saved, saving } = useMachineDetailsForm(
@@ -108,13 +107,13 @@ const AddBridgeForm = ({
     // When the form is first shown then store the VLAN for this bridge. This needs
     // to be done so that if all interfaces become deselected then the VLAN
     // information is not lost.
-    if (!bridgeVLAN && firstNic) {
+    if (bridgeVLAN === null && firstNic) {
       setBridgeVLAN(firstNic.vlan_id);
     }
   }, [bridgeVLAN, firstNic, setBridgeVLAN]);
 
-  if (vlansLoading || !bridgeVLAN || !isMachineDetails(machine)) {
-    return <Spinner text="Loading..." />;
+  if (vlansLoading || bridgeVLAN === null || !isMachineDetails(machine)) {
+    return <SidePanel.Skeleton />;
   }
 
   const macAddress = firstNic?.mac_address || "";

@@ -1,5 +1,9 @@
 @use "sass:math";
 
+@import "@canonical/styles";
+@import "@canonical/styles/fonts";
+@import "@canonical/react-ds-global-form/dist/esm/index.css";
+
 // Import settings
 @import "./settings";
 
@@ -91,19 +95,17 @@
 @import "@/app/base/components/FilterAccordion";
 @import "@/app/base/components/FormCard";
 @import "@/app/base/components/LabelledList";
-@import "@/app/login/Login";
 @import "@/app/base/components/MachineSelectTable";
 @import "@/app/base/components/ListDisplayCount";
 @import "@/app/base/components/node/HardwareCard";
 @import "@/app/base/components/node/networking/NetworkTable";
 @import "@/app/base/components/node/NodeLogs/DownloadMenu";
-@import "@/app/base/components/node/NodeTestsTable/components/NodeTestsTable";
+@import "@/app/base/components/node/NodeTestsTable";
 @import "@/app/base/components/node/OverviewCard";
 @import "@/app/base/components/node/StorageTables/AvailableStorageTable";
 @import "@/app/base/components/NodeName";
 @import "@/app/base/components/NodeSummaryNetworkCard";
 @import "@/app/base/components/NodeSummaryNetworkCard/NetworkCardTable";
-@import "@/app/base/components/NotificationGroup";
 @import "@/app/base/components/Placeholder";
 @import "@/app/base/components/Popover";
 @import "@/app/base/components/PrefixedInput";
@@ -127,14 +129,12 @@
 @include FormCard;
 @include HardwareCard;
 @include LabelledList;
-@include Login;
 @include MachineSelectTable;
 @include NetworkCardTable;
 @include NetworkTable;
 @include NodeName;
 @include NodeSummaryNetworkCard;
 @include NodeTestsTable;
-@include NotificationGroup;
 @include OverviewCard;
 @include Placeholder;
 @include Popover;
@@ -160,7 +160,7 @@
 
 // images
 @import "@/app/images/components/ImagesTable";
-@import "@/app/images/components/SelectUpstreamImagesForm";
+@import "@/app/images/components/SelectUpstreamImages/components/SelectUpstreamImagesForm";
 @include ImagesTable;
 @include DownloadImages;
 
@@ -169,53 +169,8 @@
 @include MaasIntro;
 
 // kvm
-@import "@/app/kvm/components/CoreResources";
-@import "@/app/kvm/components/CPUColumn/CPUPopover";
-@import "@/app/kvm/components/KVMDetailsHeader";
 @import "@/app/base/components/DhcpFormFields/MachineSelect";
-@import "@/app/kvm/components/ComposeForm/InterfacesTable";
-@import "@/app/kvm/components/ComposeForm/InterfacesTable/SubnetSelect";
-@import "@/app/kvm/components/ComposeForm/StorageTable/PoolSelect";
-@import "@/app/kvm/components/KVMResourcesCard";
-@import "@/app/kvm/components/KVMStorageCards";
-@import "@/app/kvm/components/LXDHostToolbar";
-@import "@/app/kvm/components/LXDHostVMs/NumaResources";
-@import "@/app/kvm/components/LXDHostVMs/NumaResources/NumaResourcesCard";
-@import "@/app/kvm/components/LXDVMsSummaryCard";
-@import "@/app/kvm/components/LXDVMsTable";
-@import "@/app/kvm/components/RAMColumn/RAMPopover";
-@import "@/app/kvm/components/RamResources";
-@import "@/app/kvm/components/StorageColumn/StoragePopover";
-@import "@/app/kvm/components/StorageResources";
-@import "@/app/kvm/components/StorageResources/StorageCards";
-@import "@/app/kvm/components/VfResources";
-@import "@/app/kvm/components/VmResources";
-@import "@/app/kvm/components/SettingsBackLink";
-@import "@/app/kvm/views/LXDClusterDetails/LXDClusterHosts/LXDClusterHostsTable";
-@import "@/app/kvm/views/LXDClusterDetails/LXDClusterSummaryCard";
-@include CoreResources;
-@include CPUPopover;
-@include KVMComposeInterfacesTable;
-@include KVMDetailsHeader;
-@include KVMPoolSelect;
-@include KVMResourcesCard;
-@include KVMStorageCards;
-@include KVMSubnetSelect;
-@include LXDClusterSummaryCard;
-@include LXDHostToolbar;
-@include LXDVMsSummaryCard;
 @include MachineSelect;
-@include NumaResources;
-@include NumaResourcesCard;
-@include RAMPopover;
-@include RamResources;
-@include StorageCards;
-@include StoragePopover;
-@include StorageResources;
-@include VfResources;
-@include VmResources;
-@include SettingsBackLink;
-@include VMsTable;
 
 // Network Discovery
 @import "@/app/networkDiscovery/views/DiscoveriesList";

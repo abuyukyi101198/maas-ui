@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 
+import { useSidePanel } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import DeleteScript from "../../components/DeleteScript";
 
 import TableActions from "@/app/base/components/TableActions";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import ScriptDetails from "@/app/settings/views/Scripts/ScriptDetails";
 import type { Script } from "@/app/store/script/types";
 import { formatUtcDatetime } from "@/app/utils/time";
@@ -19,8 +19,10 @@ export enum Labels {
 
 const useScriptsTableColumns = ({
   canEdit,
+  type,
 }: {
   canEdit: boolean;
+  type: "commissioning" | "deployment" | "switch" | "testing";
 }): ScriptColumnDef[] => {
   const { openSidePanel } = useSidePanel();
 
@@ -85,11 +87,12 @@ const useScriptsTableColumns = ({
                 props: { id: row.original.id },
               });
             }}
+            onEdit={type === "switch" ? () => {} : undefined}
           />
         ),
       },
     ],
-    [openSidePanel, canEdit]
+    [openSidePanel, canEdit, type]
   );
 };
 

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useState } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
@@ -26,7 +26,6 @@ import type {
   SetSelected,
 } from "@/app/base/components/node/networking/types";
 import { useFetchActions, useIsAllNetworkingDisabled } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { MAC_ADDRESS_REGEX } from "@/app/base/validation";
 import { useMachineDetailsForm } from "@/app/machines/hooks";
 import { fabricActions } from "@/app/store/fabric";
@@ -119,7 +118,7 @@ const AddBondForm = ({
   );
   const firstLink = getLinkFromNic(firstNic, firstSelected?.linkId);
   const vlan = useSelector((state: RootState) =>
-    vlanSelectors.getById(state, bondVLAN || firstNic?.vlan_id)
+    vlanSelectors.getById(state, bondVLAN ?? firstNic?.vlan_id)
   );
   const fabrics = useSelector(fabricSelectors.all);
   const fabricsLoaded = useSelector(fabricSelectors.loaded);
@@ -150,7 +149,7 @@ const AddBondForm = ({
     // When the form is first shown then store the VLAN for this bond. This needs
     // to be done so that if all interfaces become deselected then the VLAN
     // information is not lost.
-    if (!bondVLAN && hasEnoughNics && firstNic) {
+    if (bondVLAN === null && hasEnoughNics && firstNic) {
       setBondVLAN(firstNic.vlan_id);
     }
   }, [bondVLAN, firstNic, hasEnoughNics, setBondVLAN]);
@@ -160,9 +159,9 @@ const AddBondForm = ({
     !vlansLoaded ||
     !fabricsLoaded ||
     !subnetsLoaded ||
-    !bondVLAN
+    bondVLAN === null
   ) {
-    return <Spinner data-testid="data-loading" />;
+    return <SidePanel.Skeleton />;
   }
   const subnet = getInterfaceSubnet(
     machine,

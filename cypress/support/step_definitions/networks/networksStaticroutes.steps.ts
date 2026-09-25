@@ -2,7 +2,7 @@ import { Then, When } from "@badeball/cypress-cucumber-preprocessor";
 import { LONG_TIMEOUT } from "../../../constants";
 
 When("the user opens the first subnet", () => {
-  cy.findByRole("grid", { name: "Subnets by fabric" }).within(() => {
+  cy.findByRole("treegrid", { name: "Subnets by fabric" }).within(() => {
     cy.get("tbody")
       .find('tr[class="p-generic-table__individual-row"]')
       .find("a")
@@ -12,7 +12,7 @@ When("the user opens the first subnet", () => {
 });
 
 When("the user navigates to static routes", () => {
-  cy.findByRole("heading", { level: 1 }).invoke("text").as("subnet");
+  cy.findAllByRole("heading", { level: 1 }).last().invoke("text").as("subnet");
 
   cy.findByRole("link", { name: /static routes/i }).click();
 });

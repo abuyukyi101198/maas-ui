@@ -1,7 +1,11 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 
-import { ExternalLink, GenericTable } from "@canonical/maas-react-components";
+import {
+  ExternalLink,
+  GenericTable,
+  useSidePanel,
+} from "@canonical/maas-react-components";
 import {
   ContextualMenu,
   Notification as NotificationBanner,
@@ -16,8 +20,8 @@ import useReservedRangesColumns from "./useReservedRangesTableColumns/useReserve
 
 import TitledSection from "@/app/base/components/TitledSection";
 import docsUrls from "@/app/base/docsUrls";
-import { useFetchActions } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useFetchActions, useHasEntitlements } from "@/app/base/hooks";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import { ipRangeActions } from "@/app/store/iprange";
 import ipRangeSelectors from "@/app/store/iprange/selectors";
 import { IPRangeType } from "@/app/store/iprange/types";
@@ -73,6 +77,7 @@ const ReservedRangesTable = ({
   );
   const isDisabled = isId(vlanId) && !hasVLANSubnets;
   const showSubnetColumn = isId(vlanId);
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
 
   useFetchActions([ipRangeActions.fetch]);
 
@@ -105,6 +110,7 @@ const ReservedRangesTable = ({
                   title: "Reserve range",
                   props: {
                     createType: IPRangeType.Reserved,
+                    subnetId,
                   },
                 });
                 setIsAddingDynamic(false);
@@ -119,6 +125,7 @@ const ReservedRangesTable = ({
                   title: "Reserve dynamic range",
                   props: {
                     createType: IPRangeType.Dynamic,
+                    subnetId,
                   },
                 });
                 setIsAddingDynamic(true);
@@ -127,7 +134,7 @@ const ReservedRangesTable = ({
           ]}
           position="right"
           toggleAppearance="positive"
-          toggleDisabled={isDisabled}
+          toggleDisabled={isDisabled || !canEdit}
           toggleLabel={
             isAddingDynamic ? Labels.ReserveDynamicRange : Labels.ReserveRange
           }

@@ -8,7 +8,7 @@ import { Label as TagFieldLabel } from "@/app/base/components/TagField/TagField"
 import { Label as ZoneSelectLabel } from "@/app/base/components/ZoneSelect/ZoneSelect";
 import urls from "@/app/base/urls";
 import { controllerActions } from "@/app/store/controller";
-import { PodType } from "@/app/store/pod/constants";
+import { PowerTypeNames } from "@/app/store/general/constants";
 import * as factory from "@/testing/factories";
 import { authResolvers } from "@/testing/resolvers/auth";
 import { zoneResolvers } from "@/testing/resolvers/zones";
@@ -24,10 +24,11 @@ const controller = factory.controllerDetails({ system_id: "abc123" });
 const route = urls.controllers.controller.index({ id: controller.system_id });
 
 let state: ReturnType<typeof factory.rootState>;
-setupMockServer(
+const mockServer = setupMockServer(
   zoneResolvers.listZones.handler(),
   zoneResolvers.listZonesWithStatistics.handler(),
   authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler(),
   authResolvers.getMeStatistics.handler()
 );
 
@@ -46,7 +47,7 @@ describe("ControllerConfiguration", () => {
         powerTypes: factory.powerTypesState({
           data: [
             factory.powerType({
-              name: PodType.LXD,
+              name: PowerTypeNames.LXD,
               fields: [
                 factory.powerField({ name: "power_address" }),
                 factory.powerField({ name: "password" }),
@@ -129,6 +130,13 @@ describe("ControllerConfiguration", () => {
       }
     );
 
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", {
+          name: EditableSectionLabels.EditButton,
+        })[0]
+      ).toBeInTheDocument();
+    });
     await userEvent.click(
       screen.getAllByRole("button", {
         name: EditableSectionLabels.EditButton,
@@ -163,6 +171,13 @@ describe("ControllerConfiguration", () => {
         initialEntries: [route],
       }
     );
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", {
+          name: EditableSectionLabels.EditButton,
+        })[0]
+      ).toBeInTheDocument();
+    });
     await userEvent.click(
       screen.getAllByRole("button", {
         name: EditableSectionLabels.EditButton,
@@ -228,5 +243,24 @@ describe("ControllerConfiguration", () => {
         /Changing the IP address or outlet delay will affect all these nodes./
       )
     ).toBeInTheDocument();
+  });
+
+  it("hides the edit buttons without the edit entitlement", async () => {
+    mockServer.use(authResolvers.getMeEntitlements.handler([]));
+    renderWithProviders(
+      <ControllerConfiguration systemId={controller.system_id} />,
+      {
+        state,
+        initialEntries: [route],
+      }
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: /Controller configuration/i })
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("button", { name: EditableSectionLabels.EditButton })
+    ).not.toBeInTheDocument();
   });
 });

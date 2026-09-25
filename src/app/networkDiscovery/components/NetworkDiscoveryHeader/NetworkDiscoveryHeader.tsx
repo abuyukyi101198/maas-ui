@@ -1,11 +1,12 @@
 import type { ReactElement } from "react";
 
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 
 import { useNetworkDiscoveries } from "@/app/api/query/networkDiscovery";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
 import { ClearAllForm } from "@/app/networkDiscovery/components";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 
 export enum Labels {
   ClearAll = "Clear all discoveries",
@@ -14,6 +15,7 @@ export enum Labels {
 const NetworkDiscoveryHeader = (): ReactElement => {
   const { openSidePanel } = useSidePanel();
   const discoveries = useNetworkDiscoveries();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
 
   return (
     <MainToolbar>
@@ -22,7 +24,7 @@ const NetworkDiscoveryHeader = (): ReactElement => {
         <Button
           appearance="negative"
           data-testid="clear-all"
-          disabled={discoveries.data?.total === 0}
+          disabled={!canEdit || discoveries.data?.total === 0}
           key="clear-all"
           onClick={() => {
             openSidePanel({

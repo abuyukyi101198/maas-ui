@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useSidePanel } from "@canonical/maas-react-components";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import AddReservedRange from "../../AddReservedRange";
@@ -8,7 +9,8 @@ import { Labels } from "../ReservedRangesTable";
 
 import SubnetLink from "@/app/base/components/SubnetLink";
 import TableActions from "@/app/base/components/TableActions";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import type { IPRangeType } from "@/app/store/iprange/types";
 
 export type ReservedRangesTableData = {
@@ -32,6 +34,7 @@ const useReservedRangesColumns = (
   showSubnetColumn: boolean
 ): ReservedRangesColumnsDef[] => {
   const { openSidePanel } = useSidePanel();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
   return useMemo((): ReservedRangesColumnsDef[] => {
     const columns: ReservedRangesColumnsDef[] = [
       {
@@ -60,10 +63,12 @@ const useReservedRangesColumns = (
         enableSorting: false,
         cell: ({
           row: {
-            original: { ipRangeId, createType },
+            original: { ipRangeId, createType, subnet },
           },
         }) => (
           <TableActions
+            deleteDisabled={!canEdit}
+            editDisabled={!canEdit}
             onDelete={() => {
               openSidePanel({
                 component: DeleteReservedRange,
@@ -80,6 +85,7 @@ const useReservedRangesColumns = (
                 props: {
                   createType,
                   ipRangeId: ipRangeId!,
+                  subnetId: subnet,
                 },
               });
             }}
@@ -101,7 +107,7 @@ const useReservedRangesColumns = (
       });
     }
     return columns;
-  }, [openSidePanel, showSubnetColumn]);
+  }, [canEdit, openSidePanel, showSubnetColumn]);
 };
 
 export default useReservedRangesColumns;

@@ -17,9 +17,7 @@ import message from "@/app/store/message";
 import msm from "@/app/store/msm";
 import nodedevice from "@/app/store/nodedevice";
 import nodescriptresult from "@/app/store/nodescriptresult";
-import notification from "@/app/store/notification";
 import packagerepository from "@/app/store/packagerepository";
-import pod from "@/app/store/pod";
 import reservedip from "@/app/store/reservedip";
 import type { RootState } from "@/app/store/root/types";
 import script from "@/app/store/script";
@@ -33,7 +31,6 @@ import subnet from "@/app/store/subnet";
 import tag from "@/app/store/tag";
 import token from "@/app/store/token";
 import vlan from "@/app/store/vlan";
-import vmcluster from "@/app/store/vmcluster";
 
 const createAppReducer = (routerReducer: Reducer<RouterState, Action>) =>
   combineReducers({
@@ -52,9 +49,7 @@ const createAppReducer = (routerReducer: Reducer<RouterState, Action>) =>
     msm,
     nodedevice,
     nodescriptresult,
-    notification,
     packagerepository,
-    pod,
     reservedip,
     router: routerReducer,
     scriptresult,
@@ -67,7 +62,6 @@ const createAppReducer = (routerReducer: Reducer<RouterState, Action>) =>
     tag,
     token,
     vlan,
-    vmcluster,
   });
 
 const createRootReducer =

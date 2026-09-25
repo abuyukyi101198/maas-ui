@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
 
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button } from "@canonical/react-components";
 import pluralize from "pluralize";
 import { Link } from "react-router";
 
 import { usePoolCount } from "@/app/api/query/pools";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
 import urls from "@/app/base/urls";
 import { AddPool } from "@/app/pools/components";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import { useFetchMachineCount } from "@/app/store/machine/utils/hooks";
 
 const PoolsListHeader = (): ReactNode => {
@@ -16,6 +17,7 @@ const PoolsListHeader = (): ReactNode => {
   const { machineCount } = useFetchMachineCount();
   const resourcePoolsCount = usePoolCount();
   const count = resourcePoolsCount?.data ? resourcePoolsCount.data : 0;
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
 
   return (
     <MainToolbar>
@@ -26,6 +28,7 @@ const PoolsListHeader = (): ReactNode => {
       <MainToolbar.Controls>
         <Button
           data-testid="add-pool"
+          disabled={!canEdit}
           key="add-pool"
           onClick={() => {
             openSidePanel({ component: AddPool, title: "Add pool" });

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import ActionForm from "@/app/base/components/ActionForm";
@@ -9,7 +9,6 @@ import TestFormFields, {
   type TestFormValues,
 } from "@/app/base/components/node/TestFormFields/TestFormFields";
 import type { HardwareType } from "@/app/base/enum";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { machineActions } from "@/app/store/machine";
 import machineSelectors from "@/app/store/machine/selectors";
 import type { MachineEventErrors } from "@/app/store/machine/types";
@@ -104,7 +103,7 @@ const TestMachineForm = ({
   }, [dispatch, scriptsLoaded]);
 
   if (selectedCountLoading) {
-    return <Spinner text={"Loading..."} />;
+    return <SidePanel.Skeleton />;
   }
 
   return (

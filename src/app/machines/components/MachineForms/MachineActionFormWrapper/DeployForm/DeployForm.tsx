@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import * as Yup from "yup";
@@ -10,7 +10,6 @@ import DeployFormFields from "./DeployFormFields";
 import ActionForm from "@/app/base/components/ActionForm";
 import NodeActionWarning from "@/app/base/components/node/NodeActionWarning";
 import { useFetchActions, useSendAnalytics } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { configActions } from "@/app/store/config";
 import configSelectors from "@/app/store/config/selectors";
 import { generalActions } from "@/app/store/general";
@@ -26,7 +25,6 @@ import {
   useMachineSelectedCount,
   useSelectedMachinesActionsDispatch,
 } from "@/app/store/machine/utils/hooks";
-import { PodType } from "@/app/store/pod/constants";
 import { NodeActions } from "@/app/store/types/node";
 
 const DeploySchema = Yup.object().shape({
@@ -36,7 +34,6 @@ const DeploySchema = Yup.object().shape({
   includeUserData: Yup.boolean(),
   enableHwSync: Yup.boolean(),
   ephemeralDeploy: Yup.boolean(),
-  vmHostType: Yup.string().oneOf([PodType.LXD, PodType.VIRSH, ""]),
 });
 
 export type DeployFormValues = {
@@ -46,7 +43,6 @@ export type DeployFormValues = {
   oSystem: string;
   release: string;
   userData?: string;
-  vmHostType: string;
   enableHwSync: boolean;
   enableKernelCrashDump: boolean;
 };
@@ -102,7 +98,7 @@ export const DeployForm = ({
     !configLoaded ||
     selectedCountLoading
   ) {
-    return <Spinner text="Loading..." />;
+    return <SidePanel.Skeleton />;
   }
 
   // Default OS+release is set in the backend even if the image has not yet been
@@ -144,7 +140,6 @@ export const DeployForm = ({
           kernel: defaultMinHweKernel || "",
           includeUserData: false,
           userData: "",
-          vmHostType: "",
           enableHwSync: false,
           enableKernelCrashDump: enableKernelCrashDump || false,
         }}
@@ -174,12 +169,6 @@ export const DeployForm = ({
               osystem: values.oSystem,
               enable_kernel_crash_dump: values.enableKernelCrashDump,
               ...(values.enableHwSync && { enable_hw_sync: true }),
-              ...(values.vmHostType === PodType.LXD && {
-                register_vmhost: true,
-              }),
-              ...(values.vmHostType === PodType.VIRSH && {
-                install_kvm: true,
-              }),
               ...(hasUserData && { user_data: values.userData }),
             });
           }

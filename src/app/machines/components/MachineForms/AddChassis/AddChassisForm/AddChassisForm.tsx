@@ -1,8 +1,11 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 
-import { ExternalLink } from "@canonical/maas-react-components";
-import { Spinner, Strip } from "@canonical/react-components";
+import {
+  ExternalLink,
+  SidePanel,
+  useSidePanel,
+} from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
@@ -11,7 +14,6 @@ import AddChassisFormFields from "../AddChassisFormFields";
 import FormikForm from "@/app/base/components/FormikForm";
 import docsUrls from "@/app/base/docsUrls";
 import { useFetchActions } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { domainActions } from "@/app/store/domain";
 import domainSelectors from "@/app/store/domain/selectors";
 import { generalActions } from "@/app/store/general";
@@ -55,9 +57,7 @@ export const AddChassisForm = (): ReactElement => {
   return (
     <>
       {!(domainsLoaded && powerTypesLoaded) ? (
-        <Strip shallow>
-          <Spinner text="Loading" />
-        </Strip>
+        <SidePanel.Skeleton />
       ) : (
         <FormikForm
           buttonsHelp={

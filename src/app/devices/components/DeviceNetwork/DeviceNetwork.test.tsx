@@ -13,7 +13,7 @@ describe("DeviceNetwork", () => {
 
     renderWithProviders(<DeviceNetwork systemId="abc123" />, { state });
     expect(screen.queryByLabelText("Device network")).not.toBeInTheDocument();
-    expect(screen.queryByRole("grid")).not.toBeInTheDocument();
+    expect(screen.queryByRole("treegrid")).not.toBeInTheDocument();
     expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 
@@ -26,10 +26,25 @@ describe("DeviceNetwork", () => {
 
     renderWithProviders(<DeviceNetwork systemId="abc123" />, { state });
     expect(screen.getByLabelText("Device network")).toBeInTheDocument();
-    expect(screen.getByRole("grid", { name: /DHCP/ })).toBeInTheDocument();
+    expect(screen.getByRole("treegrid", { name: /DHCP/ })).toBeInTheDocument();
     expect(
-      screen.getByRole("grid", { name: "Interfaces" })
+      screen.getByRole("treegrid", { name: "Interfaces" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+  });
+
+  it("disables the Add interface button when the user cannot edit the device", () => {
+    const state = factory.rootState({
+      device: factory.deviceState({
+        items: [
+          factory.deviceDetails({ permissions: [], system_id: "abc123" }),
+        ],
+      }),
+    });
+
+    renderWithProviders(<DeviceNetwork systemId="abc123" />, { state });
+    expect(
+      screen.getByRole("button", { name: "Add interface" })
+    ).toBeAriaDisabled();
   });
 });

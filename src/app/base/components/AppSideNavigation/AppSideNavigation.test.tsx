@@ -1,12 +1,13 @@
 import AppSideNavigation from "./AppSideNavigation";
+import LogoutConfirm from "./LogoutConfirm";
 
 import urls from "@/app/base/urls";
 import { ConfigNames } from "@/app/store/config/types";
 import type { RootState } from "@/app/store/root/types";
-import { statusActions } from "@/app/store/status";
 import * as factory from "@/testing/factories";
 import { authResolvers } from "@/testing/resolvers/auth";
 import {
+  mockModal,
   renderWithProviders,
   screen,
   setupMockServer,
@@ -14,6 +15,8 @@ import {
   waitFor,
   within,
 } from "@/testing/utils";
+
+const { mockOpen } = await mockModal();
 
 const mockUseNavigate = vi.fn();
 vi.mock("react-router", async () => {
@@ -25,7 +28,8 @@ vi.mock("react-router", async () => {
 });
 
 const mockServer = setupMockServer(
-  authResolvers.getCurrentUser.handler(factory.userInfo({ id: 1 })),
+  authResolvers.getCurrentUser.handler(factory.user({ id: 1 })),
+  authResolvers.getMeEntitlements.handler(),
   authResolvers.getMeStatistics.handler(
     factory.userStatistics({ id: 1, completed_intro: true })
   )
@@ -50,14 +54,6 @@ describe("GlobalSideNav", () => {
       controller: factory.controllerState({
         items: [factory.controller()],
         loaded: true,
-      }),
-      pod: factory.podState({
-        loaded: true,
-        items: [
-          factory.pod({
-            type: "virsh",
-          }),
-        ],
       }),
     });
   });
@@ -90,8 +86,8 @@ describe("GlobalSideNav", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("can dispatch an action to log out", async () => {
-    const { store } = renderWithProviders(<AppSideNavigation />, { state });
+  it("opens a logout confirmation modal when Log out is clicked", async () => {
+    renderWithProviders(<AppSideNavigation />, { state });
 
     await waitFor(() => {
       expect(
@@ -101,18 +97,18 @@ describe("GlobalSideNav", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Log out" }));
 
-    const expectedAction = statusActions.logout();
-    await waitFor(() => {
-      expect(
-        store.getActions().find((action) => action.type === expectedAction.type)
-      ).toStrictEqual(expectedAction);
-    });
+    expect(mockOpen).toHaveBeenCalledWith(
+      expect.objectContaining({
+        component: LogoutConfirm,
+        title: "Log out",
+      })
+    );
   });
 
   it("hides nav links if not completed intro", async () => {
     mockServer.use(
       authResolvers.getCurrentUser.handler(
-        factory.userInfo({
+        factory.user({
           username: "koala",
         })
       ),
@@ -333,11 +329,7 @@ describe("GlobalSideNav", () => {
   });
 
   it("links from the logo to the machine list for non admins", async () => {
-    mockServer.use(
-      authResolvers.getCurrentUser.handler(
-        factory.userInfo({ entitlements: [] })
-      )
-    );
+    mockServer.use(authResolvers.getMeEntitlements.handler([]));
     renderWithProviders(<AppSideNavigation />, {
       initialEntries: ["/machine/abc123"],
       state,
@@ -375,29 +367,6 @@ describe("GlobalSideNav", () => {
     await waitFor(() => {
       expect(router.state.location.pathname).toBe(urls.intro.images);
     });
-  });
-
-  it("displays 'Virsh' link if user has Virsh KVM hosts", async () => {
-    renderWithProviders(<AppSideNavigation />, {
-      initialEntries: ["/machines"],
-      state,
-    });
-    await waitFor(() => {
-      expect(screen.getByRole("link", { name: /Virsh/i })).toBeInTheDocument();
-    });
-    expect(screen.getByRole("link", { name: "Virsh" })).toBeInTheDocument();
-  });
-
-  it("hides 'Virsh' link if user has no Virsh KVM hosts", () => {
-    state.pod.items = [];
-    renderWithProviders(<AppSideNavigation />, {
-      initialEntries: ["/machines"],
-      state,
-    });
-
-    expect(
-      screen.queryByRole("link", { name: "Virsh" })
-    ).not.toBeInTheDocument();
   });
 
   it("is collapsed by default", () => {

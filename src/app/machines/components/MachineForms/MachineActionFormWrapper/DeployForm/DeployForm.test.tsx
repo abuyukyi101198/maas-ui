@@ -107,7 +107,7 @@ describe("DeployForm", () => {
     });
   });
 
-  it("shows a spinner if data has not loaded yet", () => {
+  it("shows a skeleton if data has not loaded yet", () => {
     const state = factory.rootState({
       general: factory.generalState({
         osInfo: factory.osInfoState({
@@ -118,9 +118,14 @@ describe("DeployForm", () => {
         loaded: false,
       }),
     });
-    renderWithProviders(<DeployForm isViewingDetails={false} />, { state });
+    const { result } = renderWithProviders(
+      <DeployForm isViewingDetails={false} />,
+      { state }
+    );
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(
+      result.container.querySelector(".aside-skeleton")
+    ).toBeInTheDocument();
     expect(screen.queryByRole("form")).not.toBeInTheDocument();
   });
 
@@ -333,59 +338,6 @@ describe("DeployForm", () => {
       "Cloud-init user data",
     ]);
     mockUseSendAnalytics.mockRestore();
-  });
-
-  it("can register a LXD KVM host", async () => {
-    const { store } = renderWithProviders(
-      <DeployForm isViewingDetails={false} />,
-      { state }
-    );
-
-    await userEvent.selectOptions(
-      screen.getByRole("combobox", { name: "Kernel" }),
-      screen.getByRole("option", { name: "No minimum kernel" })
-    );
-
-    await userEvent.click(
-      screen.getByRole("checkbox", { name: /Register as MAAS KVM host/i })
-    );
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Deploy machine" })
-    );
-
-    const action = store
-      .getActions()
-      .find((action) => action.type === "machine/deploy");
-    expect(action?.payload?.params?.extra?.register_vmhost).toBe(true);
-    expect(action?.payload?.params?.extra?.install_kvm).toBeUndefined();
-  });
-
-  it("can register a libvirt KVM host", async () => {
-    const { store } = renderWithProviders(
-      <DeployForm isViewingDetails={false} />,
-      { state }
-    );
-
-    await userEvent.selectOptions(
-      screen.getByRole("combobox", { name: "Kernel" }),
-      screen.getByRole("option", { name: "No minimum kernel" })
-    );
-
-    await userEvent.click(
-      screen.getByRole("checkbox", { name: /Register as MAAS KVM host/i })
-    );
-
-    await userEvent.click(screen.getByRole("radio", { name: /libvirt/i }));
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Deploy machine" })
-    );
-    const action = store
-      .getActions()
-      .find((action) => action.type === "machine/deploy");
-    expect(action?.payload?.params?.extra?.install_kvm).toBe(true);
-    expect(action?.payload?.params?.extra?.register_vmhost).toBeUndefined();
   });
 
   it("can deploy machines ephemerally", async () => {

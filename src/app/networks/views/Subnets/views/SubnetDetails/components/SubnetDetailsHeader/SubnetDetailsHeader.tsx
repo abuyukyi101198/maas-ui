@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { useSidePanel } from "@canonical/maas-react-components";
 import { ContextualMenu } from "@canonical/react-components";
 import { Link, useLocation } from "react-router";
 
@@ -8,7 +9,9 @@ import EditBootArchitectures from "../EditBootArchitectures";
 import MapSubnet from "../MapSubnet";
 
 import SectionHeader from "@/app/base/components/SectionHeader";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
+import { useModal } from "@/app/base/modal-context";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import type { Subnet } from "@/app/store/subnet/types";
 import { isSubnetDetails } from "@/app/store/subnet/utils";
 
@@ -18,7 +21,9 @@ type Props = {
 
 const SubnetDetailsHeader = ({ subnet }: Props): ReactElement => {
   const { openSidePanel } = useSidePanel();
+  const { openModal } = useModal();
   const { pathname } = useLocation();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
   const urlBase = `/subnet/${subnet?.id}`;
   return (
     <SectionHeader
@@ -29,7 +34,7 @@ const SubnetDetailsHeader = ({ subnet }: Props): ReactElement => {
             {
               children: "Map subnet",
               onClick: () => {
-                openSidePanel({
+                openModal({
                   component: MapSubnet,
                   title: "Map subnet",
                   props: {
@@ -54,7 +59,7 @@ const SubnetDetailsHeader = ({ subnet }: Props): ReactElement => {
             {
               children: "Delete subnet",
               onClick: () => {
-                openSidePanel({
+                openModal({
                   component: DeleteSubnet,
                   title: "Delete subnet",
                   props: {
@@ -66,6 +71,7 @@ const SubnetDetailsHeader = ({ subnet }: Props): ReactElement => {
           ]}
           position="right"
           toggleAppearance="positive"
+          toggleDisabled={!canEdit}
           toggleLabel="Take action"
         />,
       ]}

@@ -2,16 +2,25 @@ import { useMemo } from "react";
 
 import { Navigation } from "@canonical/maas-react-components";
 import { Button, Icon } from "@canonical/react-components";
+import { useSelector } from "react-redux";
 
 import AppSideNavItem from "../AppSideNavItem";
 import type { SideNavigationProps } from "../AppSideNavigation";
+import LogoutConfirm from "../LogoutConfirm";
 import type { NavGroup } from "../types";
 import { isSelected } from "../utils";
 
-import type { CurrentUserInfo } from "@/app/api/query/auth";
+import {
+  useGetUserEntitlements,
+  type CurrentUserInfo,
+} from "@/app/api/query/auth";
+import type { EntitlementResponse } from "@/app/apiclient";
+import { useHasEntitlements } from "@/app/base/hooks";
 import { useId } from "@/app/base/hooks/base";
+import { useModal } from "@/app/base/modal-context";
 import urls from "@/app/base/urls";
 import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
+import configSelectors from "@/app/store/config/selectors";
 import { hasPermissions } from "@/app/utils/permissions";
 
 type Props = {
@@ -25,15 +34,20 @@ type Props = {
   vaultIncomplete: boolean;
 };
 
+type AppSideNavItemGroupProps = Pick<
+  Props,
+  "authUser" | "path" | "setIsCollapsed" | "vaultIncomplete"
+> & {
+  group: NavGroup;
+  entitlements: EntitlementResponse[] | undefined;
+};
 const AppSideNavItemGroup = ({
+  entitlements,
   group,
-  authUser,
   vaultIncomplete,
   path,
   setIsCollapsed,
-}: Pick<Props, "authUser" | "path" | "setIsCollapsed" | "vaultIncomplete"> & {
-  group: NavGroup;
-}) => {
+}: AppSideNavItemGroupProps) => {
   const id = useId();
   const hasActiveChild = useMemo(() => {
     for (const navLink of group.navLinks) {
@@ -44,9 +58,22 @@ const AppSideNavItemGroup = ({
     return false;
   }, [group, path]);
 
-  const canViewControllersLink = hasPermissions(authUser?.entitlements, [
-    Entitlement.CAN_VIEW_CONTROLLERS,
-  ]);
+  const switchProvisioningEnabled = useSelector(
+    configSelectors.experimentalSwitchProvisioning
+  );
+
+  const filteredGroups = group.navLinks
+    .filter(
+      (navLink) =>
+        switchProvisioningEnabled || navLink.url !== urls.switches.index
+    )
+    .map((navLink) => ({
+      ...navLink,
+      disabled: !hasPermissions(
+        entitlements,
+        navLink.requiredEntitlements || []
+      ),
+    }));
 
   return (
     <>
@@ -58,27 +85,24 @@ const AppSideNavItemGroup = ({
           </Navigation.Label>
         </Navigation.Text>
         <Navigation.List aria-labelledby={`${group.groupTitle}-${id}`}>
-          {group.navLinks.map((navLink) => {
-            if (!navLink.adminOnly || canViewControllersLink) {
-              return (
-                <AppSideNavItem
-                  icon={
-                    navLink.label === "Controllers" && vaultIncomplete ? (
-                      <Icon
-                        aria-label="warning"
-                        data-testid="warning-icon"
-                        name="security-warning-grey"
-                      />
-                    ) : undefined
-                  }
-                  key={navLink.label}
-                  navLink={navLink}
-                  path={path}
-                  setIsCollapsed={setIsCollapsed}
-                />
-              );
-            } else return null;
-          })}
+          {filteredGroups.map((navLink) => (
+            <AppSideNavItem
+              disabled={navLink.disabled}
+              icon={
+                navLink.label === "Controllers" && vaultIncomplete ? (
+                  <Icon
+                    aria-label="warning"
+                    data-testid="warning-icon"
+                    name="security-warning-grey"
+                  />
+                ) : undefined
+              }
+              key={navLink.label}
+              navLink={navLink}
+              path={path}
+              setIsCollapsed={setIsCollapsed}
+            />
+          ))}
         </Navigation.List>
       </Navigation.Item>
     </>
@@ -95,9 +119,11 @@ export const AppSideNavItems = ({
   showLinks,
   vaultIncomplete,
 }: Props): React.ReactElement => {
-  const canViewSettingsLink = hasPermissions(authUser?.entitlements, [
-    Entitlement.CAN_VIEW_GLOBAL_ENTITIES,
+  const { data: userEntitlements } = useGetUserEntitlements();
+  const canViewSettingsLink = useHasEntitlements([
+    Entitlement.CAN_VIEW_CONFIGURATIONS,
   ]);
+  const { openModal } = useModal();
   return (
     <>
       {showLinks ? (
@@ -105,6 +131,7 @@ export const AppSideNavItems = ({
           {groups.map((group, i) => (
             <AppSideNavItemGroup
               authUser={authUser}
+              entitlements={userEntitlements}
               group={group}
               key={`${i}-${group.groupTitle}`}
               path={path}
@@ -116,10 +143,11 @@ export const AppSideNavItems = ({
       ) : null}
       {isAuthenticated ? (
         <>
-          {canViewSettingsLink && showLinks ? (
+          {showLinks ? (
             <ul className="p-side-navigation__list">
               <>
                 <AppSideNavItem
+                  disabled={!canViewSettingsLink}
                   icon="settings"
                   navLink={{ label: "Settings", url: urls.settings.index }}
                   path={path}
@@ -130,6 +158,7 @@ export const AppSideNavItems = ({
           ) : null}
           <ul className="p-side-navigation__list">
             <AppSideNavItem
+              disabled={false}
               icon="profile"
               navLink={{
                 label: `${authUser?.username}`,
@@ -145,7 +174,11 @@ export const AppSideNavItems = ({
                   appearance="link"
                   className="p-side-navigation__button p-side-navigation__link"
                   onClick={() => {
-                    logout();
+                    openModal({
+                      component: LogoutConfirm,
+                      title: "Log out",
+                      props: { logout },
+                    });
                   }}
                 >
                   <span className="p-side-navigation__label">Log out</span>

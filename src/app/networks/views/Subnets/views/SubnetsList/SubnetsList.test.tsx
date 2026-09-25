@@ -2,13 +2,20 @@ import SubnetsList from "./SubnetsList";
 
 import urls from "@/app/networks/urls";
 import * as factory from "@/testing/factories";
+import { authResolvers } from "@/testing/resolvers/auth";
 import {
   renderWithProviders,
   screen,
+  setupMockServer,
   userEvent,
   waitFor,
   within,
 } from "@/testing/utils";
+
+setupMockServer(
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
+);
 
 describe("SubnetsList", () => {
   const state = factory.rootState({
@@ -26,7 +33,7 @@ describe("SubnetsList", () => {
       state,
     });
 
-    expect(screen.getAllByRole("grid")).toHaveLength(1);
+    expect(screen.getAllByRole("treegrid")).toHaveLength(1);
     await userEvent.type(screen.getByRole("searchbox"), "non-existent-fabric");
     await waitFor(() => {
       expect(screen.getByText(/Loading.../)).toBeInTheDocument();
@@ -39,13 +46,13 @@ describe("SubnetsList", () => {
       state,
     });
 
-    expect(screen.getAllByRole("grid")).toHaveLength(1);
+    expect(screen.getAllByRole("treegrid")).toHaveLength(1);
 
     await userEvent.type(screen.getByRole("searchbox"), "non-existent-fabric");
 
     await waitFor(() => {
       expect(
-        within(screen.getByRole("grid")).getByText(/No results/)
+        within(screen.getByRole("treegrid")).getByText(/No results/)
       ).toBeInTheDocument();
     });
   });

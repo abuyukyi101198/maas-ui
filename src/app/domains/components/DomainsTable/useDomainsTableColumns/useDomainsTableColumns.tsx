@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { useSidePanel } from "@canonical/maas-react-components";
 import { ContextualMenu } from "@canonical/react-components";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useDispatch } from "react-redux";
@@ -7,9 +8,10 @@ import { Link } from "react-router";
 
 import { Labels } from "../DomainsTable";
 
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
 import urls from "@/app/base/urls";
 import { SetDefaultForm } from "@/app/domains/components";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import { domainActions } from "@/app/store/domain";
 import type { Domain } from "@/app/store/domain/types";
 
@@ -18,6 +20,7 @@ export type DomainsColumnDef = ColumnDef<Domain, Partial<Domain>>;
 const useDomainsTableColumns = (): DomainsColumnDef[] => {
   const dispatch = useDispatch();
   const { openSidePanel } = useSidePanel();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_GLOBAL_ENTITIES]);
 
   return useMemo(
     (): DomainsColumnDef[] => [
@@ -84,12 +87,12 @@ const useDomainsTableColumns = (): DomainsColumnDef[] => {
             ]}
             toggleAppearance="base"
             toggleClassName="u-no-margin--bottom is-small is-dense"
-            toggleDisabled={domain.is_default}
+            toggleDisabled={domain.is_default || !canEdit}
           />
         ),
       },
     ],
-    [dispatch, openSidePanel]
+    [canEdit, dispatch, openSidePanel]
   );
 };
 

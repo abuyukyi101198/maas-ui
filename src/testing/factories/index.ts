@@ -63,26 +63,8 @@ export {
   nodeDisk,
   nodeFilesystem,
   nodePartition,
-  pod,
-  podDetails,
-  podMemoryResource,
-  podNetworkInterface,
-  podNuma,
-  podNumaCores,
-  podNumaGeneralMemory,
-  podNumaHugepageMemory,
-  podNumaMemory,
-  podPowerParameters,
-  podProject,
-  podResource,
-  podResources,
-  podStoragePool,
-  podStoragePoolResource,
-  podVM,
-  podVmCount,
   testStatus,
 } from "./nodes";
-export { notification } from "./notification";
 export { packageRepository } from "./packagerepository";
 export { reservedIp, reservedIpNodeSummary } from "./reservedip";
 export { resourcePool } from "./resourcepool";
@@ -121,7 +103,6 @@ export {
   generalState,
   generatedCertificateState,
   hweKernelsState,
-  installTypeState,
   ipRangeState,
   knownArchitecturesState,
   knownBootArchitecturesState,
@@ -146,13 +127,9 @@ export {
   msmStatus,
   nodeDeviceState,
   nodeScriptResultState,
-  notificationState,
   osInfoState,
   packageRepositoryState,
   pocketsToDisableState,
-  podState,
-  podStatus,
-  podStatuses,
   powerTypesState,
   reservedIpState,
   rootState,
@@ -176,8 +153,6 @@ export {
   vlanState,
   vlanStatus,
   vlanStatuses,
-  vmClusterState,
-  vmClusterStatuses,
 } from "./state";
 export { staticRoute } from "./staticroute";
 export {
@@ -195,16 +170,6 @@ export {
 } from "./subnet";
 export { tag } from "./tag";
 export { token } from "./token";
-export { entitlement, user, userInfo, userStatistics } from "./user";
+export { entitlement, user, userEntitlements, userStatistics } from "./user";
 export { vlan, vlanDetails } from "./vlan";
-export {
-  virtualMachine,
-  vmCluster,
-  vmClusterEventError,
-  vmClusterResource,
-  vmClusterResources,
-  vmClusterResourcesMemory,
-  vmClusterStoragePoolResource,
-  vmHost,
-} from "./vmcluster";
 export { zone, zoneWithStatistics } from "./zone";

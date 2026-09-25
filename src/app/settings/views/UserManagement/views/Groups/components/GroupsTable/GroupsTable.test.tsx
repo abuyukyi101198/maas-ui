@@ -15,16 +15,19 @@ import {
   screen,
   mockIsPending,
   waitFor,
+  mockModal,
   mockSidePanel,
   waitForLoading,
 } from "@/testing/utils";
 
 const { mockOpen } = await mockSidePanel();
+const { mockOpen: mockOpenModal } = await mockModal();
 
 const mockServer = setupMockServer(
   groupsResolvers.listGroups.handler(),
   groupsResolvers.listGroupsStatistics.handler(),
-  authResolvers.getCurrentUser.handler()
+  authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler()
 );
 
 describe("GroupsTable", () => {
@@ -93,7 +96,7 @@ describe("GroupsTable", () => {
         })
       );
     });
-    it("opens the DeleteGroup side panel when clicking delete action", async () => {
+    it("opens the DeleteGroup modal when clicking delete action", async () => {
       renderWithProviders(<GroupsTable />);
       await waitFor(() => {
         expect(
@@ -103,7 +106,7 @@ describe("GroupsTable", () => {
       await userEvent.click(
         screen.getAllByRole("button", { name: "Delete" })[0]
       );
-      expect(mockOpen).toHaveBeenCalledWith(
+      expect(mockOpenModal).toHaveBeenCalledWith(
         expect.objectContaining({
           component: DeleteGroup,
           props: { id: 1, user_count: 5 },
@@ -114,15 +117,11 @@ describe("GroupsTable", () => {
 
     it("disables add and row actions without edit permissions", async () => {
       mockServer.use(
-        authResolvers.getCurrentUser.handler(
-          factory.userInfo({
-            entitlements: [
-              factory.entitlement({
-                entitlement: Entitlement.CAN_VIEW_IDENTITIES,
-              }),
-            ],
-          })
-        )
+        authResolvers.getMeEntitlements.handler([
+          factory.entitlement({
+            entitlement: Entitlement.CAN_VIEW_IDENTITIES,
+          }),
+        ])
       );
 
       renderWithProviders(<GroupsTable />);

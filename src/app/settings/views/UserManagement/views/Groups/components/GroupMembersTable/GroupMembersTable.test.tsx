@@ -17,6 +17,7 @@ const { mockOpen } = await mockSidePanel();
 
 const mockServer = setupMockServer(
   authResolvers.getCurrentUser.handler(),
+  authResolvers.getMeEntitlements.handler(),
   groupsResolvers.listGroupMembers.handler()
 );
 
@@ -86,7 +87,7 @@ describe("GroupMembersTable", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(0);
+        expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(1);
       });
 
       const [, firstRowCheckbox] = screen.getAllByRole("checkbox");

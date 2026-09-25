@@ -1,37 +1,77 @@
+import {
+  lazyLoadSidePanel,
+  useSidePanel,
+} from "@canonical/maas-react-components";
 import { Button, Icon, Switch } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import DeleteMachine from "../MachineForms/DeleteMachine/DeleteMachine";
-import CloneForm from "../MachineForms/MachineActionFormWrapper/CloneForm";
-import CommissionForm from "../MachineForms/MachineActionFormWrapper/CommissionForm";
-import DeployForm from "../MachineForms/MachineActionFormWrapper/DeployForm";
-import MarkBrokenForm from "../MachineForms/MachineActionFormWrapper/MarkBrokenForm";
-import OverrideTestForm from "../MachineForms/MachineActionFormWrapper/OverrideTestForm";
-import ReleaseForm from "../MachineForms/MachineActionFormWrapper/ReleaseForm";
-import SetMachineZoneForm from "../MachineForms/MachineActionFormWrapper/SetMachineZoneForm/SetMachineZoneForm";
-import SetPoolForm from "../MachineForms/MachineActionFormWrapper/SetPoolForm";
-import TagForm from "../MachineForms/MachineActionFormWrapper/TagForm";
-import TestMachineForm from "../MachineForms/MachineActionFormWrapper/TestMachineForm";
-
 import type { MachineActionGroup } from "./types";
 
-import FieldlessForm from "@/app/base/components/node/FieldlessForm";
-import PowerOffForm from "@/app/base/components/node/PowerOffForm";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useGetUserEntitlements } from "@/app/api/query/auth";
+import { lazyLoadModal, useModal } from "@/app/base/modal-context";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import { machineActions } from "@/app/store/machine";
 import machineSelectors from "@/app/store/machine/selectors";
 import type { Machine } from "@/app/store/machine/types";
 import { FilterMachines } from "@/app/store/machine/utils";
-import { useSelectedMachinesActionsDispatch } from "@/app/store/machine/utils/hooks";
+import {
+  useMachineSelectedCount,
+  useSelectedMachinesActionsDispatch,
+} from "@/app/store/machine/utils/hooks";
 import type { RootState } from "@/app/store/root/types";
 import { NodeActions } from "@/app/store/types/node";
 import { canOpenActionForm } from "@/app/store/utils";
+import { hasEntitlementForPool, hasPermissions } from "@/app/utils/permissions";
+
+const CommissionForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/CommissionForm")
+);
+const DeployForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/DeployForm")
+);
+const ReleaseForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/ReleaseForm")
+);
+const CloneForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/CloneForm")
+);
+const MarkBrokenForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/MarkBrokenForm")
+);
+const OverrideTestForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/OverrideTestForm")
+);
+const TagForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/TagForm")
+);
+const SetMachineZoneForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/SetMachineZoneForm")
+);
+const SetPoolForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/SetPoolForm")
+);
+const TestMachineForm = lazyLoadSidePanel(
+  () => import("../MachineForms/MachineActionFormWrapper/TestMachineForm")
+);
+const DeleteMachine = lazyLoadModal(
+  () => import("../MachineForms/DeleteMachine/DeleteMachine")
+);
+const FieldlessForm = lazyLoadSidePanel(
+  () => import("@/app/base/components/node/FieldlessForm")
+);
+const FieldlessFormModal = lazyLoadModal(
+  () => import("@/app/base/components/node/FieldlessForm")
+);
+const PowerOffForm = lazyLoadModal(
+  () => import("@/app/base/components/node/PowerOffForm")
+);
 
 export const useMachineActionMenus = (
   isViewingDetails: boolean,
   systemId?: Machine["system_id"]
 ) => {
   const { openSidePanel } = useSidePanel();
+  const { openModal } = useModal();
   const dispatch = useDispatch();
 
   const selectedMachines = useSelector(machineSelectors.selected);
@@ -47,6 +87,19 @@ export const useMachineActionMenus = (
     selectedMachines,
     searchFilter,
   });
+
+  const { selectedCount } = useMachineSelectedCount(
+    FilterMachines.parseFetchFilters(searchFilter),
+    { isEnabled: !isViewingDetails }
+  );
+  // Descriptions read naturally for both a single machine (details view or a
+  // single selection) and a pluralised bulk selection.
+  const isSingleMachine = isViewingDetails || selectedCount === 1;
+  const machinesPluralized = isSingleMachine
+    ? "this machine"
+    : `these ${selectedCount} machines`;
+  const machinePronoun = isSingleMachine ? "it" : "them";
+  const machinePossessive = isSingleMachine ? "its" : "their";
 
   const actionMenus: MachineActionGroup[] = [
     {
@@ -69,13 +122,14 @@ export const useMachineActionMenus = (
           action: NodeActions.ACQUIRE,
           label: "Allocate",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               title: "Allocate",
               props: {
                 action: NodeActions.ACQUIRE,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will allocate ${machinesPluralized} to your account so you can deploy ${machinePronoun} later.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -113,13 +167,14 @@ export const useMachineActionMenus = (
           action: NodeActions.ABORT,
           label: "Abort",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               title: "Abort",
               props: {
                 action: NodeActions.ABORT,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will abort the action currently in progress on ${machinesPluralized}.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -150,13 +205,14 @@ export const useMachineActionMenus = (
           action: NodeActions.ON,
           label: "Power on",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               title: "Power on",
               props: {
                 action: NodeActions.ON,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will power on ${machinesPluralized}.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -168,7 +224,7 @@ export const useMachineActionMenus = (
           action: NodeActions.OFF,
           label: "Power off",
           onClick: () => {
-            openSidePanel({
+            openModal({
               component: PowerOffForm,
               title: "Power off",
               props: {
@@ -208,7 +264,7 @@ export const useMachineActionMenus = (
           action: NodeActions.SOFT_OFF,
           label: "Soft power off",
           onClick: () => {
-            openSidePanel({
+            openModal({
               component: PowerOffForm,
               title: "Soft power off",
               props: {
@@ -254,12 +310,13 @@ export const useMachineActionMenus = (
           action: NodeActions.RESCUE_MODE,
           label: "Enter rescue mode",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               props: {
                 action: NodeActions.RESCUE_MODE,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will boot ${machinesPluralized} into rescue mode, an ephemeral environment for troubleshooting.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -272,12 +329,13 @@ export const useMachineActionMenus = (
           action: NodeActions.EXIT_RESCUE_MODE,
           label: "Exit rescue mode",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               props: {
                 action: NodeActions.EXIT_RESCUE_MODE,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will exit rescue mode and return ${machinesPluralized} to ${machinePossessive} previous state.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -290,12 +348,13 @@ export const useMachineActionMenus = (
           action: NodeActions.MARK_FIXED,
           label: "Mark fixed",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               props: {
                 action: NodeActions.MARK_FIXED,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will mark ${machinesPluralized} as fixed, allowing ${machinePronoun} to be used again.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -385,12 +444,13 @@ export const useMachineActionMenus = (
           action: NodeActions.LOCK,
           label: "Lock",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               props: {
                 action: NodeActions.LOCK,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will lock ${machinesPluralized}, preventing ${machinePronoun} from being released or deleted.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -403,12 +463,13 @@ export const useMachineActionMenus = (
           action: NodeActions.UNLOCK,
           label: "Unlock",
           onClick: () => {
-            openSidePanel({
-              component: FieldlessForm,
+            openModal({
+              component: FieldlessFormModal,
               props: {
                 action: NodeActions.UNLOCK,
                 actions: machineActions,
                 cleanup: machineActions.cleanup,
+                description: `This will unlock ${machinesPluralized}, allowing ${machinePronoun} to be released or deleted.`,
                 errors: actionErrors,
                 modelName: "machine",
                 viewingDetails: isViewingDetails,
@@ -456,7 +517,7 @@ export const useMachineActionMenus = (
           action: NodeActions.DELETE,
           label: "Delete",
           onClick: () => {
-            openSidePanel({
+            openModal({
               component: DeleteMachine,
               props: {
                 isViewingDetails,
@@ -466,10 +527,11 @@ export const useMachineActionMenus = (
           },
         },
       ],
-      render: () => (
+      render: (disabled?: boolean) => (
         <Button
+          disabled={disabled}
           onClick={() => {
-            openSidePanel({
+            openModal({
               component: DeleteMachine,
               props: {
                 isViewingDetails,
@@ -488,4 +550,89 @@ export const useMachineActionMenus = (
   ];
 
   return actionMenus;
+};
+
+/**
+ * Computes the disabled state of the machine action controls, based on the
+ * current user's resource-pool entitlements.
+ */
+export const useLifecycleActionEntitlements = (
+  isViewingDetails: boolean,
+  systemId?: Machine["system_id"]
+): { actionsDisabled: boolean; deployDisabled: boolean } => {
+  const selected = useSelector(machineSelectors.selected);
+  const allMachines = useSelector(machineSelectors.all);
+  const detailsMachine = useSelector((state: RootState) =>
+    machineSelectors.getById(state, systemId)
+  );
+  const { data: userEntitlements } = useGetUserEntitlements();
+
+  // Single-machine usage that is neither the details view nor a selection is
+  // left ungated.
+  if (!isViewingDetails && !selected) {
+    return { actionsDisabled: false, deployDisabled: false };
+  }
+
+  // Resolve the resource pool ids being acted on. Returns null when the pools
+  // can't be determined (filter/group selection or unresolved machines),
+  // signalling a fallback to the global entitlement check.
+  const getPoolIds = (): number[] | null => {
+    if (isViewingDetails) {
+      return detailsMachine ? [detailsMachine.pool.id] : null;
+    }
+    if (!selected || "filter" in selected) {
+      return null;
+    }
+    if ((selected.groups ?? []).length > 0) {
+      return null;
+    }
+    const items = selected.items ?? [];
+    if (items.length === 0) {
+      return null;
+    }
+    const poolIds: number[] = [];
+    for (const id of items) {
+      const machine = allMachines.find((m) => m.system_id === id);
+      if (!machine) {
+        return null;
+      }
+      poolIds.push(machine.pool.id);
+    }
+    return Array.from(new Set(poolIds));
+  };
+
+  const poolIds = getPoolIds();
+
+  const canEdit =
+    poolIds === null
+      ? hasPermissions(userEntitlements, [Entitlement.CAN_EDIT_MACHINES])
+      : poolIds.every((poolId) =>
+          hasEntitlementForPool(
+            userEntitlements,
+            Entitlement.CAN_EDIT_MACHINES,
+            poolId
+          )
+        );
+
+  // Per the OpenFGA model, can_deploy_machines is granted by either a deploy or
+  // an edit entitlement (can_edit_machines implies deploy), scoped per pool.
+  const canDeploy =
+    poolIds === null
+      ? hasPermissions(userEntitlements, [Entitlement.CAN_EDIT_MACHINES]) ||
+        hasPermissions(userEntitlements, [Entitlement.CAN_DEPLOY_MACHINES])
+      : poolIds.every(
+          (poolId) =>
+            hasEntitlementForPool(
+              userEntitlements,
+              Entitlement.CAN_EDIT_MACHINES,
+              poolId
+            ) ||
+            hasEntitlementForPool(
+              userEntitlements,
+              Entitlement.CAN_DEPLOY_MACHINES,
+              poolId
+            )
+        );
+
+  return { actionsDisabled: !canEdit, deployDisabled: !canDeploy };
 };

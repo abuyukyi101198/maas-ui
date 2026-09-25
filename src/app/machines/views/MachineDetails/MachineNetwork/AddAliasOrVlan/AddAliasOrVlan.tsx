@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback, useState } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
@@ -15,7 +15,6 @@ import type { AddAliasOrVlanValues } from "./types";
 
 import FormikForm from "@/app/base/components/FormikForm";
 import { useScrollOnRender } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { useMachineDetailsForm } from "@/app/machines/hooks";
 import { machineActions } from "@/app/store/machine";
 import machineSelectors from "@/app/store/machine/selectors";
@@ -84,7 +83,7 @@ const AddAliasOrVlan = ({
   const canAddAnother = isAlias || (!isAlias && unusedVLANs.length > 1);
 
   if (!nicVLAN || !isMachineDetails(machine)) {
-    return <Spinner text="Loading..." />;
+    return <SidePanel.Skeleton />;
   }
   return (
     <div ref={onRenderRef}>

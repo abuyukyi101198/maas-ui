@@ -1,9 +1,7 @@
 import type { ReactElement } from "react";
 
-import {
-  Notification as NotificationBanner,
-  Spinner,
-} from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
+import { Notification as NotificationBanner } from "@canonical/react-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router";
 import * as Yup from "yup";
@@ -14,7 +12,6 @@ import type { CommissionFormValues, FormattedScript } from "./types";
 import ActionForm from "@/app/base/components/ActionForm";
 import NodeActionWarning from "@/app/base/components/node/NodeActionWarning";
 import { useFetchActions, useGetURLId } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import urls from "@/app/base/urls";
 import { machineActions } from "@/app/store/machine";
 import machineSelectors from "@/app/store/machine/selectors";
@@ -126,7 +123,7 @@ export const CommissionForm = ({
   useFetchActions([scriptActions.fetch]);
 
   if (selectedCountLoading) {
-    return <Spinner text={"Loading..."} />;
+    return <SidePanel.Skeleton />;
   }
 
   return (

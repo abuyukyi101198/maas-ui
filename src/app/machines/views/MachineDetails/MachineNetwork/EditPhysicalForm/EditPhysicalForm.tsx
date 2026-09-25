@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useCallback } from "react";
 
-import { Spinner } from "@canonical/react-components";
+import { SidePanel, useSidePanel } from "@canonical/maas-react-components";
 import * as ipaddr from "ipaddr.js";
 import { isIP, isIPv4 } from "is-ip";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,6 @@ import type { EditPhysicalValues } from "./types";
 import FormikForm from "@/app/base/components/FormikForm";
 import { formatIpAddress } from "@/app/base/components/PrefixedIpInput";
 import { useFetchActions, useIsAllNetworkingDisabled } from "@/app/base/hooks";
-import { useSidePanel } from "@/app/base/side-panel-context";
 import { MAC_ADDRESS_REGEX } from "@/app/base/validation";
 import { useMachineDetailsForm } from "@/app/machines/hooks";
 import { fabricActions } from "@/app/store/fabric";
@@ -150,7 +149,7 @@ const EditPhysicalForm = ({
   ]);
 
   if (!isMachineDetails(machine) || !nic) {
-    return <Spinner />;
+    return <SidePanel.Skeleton />;
   }
 
   const subnet = getInterfaceSubnet(
@@ -201,7 +200,7 @@ const EditPhysicalForm = ({
           : nic.interface_speed / 1000,
         ip_address: getInitialIpAddressValue(),
         // The current link is required to update the subnet and ip address.
-        link_id: linkId || "",
+        link_id: linkId ?? "",
         link_speed: isNaN(Number(nic.link_speed)) ? 0 : nic.link_speed / 1000,
         mac_address: nic.mac_address,
         mode: getLinkMode(link),

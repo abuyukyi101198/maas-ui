@@ -7,7 +7,6 @@ import eslint from "vite-plugin-eslint";
 const manualChunks = [
   "@canonical/react-components",
   "@canonical/maas-react-components",
-  "@canonical/macaroon-bakery",
   "@/app/store/machine/slice",
 ];
 
@@ -56,6 +55,21 @@ export default defineConfig(({ mode }) => {
     server: { port: 8401, hmr: process.env.CI ? false : { port: 8402 } },
     resolve: {
       alias: { "@": path.resolve(__dirname, "src") },
+      // Symlink-only dedupe
+      dedupe: [
+        "@canonical/react-components",
+        "react",
+        "react-dom",
+        "react-router",
+        "react-redux",
+        "@reduxjs/toolkit",
+        "@tanstack/react-query",
+        "@tanstack/react-table",
+        "@testing-library/react",
+        "@testing-library/dom",
+        "@testing-library/user-event",
+        "msw",
+      ],
     },
   };
 });

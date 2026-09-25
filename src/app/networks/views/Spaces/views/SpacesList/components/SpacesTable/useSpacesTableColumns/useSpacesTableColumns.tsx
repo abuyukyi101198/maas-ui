@@ -5,14 +5,14 @@ import { Link } from "react-router";
 
 import type { SpaceResponse } from "@/app/apiclient";
 import TableActions from "@/app/base/components/TableActions";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useModal } from "@/app/base/modal-context";
 import urls from "@/app/networks/urls";
 import { DeleteSpace } from "@/app/networks/views/Spaces/components";
 
 type SpacesColumnDef = ColumnDef<SpaceResponse, Partial<SpaceResponse>>;
 
 const useSpacesTableColumns = (): SpacesColumnDef[] => {
-  const { openSidePanel } = useSidePanel();
+  const { openModal } = useModal();
   return useMemo<SpacesColumnDef[]>(
     () => [
       {
@@ -39,7 +39,7 @@ const useSpacesTableColumns = (): SpacesColumnDef[] => {
         }) => (
           <TableActions
             onDelete={() => {
-              openSidePanel({
+              openModal({
                 component: DeleteSpace,
                 title: "Delete space",
                 props: { id },
@@ -49,7 +49,7 @@ const useSpacesTableColumns = (): SpacesColumnDef[] => {
         ),
       },
     ],
-    [openSidePanel]
+    [openModal]
   );
 };
 

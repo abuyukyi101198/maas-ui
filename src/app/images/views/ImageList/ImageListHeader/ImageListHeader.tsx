@@ -1,6 +1,6 @@
 import type { Dispatch, ReactElement, SetStateAction } from "react";
 
-import { MainToolbar } from "@canonical/maas-react-components";
+import { MainToolbar, useSidePanel } from "@canonical/maas-react-components";
 import { Button, Spinner } from "@canonical/react-components";
 import type { RowSelectionState } from "@tanstack/react-table";
 import pluralize from "pluralize";
@@ -8,11 +8,12 @@ import pluralize from "pluralize";
 import { useImageSources } from "@/app/api/query/imageSources";
 import { useSelectionStatuses } from "@/app/api/query/images";
 import type { BootSourceResponse } from "@/app/apiclient";
-import { useSidePanel } from "@/app/base/side-panel-context";
+import { useHasEntitlements } from "@/app/base/hooks";
 import DeleteImages from "@/app/images/components/DeleteImages";
-import SelectUpstreamImagesForm from "@/app/images/components/SelectUpstreamImagesForm";
+import SelectUpstreamImages from "@/app/images/components/SelectUpstreamImages";
 import UploadCustomImage from "@/app/images/components/UploadCustomImage";
 import { MAAS_IO_URLS } from "@/app/images/constants";
+import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 
 type ImageListHeaderProps = {
   selectedRows: RowSelectionState;
@@ -40,6 +41,7 @@ const ImageListHeader = ({
 
   const sources = useImageSources();
   const selectionsStatuses = useSelectionStatuses();
+  const canEdit = useHasEntitlements([Entitlement.CAN_EDIT_BOOT_ENTITIES]);
 
   const isPending = sources.isPending || selectionsStatuses.isPending;
   const isDeleteDisabled = Object.keys(selectedRows).length <= 0;
@@ -59,7 +61,7 @@ const ImageListHeader = ({
         <MainToolbar.Controls>
           <Button
             appearance="negative"
-            disabled={isDeleteDisabled}
+            disabled={!canEdit || isDeleteDisabled}
             hasIcon
             onClick={() => {
               openSidePanel({
@@ -77,6 +79,7 @@ const ImageListHeader = ({
             <span>Delete</span>
           </Button>
           <Button
+            disabled={!canEdit}
             hasIcon
             onClick={() => {
               openSidePanel({
@@ -90,10 +93,11 @@ const ImageListHeader = ({
             <span>Upload custom image</span>
           </Button>
           <Button
+            disabled={!canEdit}
             hasIcon
             onClick={() => {
               openSidePanel({
-                component: SelectUpstreamImagesForm,
+                component: SelectUpstreamImages,
                 title: "Select upstream images to sync",
               });
             }}
