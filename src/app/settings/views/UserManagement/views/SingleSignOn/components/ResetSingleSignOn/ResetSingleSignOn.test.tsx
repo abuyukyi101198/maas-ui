@@ -20,12 +20,6 @@ const mockServer = setupMockServer(
 const { mockClose } = await mockModal();
 
 describe("ResetSingleSignOn", () => {
-  beforeEach(() => {
-    authResolvers.updateOauthProvider.resolved = false;
-    authResolvers.deleteOauthProvider.resolved = false;
-    authResolvers.getActiveOauthProvider.resolved = false;
-  });
-
   it("displays a spinner while loading", () => {
     mockIsPending();
 

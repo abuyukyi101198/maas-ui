@@ -30,11 +30,6 @@ const { mockClose } = await mockSidePanel();
 describe("EditUser", () => {
   const testUserId = 1;
 
-  beforeEach(() => {
-    usersResolvers.updateUser.body = null;
-    authResolvers.updateMe.body = null;
-  });
-
   it("runs closeForm function when the cancel button is clicked", async () => {
     renderWithProviders(<EditUser id={testUserId} />);
 

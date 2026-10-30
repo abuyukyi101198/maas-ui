@@ -66,7 +66,7 @@ describe("AddSSHKey", () => {
     );
 
     await waitFor(() => {
-      expect(sshKeyResolvers.importSshKey.resolved).toBeTruthy();
+      expect(sshKeyResolvers.createSshKey.resolved).toBeTruthy();
     });
   });
 

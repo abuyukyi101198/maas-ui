@@ -88,7 +88,10 @@ describe("useActiveNotifications", () => {
       factory.notificationFactoryV3({ id })
     );
     mockServer.use(
-      notificationResolvers.listNotifications.error(undefined, 2),
+      notificationResolvers.listNotifications.error(undefined, {
+        when: ({ request }) =>
+          new URL(request.url).searchParams.get("page") === "2",
+      }),
       notificationResolvers.listNotifications.handler({
         items,
         total: items.length,

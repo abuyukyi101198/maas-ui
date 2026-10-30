@@ -86,12 +86,6 @@ describe("useChangeImageSource", () => {
     enabled: true,
   };
 
-  afterEach(() => {
-    imageSourceResolvers.fetchImageSource.resolved = false;
-    imageSourceResolvers.createImageSource.resolved = false;
-    imageSourceResolvers.deleteImageSource.resolved = false;
-  });
-
   it("should change an existing image source", async () => {
     const { result } = renderHookWithProviders(() => useChangeImageSource());
     result.current.mutate({

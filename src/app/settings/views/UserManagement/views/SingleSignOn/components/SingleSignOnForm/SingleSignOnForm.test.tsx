@@ -25,11 +25,6 @@ describe("SingleSignOnForm", () => {
     mockAuthProvider = oAuthProviderFactory.build();
   });
 
-  afterEach(() => {
-    authResolvers.createOauthProvider.resolved = false;
-    authResolvers.updateOauthProvider.resolved = false;
-  });
-
   it("doesn't pre-fill the data if no provider is present", () => {
     renderWithProviders(
       <SingleSignOnForm canEdit maasURL={maasURL} provider={undefined} />
