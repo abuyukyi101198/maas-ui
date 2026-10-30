@@ -1,14 +1,15 @@
-import { http, HttpResponse } from "msw";
+import { HttpResponse } from "msw";
 
 import { imageSourceFactory } from "../factories";
-import { BASE_URL } from "../utils";
 
 import type {
+  BootSourceResponse,
   BootSourcesListResponse,
   GetBootsourceError,
   ListBootsourcesError,
   UpdateBootsourceError,
 } from "@/app/apiclient";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockImageSources: BootSourcesListResponse = {
   items: [
@@ -43,98 +44,51 @@ const mockUpdateImageSourceError: UpdateBootsourceError = {
 };
 
 const imageSourceResolvers = {
-  listImageSources: {
-    resolved: false,
-    handler: (data: BootSourcesListResponse = mockImageSources) =>
-      http.get(`${BASE_URL}MAAS/a/v3/boot_sources`, () => {
-        imageSourceResolvers.listImageSources.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListBootsourcesError = mockListImageSourcesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/boot_sources`, () => {
-        imageSourceResolvers.listImageSources.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getImageSource: {
-    resolved: false,
-    handler: (data?: BootSourcesListResponse["items"][0]) =>
-      http.get(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, ({ params }) => {
-        // If data override is provided, return it regardless of ID
-        if (data) {
-          imageSourceResolvers.getImageSource.resolved = true;
-          return HttpResponse.json(data);
-        }
-
-        const id = Number(params.id);
-        if (!id) return HttpResponse.error();
-
-        const imageSource = mockImageSources.items.find(
-          (source) => source.id === id
+  listImageSources: createResolver({
+    method: "get",
+    path: "boot_sources",
+    data: mockImageSources,
+    error: mockListImageSourcesError,
+  }),
+  getImageSource: createResolver({
+    method: "get",
+    path: "boot_sources/:id",
+    error: mockGetImageSourceError,
+    respond: (data: BootSourceResponse | undefined, { params }) => {
+      const imageSource =
+        data ??
+        mockImageSources.items.find(
+          (source) => source.id === Number(params.id)
         );
-        imageSourceResolvers.getImageSource.resolved = true;
-        return imageSource
-          ? HttpResponse.json(imageSource)
-          : HttpResponse.error();
-      }),
-    error: (error: GetBootsourceError = mockGetImageSourceError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, () => {
-        imageSourceResolvers.getImageSource.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  fetchImageSource: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/boot_sources\\:fetch`, () => {
-        imageSourceResolvers.fetchImageSource.resolved = true;
-        return HttpResponse.json({ status: 200 });
-      }),
-    error: (error: UpdateBootsourceError = mockUpdateImageSourceError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/boot_sources\\:fetch`, () => {
-        imageSourceResolvers.fetchImageSource.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createImageSource: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/boot_sources`, () => {
-        imageSourceResolvers.createImageSource.resolved = true;
-        return HttpResponse.json({ status: 201 });
-      }),
-    error: (error: UpdateBootsourceError = mockUpdateImageSourceError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/boot_sources`, () => {
-        imageSourceResolvers.createImageSource.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateImageSource: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, () => {
-        imageSourceResolvers.updateImageSource.resolved = true;
-        return HttpResponse.json({ status: 200 });
-      }),
-    error: (error: UpdateBootsourceError = mockUpdateImageSourceError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, () => {
-        imageSourceResolvers.updateImageSource.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteImageSource: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, () => {
-        imageSourceResolvers.deleteImageSource.resolved = true;
-        return HttpResponse.json({ status: 204 });
-      }),
-    error: (error: UpdateBootsourceError = mockUpdateImageSourceError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/boot_sources/:id`, () => {
-        imageSourceResolvers.deleteImageSource.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+      return imageSource ? HttpResponse.json(imageSource) : notFound();
+    },
+  }),
+  fetchImageSource: createResolver({
+    method: "post",
+    path: "boot_sources:fetch",
+    data: {},
+    error: mockUpdateImageSourceError,
+  }),
+  createImageSource: createResolver({
+    method: "post",
+    path: "boot_sources",
+    data: {},
+    status: 201,
+    error: mockUpdateImageSourceError,
+  }),
+  updateImageSource: createResolver({
+    method: "put",
+    path: "boot_sources/:id",
+    data: {},
+    error: mockUpdateImageSourceError,
+  }),
+  deleteImageSource: createResolver({
+    method: "delete",
+    path: "boot_sources/:id",
+    data: {},
+    status: 204,
+    error: mockUpdateImageSourceError,
+  }),
 };
 
 export { imageSourceResolvers, mockImageSources };

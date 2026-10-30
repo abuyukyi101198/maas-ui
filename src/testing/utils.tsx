@@ -31,6 +31,7 @@ import ThemeContextProvider from "@/app/base/theme-context";
 import { WebSocketProvider } from "@/app/base/websocket-context";
 import type { RootState } from "@/app/store/root/types";
 import * as factory from "@/testing/factories";
+import { resetResolvers } from "@/testing/resolvers/createResolver";
 
 const getMockStore = (state = factory.rootState()) => {
   const mockStore = configureStore();
@@ -105,6 +106,8 @@ function flushAllLogs() {
  */
 const setupMockServer = (...handlers: RequestHandler[]) => {
   const mockServer = upstreamSetupMockServer(client, BASE_URL, ...handlers);
+
+  beforeEach(resetResolvers);
 
   mockServer.events.on("request:start", ({ request }: { request: Request }) => {
     logEvent(

@@ -1,7 +1,3 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
-
 import type {
   CreateUserSshkeysError,
   DeleteUserSshkeyError,
@@ -10,6 +6,7 @@ import type {
   ListUserSshkeysResponse,
 } from "@/app/apiclient";
 import { sshKey as sshKeyFactory } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSshKeys: ListUserSshkeysResponse = {
   items: [
@@ -63,58 +60,31 @@ const mockDeleteSshKeyError: DeleteUserSshkeyError = {
 };
 
 const sshKeyResolvers = {
-  listSshKeys: {
-    resolved: false,
-    handler: (data: ListUserSshkeysResponse = mockSshKeys) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me/sshkeys`, () => {
-        sshKeyResolvers.listSshKeys.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListUserSshkeysError = mockListSshKeysError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me/sshkeys`, () => {
-        sshKeyResolvers.listSshKeys.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createSshKey: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sshkeys`, () => {
-        sshKeyResolvers.createSshKey.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: CreateUserSshkeysError = mockCreateSshKeysError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sshkeys`, () => {
-        sshKeyResolvers.createSshKey.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  importSshKey: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sshkeys:import`, () => {
-        sshKeyResolvers.importSshKey.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: ImportUserSshkeysError = mockImportSshKeysError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sshkeys:import`, () => {
-        sshKeyResolvers.importSshKey.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteSshKey: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/me/sshkeys/:id`, () => {
-        sshKeyResolvers.deleteSshKey.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteUserSshkeyError = mockDeleteSshKeyError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/me/sshkeys/:id`, () => {
-        sshKeyResolvers.deleteSshKey.resolved = true;
-        return HttpResponse.json(error, { status: 404 });
-      }),
-  },
+  listSshKeys: createResolver({
+    method: "get",
+    path: "users/me/sshkeys",
+    data: mockSshKeys,
+    error: mockListSshKeysError,
+  }),
+  createSshKey: createResolver({
+    method: "post",
+    path: "users/me/sshkeys",
+    data: {},
+    error: mockCreateSshKeysError,
+  }),
+  importSshKey: createResolver({
+    method: "post",
+    path: "users/me/sshkeys:import",
+    data: {},
+    error: mockImportSshKeysError,
+  }),
+  deleteSshKey: createResolver({
+    method: "delete",
+    path: "users/me/sshkeys/:id",
+    data: {},
+    status: 204,
+    error: mockDeleteSshKeyError,
+  }),
 };
 
 export { sshKeyResolvers, mockSshKeys };

@@ -1,7 +1,3 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
-
 import type {
   CreateUserSslkeyError,
   DeleteUserSslkeyError,
@@ -9,6 +5,7 @@ import type {
   GetUserSslkeysResponse,
 } from "@/app/apiclient";
 import { sslKey } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSslKeys: GetUserSslkeysResponse = {
   items: [
@@ -47,45 +44,25 @@ const mockDeleteSslKeyError: DeleteUserSslkeyError = {
 };
 
 const sslKeyResolvers = {
-  listSslKeys: {
-    resolved: false,
-    handler: (data: GetUserSslkeysResponse = mockSslKeys) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me/sslkeys`, () => {
-        sslKeyResolvers.listSslKeys.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetUserSslkeysError = mockGetSslKeysError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me/sslkeys`, () => {
-        sslKeyResolvers.listSslKeys.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createSslKey: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sslkeys`, () => {
-        sslKeyResolvers.createSslKey.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: CreateUserSslkeyError = mockCreateSslKeysError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me/sslkeys`, () => {
-        sslKeyResolvers.createSslKey.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteSslKey: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/me/sslkeys/:id`, () => {
-        sslKeyResolvers.deleteSslKey.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteUserSslkeyError = mockDeleteSslKeyError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/me/sslkeys/:id`, () => {
-        sslKeyResolvers.deleteSslKey.resolved = true;
-        return HttpResponse.json(error, { status: 404 });
-      }),
-  },
+  listSslKeys: createResolver({
+    method: "get",
+    path: "users/me/sslkeys",
+    data: mockSslKeys,
+    error: mockGetSslKeysError,
+  }),
+  createSslKey: createResolver({
+    method: "post",
+    path: "users/me/sslkeys",
+    data: {},
+    error: mockCreateSslKeysError,
+  }),
+  deleteSslKey: createResolver({
+    method: "delete",
+    path: "users/me/sslkeys/:id",
+    data: {},
+    status: 204,
+    error: mockDeleteSslKeyError,
+  }),
 };
 
 export { sslKeyResolvers, mockSslKeys };

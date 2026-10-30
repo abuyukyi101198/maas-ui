@@ -1,16 +1,15 @@
-import { http, HttpResponse } from "msw";
-
-import { switchFactory } from "../factories/switches";
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreateSwitchError,
   DeleteSwitchError,
   GetSwitchError,
+  GetSwitchResponse,
   ListSwitchesError,
-  ListSwitchesResponse,
   UpdateSwitchError,
 } from "@/app/apiclient";
+import { switchFactory } from "@/testing/factories/switches";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockSwitches = { items: switchFactory.buildList(3), total: 3 };
 
@@ -45,74 +44,42 @@ const mockDeleteSwitchError: DeleteSwitchError = {
 };
 
 const switchResolvers = {
-  listSwitches: {
-    resolved: false,
-    handler: (data: ListSwitchesResponse = mockSwitches) =>
-      http.get(`${BASE_URL}MAAS/a/v3/switches`, () => {
-        switchResolvers.listSwitches.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSwitchesError = mockListSwitchesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/switches`, () => {
-        switchResolvers.listSwitches.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getSwitch: {
-    resolved: false,
-    handler: () =>
-      http.get(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, ({ params }) => {
-        const id = Number(params.switch_id);
-        if (!id) return HttpResponse.error();
-        const sw = mockSwitches.items.find((s) => s.id === id);
-        switchResolvers.getSwitch.resolved = true;
-        return sw ? HttpResponse.json(sw) : HttpResponse.error();
-      }),
-    error: (error: GetSwitchError = mockGetSwitchError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, () => {
-        switchResolvers.getSwitch.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createSwitch: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/switches`, () => {
-        switchResolvers.createSwitch.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateSwitchError = mockCreateSwitchError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/switches`, () => {
-        switchResolvers.createSwitch.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateSwitch: {
-    resolved: false,
-    handler: () =>
-      http.patch(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, () => {
-        switchResolvers.updateSwitch.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateSwitchError = mockUpdateSwitchError) =>
-      http.patch(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, () => {
-        switchResolvers.updateSwitch.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteSwitch: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, () => {
-        switchResolvers.deleteSwitch.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteSwitchError = mockDeleteSwitchError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/switches/:switch_id`, () => {
-        switchResolvers.deleteSwitch.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listSwitches: createResolver({
+    method: "get",
+    path: "switches",
+    data: mockSwitches,
+    error: mockListSwitchesError,
+  }),
+  getSwitch: createResolver({
+    method: "get",
+    path: "switches/:switch_id",
+    error: mockGetSwitchError,
+    respond: (data: GetSwitchResponse | undefined, { params }) => {
+      const sw =
+        data ??
+        mockSwitches.items.find((s) => s.id === Number(params.switch_id));
+      return sw ? HttpResponse.json(sw) : notFound();
+    },
+  }),
+  createSwitch: createResolver({
+    method: "post",
+    path: "switches",
+    data: { id: 1 },
+    error: mockCreateSwitchError,
+  }),
+  updateSwitch: createResolver({
+    method: "patch",
+    path: "switches/:switch_id",
+    data: {},
+    error: mockUpdateSwitchError,
+  }),
+  deleteSwitch: createResolver({
+    method: "delete",
+    path: "switches/:switch_id",
+    data: {},
+    status: 204,
+    error: mockDeleteSwitchError,
+  }),
 };
 
 export { mockSwitches, switchResolvers };

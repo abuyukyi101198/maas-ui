@@ -1,8 +1,5 @@
-import { http, HttpResponse } from "msw";
-
 import type {
   BulkCreateSelectionsError,
-  GetAllAvailableImagesError,
   ImageListResponse,
   ImageStatisticListResponse,
   ImageStatusListResponse,
@@ -17,7 +14,7 @@ import {
   imageStatisticsFactory,
   imageStatusFactory,
 } from "@/testing/factories/image";
-import { BASE_URL } from "@/testing/utils";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSelections: ImageListResponse = {
   items: [
@@ -104,155 +101,81 @@ const mockSaveSelectionsError: BulkCreateSelectionsError = {
 };
 
 const imageResolvers = {
-  listSelections: {
-    resolved: false,
-    handler: (data: ImageListResponse = mockSelections) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.listSelections.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSelectionsError = mockListImagesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.listSelections.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listSelectionStatistics: {
-    resolved: false,
-    handler: (data: ImageStatisticListResponse = mockStatistics) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections/statistics`, () => {
-        imageResolvers.listSelectionStatistics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (
-      error: ListSelectionStatisticError = mockListImageStatisticsError
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections/statistics`, () => {
-        imageResolvers.listSelectionStatistics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listSelectionStatuses: {
-    resolved: false,
-    handler: (data: ImageStatusListResponse = mockStatuses) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections/statuses`, () => {
-        imageResolvers.listSelectionStatuses.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSelectionStatusError = mockListImageStatusesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/selections/statuses`, () => {
-        imageResolvers.listSelectionStatuses.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listCustomImages: {
-    resolved: false,
-    handler: (data: ImageListResponse = { items: [], total: 0 }) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.listCustomImages.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSelectionsError = mockListImagesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.listCustomImages.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listCustomImageStatistics: {
-    resolved: false,
-    handler: (data: ImageStatisticListResponse = { items: [], total: 0 }) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images/statistics`, () => {
-        imageResolvers.listCustomImageStatistics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (
-      error: ListSelectionStatisticError = mockListImageStatisticsError
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images/statistics`, () => {
-        imageResolvers.listCustomImageStatistics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listCustomImageStatuses: {
-    resolved: false,
-    handler: (data: ImageStatusListResponse = { items: [], total: 0 }) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images/statuses`, () => {
-        imageResolvers.listCustomImageStatuses.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSelectionStatusError = mockListImageStatusesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/custom_images/statuses`, () => {
-        imageResolvers.listCustomImageStatuses.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listAvailableSelections: {
-    resolved: false,
-    handler: (
-      data: UiSourceAvailableImageListResponse = mockAvailableSelections
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/available_images`, () => {
-        imageResolvers.listAvailableSelections.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetAllAvailableImagesError = mockListImagesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/available_images`, () => {
-        imageResolvers.listAvailableSelections.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  addSelections: {
-    resolved: false,
-    handler: (data: ImageListResponse = mockSelections) =>
-      http.post(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.addSelections.resolved = true;
-        return HttpResponse.json(data, { status: 200 });
-      }),
-    error: (error: BulkCreateSelectionsError = mockSaveSelectionsError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.addSelections.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteSelections: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.deleteSelections.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: BulkCreateSelectionsError = mockSaveSelectionsError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/selections`, () => {
-        imageResolvers.deleteSelections.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  uploadCustomImage: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.uploadCustomImage.resolved = true;
-        return HttpResponse.json({}, { status: 201 });
-      }),
-    error: (error: BulkCreateSelectionsError = mockSaveSelectionsError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.uploadCustomImage.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteCustomImages: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.deleteCustomImages.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: BulkCreateSelectionsError = mockSaveSelectionsError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/custom_images`, () => {
-        imageResolvers.deleteCustomImages.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listSelections: createResolver({
+    method: "get",
+    path: "selections",
+    data: mockSelections,
+    error: mockListImagesError,
+  }),
+  listSelectionStatistics: createResolver({
+    method: "get",
+    path: "selections/statistics",
+    data: mockStatistics,
+    error: mockListImageStatisticsError,
+  }),
+  listSelectionStatuses: createResolver({
+    method: "get",
+    path: "selections/statuses",
+    data: mockStatuses,
+    error: mockListImageStatusesError,
+  }),
+  listCustomImages: createResolver<ImageListResponse, ListSelectionsError>({
+    method: "get",
+    path: "custom_images",
+    data: { items: [], total: 0 },
+    error: mockListImagesError,
+  }),
+  listCustomImageStatistics: createResolver<
+    ImageStatisticListResponse,
+    ListSelectionStatisticError
+  >({
+    method: "get",
+    path: "custom_images/statistics",
+    data: { items: [], total: 0 },
+    error: mockListImageStatisticsError,
+  }),
+  listCustomImageStatuses: createResolver<
+    ImageStatusListResponse,
+    ListSelectionStatusError
+  >({
+    method: "get",
+    path: "custom_images/statuses",
+    data: { items: [], total: 0 },
+    error: mockListImageStatusesError,
+  }),
+  listAvailableSelections: createResolver({
+    method: "get",
+    path: "available_images",
+    data: mockAvailableSelections,
+    error: mockListImagesError,
+  }),
+  addSelections: createResolver({
+    method: "post",
+    path: "selections",
+    data: mockSelections,
+    error: mockSaveSelectionsError,
+  }),
+  deleteSelections: createResolver({
+    method: "delete",
+    path: "selections",
+    data: {},
+    status: 204,
+    error: mockSaveSelectionsError,
+  }),
+  uploadCustomImage: createResolver({
+    method: "post",
+    path: "custom_images",
+    data: {},
+    status: 201,
+    error: mockSaveSelectionsError,
+  }),
+  deleteCustomImages: createResolver({
+    method: "delete",
+    path: "custom_images",
+    data: {},
+    status: 204,
+    error: mockSaveSelectionsError,
+  }),
 };
 
 export {

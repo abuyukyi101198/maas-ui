@@ -1,6 +1,4 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   DismissNotificationError,
@@ -8,6 +6,7 @@ import type {
   ListNotificationsResponse,
 } from "@/app/apiclient";
 import { notificationFactoryV3 } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockNotifications: ListNotificationsResponse = {
   items: [
@@ -52,51 +51,28 @@ const mockDismissNotificationError: DismissNotificationError = {
 };
 
 const notificationResolvers = {
-  listNotifications: {
-    resolved: false,
-    handler: (data: ListNotificationsResponse = mockNotifications) =>
-      http.get(`${BASE_URL}MAAS/a/v3/notifications`, ({ request }) => {
-        notificationResolvers.listNotifications.resolved = true;
-        const params = new URL(request.url).searchParams;
-        const page = Number(params.get("page") ?? 1);
-        const size = Number(params.get("size") ?? data.items.length);
-        return HttpResponse.json({
-          ...data,
-          items: data.items.slice((page - 1) * size, page * size),
-        });
-      }),
-    error: (
-      error: ListNotificationsError = mockListNotificationsError,
-      page?: number
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/notifications`, ({ request }) => {
-        if (
-          page !== undefined &&
-          Number(new URL(request.url).searchParams.get("page")) !== page
-        ) {
-          return;
-        }
-        notificationResolvers.listNotifications.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  dismissNotification: {
-    resolved: false,
-    handler: () => {
-      return http.post(
-        `${BASE_URL}MAAS/a/v3/notifications/:id\\:dismiss`,
-        () => {
-          notificationResolvers.dismissNotification.resolved = true;
-          return HttpResponse.json({}, { status: 200 });
-        }
-      );
+  listNotifications: createResolver({
+    method: "get",
+    path: "notifications",
+    data: mockNotifications,
+    error: mockListNotificationsError,
+    respond: (data: ListNotificationsResponse | undefined, { request }) => {
+      const notifications = data ?? mockNotifications;
+      const params = new URL(request.url).searchParams;
+      const page = Number(params.get("page") ?? 1);
+      const size = Number(params.get("size") ?? notifications.items.length);
+      return HttpResponse.json({
+        ...notifications,
+        items: notifications.items.slice((page - 1) * size, page * size),
+      });
     },
-    error: (error: DismissNotificationError = mockDismissNotificationError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/notifications/:id\\:dismiss`, () => {
-        notificationResolvers.dismissNotification.resolved = true;
-        return HttpResponse.json(error, { status: 404 });
-      }),
-  },
+  }),
+  dismissNotification: createResolver({
+    method: "post",
+    path: "notifications/:id:dismiss",
+    data: {},
+    error: mockDismissNotificationError,
+  }),
 };
 
 export { notificationResolvers, mockNotifications };

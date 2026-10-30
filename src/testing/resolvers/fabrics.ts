@@ -1,9 +1,7 @@
-import { http, HttpResponse } from "msw";
-
 import { fabricV3 } from "../factories/fabric";
-import { BASE_URL } from "../utils";
 
 import type { ListFabricsError, ListFabricsResponse } from "@/app/apiclient";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockFabrics: ListFabricsResponse = {
   items: fabricV3.buildList(5),
@@ -17,19 +15,12 @@ const mockListFabricsError: ListFabricsError = {
 };
 
 const fabricsResolvers = {
-  listFabrics: {
-    resolved: false,
-    handler: (data: ListFabricsResponse = mockFabrics) =>
-      http.get(`${BASE_URL}MAAS/a/v3/fabrics`, () => {
-        fabricsResolvers.listFabrics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListFabricsError = mockListFabricsError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/fabrics`, () => {
-        fabricsResolvers.listFabrics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listFabrics: createResolver({
+    method: "get",
+    path: "fabrics",
+    data: mockFabrics,
+    error: mockListFabricsError,
+  }),
 };
 
 export { fabricsResolvers, mockFabrics };

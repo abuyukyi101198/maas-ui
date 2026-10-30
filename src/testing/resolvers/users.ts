@@ -1,10 +1,7 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreateUserError,
-  DeleteUserError,
   GetUserError,
   ListUsersError,
   ListUsersResponse,
@@ -12,12 +9,12 @@ import type {
   ListUsersStatisticsResponse,
   UpdateUserError,
   UserResponse,
-  UserUpdateRequestAdmin,
 } from "@/app/apiclient";
 import {
   user as userFactory,
   userStatistics as userStatisticsFactory,
 } from "@/testing/factories";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockUsers: ListUsersResponse = {
   items: [
@@ -86,93 +83,47 @@ const mockUpdateUserError: UpdateUserError = {
 };
 
 const usersResolvers = {
-  listUsers: {
-    resolved: false,
-    handler: (data: ListUsersResponse = mockUsers) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.listUsers.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListUsersError = mockListUsersError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.listUsers.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listUsersStatistics: {
-    resolved: false,
-    handler: (data: ListUsersStatisticsResponse = mockUsersStatistics) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users\:statistics`, () => {
-        usersResolvers.listUsersStatistics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListUsersStatisticsError = mockListUsersStatisticsError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users\:statistics`, () => {
-        usersResolvers.listUsersStatistics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getUser: {
-    resolved: false,
-    handler: (data?: UserResponse) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/:id`, ({ params }) => {
-        const id = Number(params.id);
-        if (!id) return HttpResponse.error();
-
-        usersResolvers.getUser.resolved = true;
-        if (data) return HttpResponse.json(data);
-
-        const user = mockUsers.items.find((user) => user.id === id);
-        return user ? HttpResponse.json(user) : HttpResponse.error();
-      }),
-    error: (error: GetUserError = mockGetUserError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.getUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createUser: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.createUser.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateUserError = mockCreateUserError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.createUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateUser: {
-    resolved: false,
-    body: null as UserUpdateRequestAdmin | null,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/:id`, async ({ request }) => {
-        usersResolvers.updateUser.resolved = true;
-        usersResolvers.updateUser.body =
-          (await request.json()) as UserUpdateRequestAdmin;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateUserError = mockUpdateUserError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.updateUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteUser: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.deleteUser.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteUserError = mockGetUserError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.deleteUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listUsers: createResolver({
+    method: "get",
+    path: "users",
+    data: mockUsers,
+    error: mockListUsersError,
+  }),
+  listUsersStatistics: createResolver({
+    method: "get",
+    path: "users:statistics",
+    data: mockUsersStatistics,
+    error: mockListUsersStatisticsError,
+  }),
+  getUser: createResolver({
+    method: "get",
+    path: "users/:id",
+    error: mockGetUserError,
+    respond: (data: UserResponse | undefined, { params }) => {
+      const user =
+        data ?? mockUsers.items.find((user) => user.id === Number(params.id));
+      return user ? HttpResponse.json(user) : notFound();
+    },
+  }),
+  createUser: createResolver({
+    method: "post",
+    path: "users",
+    data: { id: 1 },
+    error: mockCreateUserError,
+  }),
+  updateUser: createResolver({
+    method: "put",
+    path: "users/:id",
+    data: {},
+    error: mockUpdateUserError,
+  }),
+  deleteUser: createResolver({
+    method: "delete",
+    path: "users/:id",
+    data: {},
+    status: 204,
+    error: mockGetUserError,
+  }),
 };
 
 export { mockUsers, mockUsersStatistics, usersResolvers };

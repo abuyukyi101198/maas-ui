@@ -1,12 +1,10 @@
-import { http, HttpResponse } from "msw";
-
 import { powerTypeV3 } from "../factories";
-import { BASE_URL } from "../utils";
 
 import type {
   ListPowerTypesError,
   ListPowerTypesResponse,
 } from "@/app/apiclient";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockPowerTypes: ListPowerTypesResponse = {
   items: [
@@ -41,24 +39,12 @@ const mockListPowerTypesError: ListPowerTypesError = {
 };
 
 const powerTypesResolvers = {
-  listPowerTypes: {
-    resolved: false,
-    handler: (
-      data:
-        | ListPowerTypesResponse
-        | Promise<ListPowerTypesResponse> = mockPowerTypes
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/power-types`, async () => {
-        const response = await data;
-        powerTypesResolvers.listPowerTypes.resolved = true;
-        return HttpResponse.json(response);
-      }),
-    error: (error: ListPowerTypesError = mockListPowerTypesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/power-types`, () => {
-        powerTypesResolvers.listPowerTypes.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listPowerTypes: createResolver({
+    method: "get",
+    path: "power-types",
+    data: mockPowerTypes,
+    error: mockListPowerTypesError,
+  }),
 };
 
 export { powerTypesResolvers, mockPowerTypes };

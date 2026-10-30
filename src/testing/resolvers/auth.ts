@@ -1,7 +1,6 @@
-import { http, HttpResponse } from "msw";
+import { HttpResponse } from "msw";
 
 import { oAuthProviderFactory } from "../factories/auth";
-import { BASE_URL } from "../utils";
 
 import type {
   CompleteIntroError,
@@ -9,9 +8,7 @@ import type {
   CreateSessionError,
   EntitlementResponse,
   ExtendSessionError,
-  GetMeStatisticsError,
   GetOauthProviderError,
-  GetUserInfoError,
   HandleOauthCallbackError,
   HandleOauthCallbackResponse,
   InitiateAuthFlowError,
@@ -22,22 +19,12 @@ import type {
   PreLoginError,
   PreLoginResponse,
   UpdateOauthProviderError,
-  UpdateUserError,
   UpdateUserMeError,
   UserResponse,
   UserStatisticsResponse,
-  UserUpdateRequestSelf,
 } from "@/app/apiclient";
 import { user, userEntitlements, userStatistics } from "@/testing/factories";
-
-// MSW treats `:` in string paths as a path param, so `me:statistics` and
-// `me:get_entitlements` collide (both match any `me:*` request). Match the exact
-// pathname instead so each handler only intercepts its own endpoint.
-const matchPath = (path: string) => {
-  const { pathname } = new URL(`${BASE_URL}${path}`);
-  return ({ request }: { request: Request }) =>
-    new URL(request.url).pathname === pathname;
-};
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockAuth: UserResponse = user({
   id: 1,
@@ -148,209 +135,98 @@ const mockDeleteOauthProviderError = {
 };
 
 const authResolvers = {
-  authenticate: {
-    resolved: false,
-    handler: (data: LoginResponse = mockLoginResponse) =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/login`, () => {
-        authResolvers.authenticate.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: LoginError = mockAuthenticateError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/login`, () => {
-        authResolvers.authenticate.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  preLogin: {
-    resolved: false,
-    handler: (data: PreLoginResponse = mockPreLoginResponse) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/login`, () => {
-        authResolvers.preLogin.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: PreLoginError = mockPreLoginError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/login`, () => {
-        authResolvers.preLogin.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  isOidcUser: {
-    resolved: false,
-    handler: (data: InitiateAuthFlowResponse = mockInitiateAuthFlowResponse) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/login_info`, () => {
-        authResolvers.isOidcUser.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: InitiateAuthFlowError = mockInitiateAuthFlowError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/login_info`, () => {
-        authResolvers.preLogin.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getCallback: {
-    resolved: false,
-    handler: (
-      data: HandleOauthCallbackResponse = mockHandleOAuthCallbackResponse
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/oauth/callback`, () => {
-        authResolvers.getCallback.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: HandleOauthCallbackError = mockHandleOAuthCallbackError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/oauth/callback`, () => {
-        authResolvers.getCallback.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createSession: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/sessions`, () => {
-        authResolvers.createSession.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: CreateSessionError = mockCreateSessionError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/sessions`, () => {
-        authResolvers.createSession.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  extendSession: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/sessions:extend`, () => {
-        authResolvers.extendSession.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: ExtendSessionError = mockExtendSessionError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/sessions:extend`, () => {
-        authResolvers.extendSession.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getCurrentUser: {
-    resolved: false,
-    handler: (data = mockAuth) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me`, () => {
-        authResolvers.getCurrentUser.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetUserInfoError = mockAuthenticateError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/me`, () => {
-        authResolvers.getCurrentUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateMe: {
-    resolved: false,
-    body: null as UserUpdateRequestSelf | null,
-    handler: (data = mockAuth) =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/me`, async ({ request }) => {
-        authResolvers.updateMe.resolved = true;
-        authResolvers.updateMe.body =
-          (await request.json()) as UserUpdateRequestSelf;
-        return HttpResponse.json(data);
-      }),
-    error: (error: UpdateUserMeError = mockUpdateMeError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/me`, () => {
-        authResolvers.updateMe.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getMeStatistics: {
-    resolved: false,
-    handler: (data = mockAuthStatistics) =>
-      http.get(matchPath("MAAS/a/v3/users/me:statistics"), () => {
-        authResolvers.getMeStatistics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetMeStatisticsError = mockAuthenticateError) =>
-      http.get(matchPath("MAAS/a/v3/users/me:statistics"), () => {
-        authResolvers.getMeStatistics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getMeEntitlements: {
-    resolved: false,
-    handler: (data = mockUserEntitlements) =>
-      http.get(matchPath("MAAS/a/v3/users/me:get_entitlements"), () => {
-        authResolvers.getMeEntitlements.resolved = true;
-        return HttpResponse.json({ items: data });
-      }),
-    error: (error: GetUserInfoError = mockAuthenticateError) =>
-      http.get(matchPath("MAAS/a/v3/users/me:get_entitlements"), () => {
-        authResolvers.getMeEntitlements.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  completeIntro: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me:complete_intro`, () => {
-        authResolvers.completeIntro.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateUserError = mockCompleteIntroError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users/me:complete_intro`, () => {
-        authResolvers.completeIntro.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getActiveOauthProvider: {
-    resolved: false,
-    handler: (data = mockOauthProvider) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/oauth:is_active`, () => {
-        authResolvers.getActiveOauthProvider.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error = mockGetOauthProviderError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/auth/oauth:is_active`, () => {
-        authResolvers.getActiveOauthProvider.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createOauthProvider: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/oauth/providers`, ({ request }) => {
-        authResolvers.createOauthProvider.resolved = true;
-        return HttpResponse.json(request.body);
-      }),
-    error: (error = mockCreateOauthProviderError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/auth/oauth/providers`, () => {
-        authResolvers.createOauthProvider.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateOauthProvider: {
-    resolved: false,
-    handler: () =>
-      http.put(
-        `${BASE_URL}MAAS/a/v3/auth/oauth/providers/:id`,
-        ({ request }) => {
-          authResolvers.updateOauthProvider.resolved = true;
-          return HttpResponse.json(request.body);
-        }
-      ),
-    error: (error = mockupdateOauthProviderError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/auth/oauth/providers/:id`, () => {
-        authResolvers.updateOauthProvider.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteOauthProvider: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/auth/oauth/providers/:id`, () => {
-        authResolvers.deleteOauthProvider.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error = mockDeleteOauthProviderError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/auth/oauth/providers/:id`, () => {
-        authResolvers.deleteOauthProvider.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  authenticate: createResolver({
+    method: "post",
+    path: "auth/login",
+    data: mockLoginResponse,
+    error: mockAuthenticateError,
+  }),
+  preLogin: createResolver({
+    method: "get",
+    path: "auth/login",
+    data: mockPreLoginResponse,
+    error: mockPreLoginError,
+  }),
+  isOidcUser: createResolver({
+    method: "get",
+    path: "auth/login_info",
+    data: mockInitiateAuthFlowResponse,
+    error: mockInitiateAuthFlowError,
+  }),
+  getCallback: createResolver({
+    method: "get",
+    path: "auth/oauth/callback",
+    data: mockHandleOAuthCallbackResponse,
+    error: mockHandleOAuthCallbackError,
+  }),
+  createSession: createResolver({
+    method: "post",
+    path: "auth/sessions",
+    data: {},
+    error: mockCreateSessionError,
+  }),
+  extendSession: createResolver({
+    method: "post",
+    path: "auth/sessions:extend",
+    data: {},
+    error: mockExtendSessionError,
+  }),
+  getCurrentUser: createResolver({
+    method: "get",
+    path: "users/me",
+    data: mockAuth,
+    error: mockAuthenticateError,
+  }),
+  updateMe: createResolver({
+    method: "put",
+    path: "users/me",
+    data: mockAuth,
+    error: mockUpdateMeError,
+  }),
+  getMeStatistics: createResolver({
+    method: "get",
+    path: "users/me:statistics",
+    data: mockAuthStatistics,
+    error: mockAuthenticateError,
+  }),
+  getMeEntitlements: createResolver({
+    method: "get",
+    path: "users/me:get_entitlements",
+    data: mockUserEntitlements,
+    error: mockAuthenticateError,
+    respond: (data: EntitlementResponse[] | undefined) =>
+      HttpResponse.json({ items: data }),
+  }),
+  completeIntro: createResolver({
+    method: "post",
+    path: "users/me:complete_intro",
+    data: {},
+    error: mockCompleteIntroError,
+  }),
+  getActiveOauthProvider: createResolver({
+    method: "get",
+    path: "auth/oauth:is_active",
+    data: mockOauthProvider,
+    error: mockGetOauthProviderError,
+  }),
+  createOauthProvider: createResolver({
+    method: "post",
+    path: "auth/oauth/providers",
+    data: {},
+    error: mockCreateOauthProviderError,
+  }),
+  updateOauthProvider: createResolver({
+    method: "put",
+    path: "auth/oauth/providers/:id",
+    data: {},
+    error: mockupdateOauthProviderError,
+  }),
+  deleteOauthProvider: createResolver({
+    method: "delete",
+    path: "auth/oauth/providers/:id",
+    data: {},
+    error: mockDeleteOauthProviderError,
+  }),
 };
 
 export { authResolvers, mockAuth, mockUserEntitlements };

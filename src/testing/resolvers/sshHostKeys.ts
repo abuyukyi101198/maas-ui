@@ -1,14 +1,11 @@
-import { http, HttpResponse } from "msw";
-
-import { sshHostKey as sshHostKeyFactory } from "../factories";
-import { BASE_URL } from "../utils";
-
 import type {
   CreateSshHostKeyError,
   DeleteSshHostKeyError,
   ListSshHostKeysError,
   ListSshHostKeysResponse,
 } from "@/app/apiclient";
+import { sshHostKey as sshHostKeyFactory } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSshHostKeys: ListSshHostKeysResponse = {
   items: [
@@ -38,47 +35,26 @@ const mockDeleteSshHostKeyError: DeleteSshHostKeyError = {
 };
 
 const sshHostKeysResolvers = {
-  listSshHostKeys: {
-    resolved: false,
-    handler: (data: ListSshHostKeysResponse = mockSshHostKeys) =>
-      http.get(`${BASE_URL}MAAS/a/v3/ssh-host-keys`, () => {
-        sshHostKeysResolvers.listSshHostKeys.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListSshHostKeysError = mockListSshHostKeysError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/ssh-host-keys`, () => {
-        sshHostKeysResolvers.listSshHostKeys.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createSshHostKey: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/ssh-host-keys`, () => {
-        sshHostKeysResolvers.createSshHostKey.resolved = true;
-        return HttpResponse.json(sshHostKeyFactory({ id: 4 }), {
-          status: 201,
-        });
-      }),
-    error: (error: CreateSshHostKeyError = mockCreateSshHostKeyError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/ssh-host-keys`, () => {
-        sshHostKeysResolvers.createSshHostKey.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteSshHostKey: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/ssh-host-keys/:id`, () => {
-        sshHostKeysResolvers.deleteSshHostKey.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteSshHostKeyError = mockDeleteSshHostKeyError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/ssh-host-keys/:id`, () => {
-        sshHostKeysResolvers.deleteSshHostKey.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listSshHostKeys: createResolver({
+    method: "get",
+    path: "ssh-host-keys",
+    data: mockSshHostKeys,
+    error: mockListSshHostKeysError,
+  }),
+  createSshHostKey: createResolver({
+    method: "post",
+    path: "ssh-host-keys",
+    data: sshHostKeyFactory({ id: 4 }),
+    status: 201,
+    error: mockCreateSshHostKeyError,
+  }),
+  deleteSshHostKey: createResolver({
+    method: "delete",
+    path: "ssh-host-keys/:id",
+    data: {},
+    status: 204,
+    error: mockDeleteSshHostKeyError,
+  }),
 };
 
 export { mockSshHostKeys, sshHostKeysResolvers };

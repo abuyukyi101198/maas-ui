@@ -1,7 +1,5 @@
-import { http, HttpResponse } from "msw";
-
 import type { SyncBootsourceBootsourceselectionError } from "@/app/apiclient";
-import { BASE_URL } from "@/testing/utils";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSyncError: SyncBootsourceBootsourceselectionError = {
   message: "Conflict",
@@ -10,44 +8,19 @@ const mockSyncError: SyncBootsourceBootsourceselectionError = {
 };
 
 const imageSyncResolvers = {
-  startSynchronization: {
-    resolved: false,
-    handler: () =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/boot_sources/:boot_source_id/selections/:id\\:sync`,
-        () => {
-          imageSyncResolvers.startSynchronization.resolved = true;
-          return HttpResponse.json({}, { status: 202 });
-        }
-      ),
-    error: (error: SyncBootsourceBootsourceselectionError = mockSyncError) =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/boot_sources/:boot_source_id/selections/:id\\:sync`,
-        () => {
-          imageSyncResolvers.startSynchronization.resolved = true;
-          return HttpResponse.json(error, { status: error.code });
-        }
-      ),
-  },
-  stopSynchronization: {
-    resolved: false,
-    handler: () =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/boot_sources/:boot_source_id/selections/:id\\:stop_sync`,
-        () => {
-          imageSyncResolvers.stopSynchronization.resolved = true;
-          return HttpResponse.json({}, { status: 200 });
-        }
-      ),
-    error: (error: SyncBootsourceBootsourceselectionError = mockSyncError) =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/boot_sources/:boot_source_id/selections/:id\\:stop_sync`,
-        () => {
-          imageSyncResolvers.stopSynchronization.resolved = true;
-          return HttpResponse.json(error, { status: error.code });
-        }
-      ),
-  },
+  startSynchronization: createResolver({
+    method: "post",
+    path: "boot_sources/:boot_source_id/selections/:id:sync",
+    data: {},
+    status: 202,
+    error: mockSyncError,
+  }),
+  stopSynchronization: createResolver({
+    method: "post",
+    path: "boot_sources/:boot_source_id/selections/:id:stop_sync",
+    data: {},
+    error: mockSyncError,
+  }),
 };
 
 export { imageSyncResolvers };

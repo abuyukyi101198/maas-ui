@@ -1,7 +1,4 @@
-import { http, HttpResponse } from "msw";
-
-import { packageRepository as packageRepositoryFactory } from "../factories";
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreatePackageRepositoryError,
@@ -12,6 +9,8 @@ import type {
   ListPackageRepositoriesResponse,
   UpdatePackageRepositoryError,
 } from "@/app/apiclient";
+import { packageRepository as packageRepositoryFactory } from "@/testing/factories";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockPackageRepositories: ListPackageRepositoriesResponse = {
   items: [
@@ -53,91 +52,46 @@ const mockDeletePackageRepoError: DeletePackageRepositoryError = {
 };
 
 const packageRepositoriesResolvers = {
-  listPackageRepositories: {
-    resolved: false,
-    handler: (
-      data: ListPackageRepositoriesResponse = mockPackageRepositories
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/package_repositories`, () => {
-        packageRepositoriesResolvers.listPackageRepositories.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (
-      error: ListPackageRepositoriesError = mockPackageRepositoriesError
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/package_repositories`, () => {
-        packageRepositoriesResolvers.listPackageRepositories.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getPackageRepository: {
-    resolved: false,
-    handler: (data?: GetPackageRepositoryResponse) =>
-      http.get(
-        `${BASE_URL}MAAS/a/v3/package_repositories/:id`,
-        ({ params }) => {
-          if (data) {
-            packageRepositoriesResolvers.getPackageRepository.resolved = true;
-            return HttpResponse.json(data);
-          } else {
-            const id = Number(params.id);
-            if (!id) return HttpResponse.error();
-
-            const packageRepository = mockPackageRepositories.items.find(
-              (packageRepository) => packageRepository.id === id
-            );
-            packageRepositoriesResolvers.getPackageRepository.resolved = true;
-            return packageRepository
-              ? HttpResponse.json(packageRepository)
-              : HttpResponse.error();
-          }
-        }
-      ),
-    error: (error: GetPackageRepositoryError = mockGetPackageRepoError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/package_repositories/:id`, () => {
-        packageRepositoriesResolvers.getPackageRepository.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createPackageRepository: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/package_repositories`, () => {
-        packageRepositoriesResolvers.createPackageRepository.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreatePackageRepositoryError = mockCreatePackageRepoError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/package_repositories`, () => {
-        packageRepositoriesResolvers.createPackageRepository.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updatePackageRepository: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/package_repositories/:id`, () => {
-        packageRepositoriesResolvers.updatePackageRepository.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: UpdatePackageRepositoryError = mockUpdatePackageRepoError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/package_repositories/:id`, () => {
-        packageRepositoriesResolvers.updatePackageRepository.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deletePackageRepository: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/package_repositories/:id`, () => {
-        packageRepositoriesResolvers.deletePackageRepository.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeletePackageRepositoryError = mockDeletePackageRepoError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/package_repositories/:id`, () => {
-        packageRepositoriesResolvers.deletePackageRepository.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listPackageRepositories: createResolver({
+    method: "get",
+    path: "package_repositories",
+    data: mockPackageRepositories,
+    error: mockPackageRepositoriesError,
+  }),
+  getPackageRepository: createResolver({
+    method: "get",
+    path: "package_repositories/:id",
+    error: mockGetPackageRepoError,
+    respond: (data: GetPackageRepositoryResponse | undefined, { params }) => {
+      const packageRepository =
+        data ??
+        mockPackageRepositories.items.find(
+          (packageRepository) => packageRepository.id === Number(params.id)
+        );
+      return packageRepository
+        ? HttpResponse.json(packageRepository)
+        : notFound();
+    },
+  }),
+  createPackageRepository: createResolver({
+    method: "post",
+    path: "package_repositories",
+    data: { id: 1 },
+    error: mockCreatePackageRepoError,
+  }),
+  updatePackageRepository: createResolver({
+    method: "put",
+    path: "package_repositories/:id",
+    data: { id: 1 },
+    error: mockUpdatePackageRepoError,
+  }),
+  deletePackageRepository: createResolver({
+    method: "delete",
+    path: "package_repositories/:id",
+    data: {},
+    status: 204,
+    error: mockDeletePackageRepoError,
+  }),
 };
 
 export { packageRepositoriesResolvers, mockPackageRepositories };

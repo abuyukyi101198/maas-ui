@@ -1,13 +1,6 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
-
-import type {
-  GetSystemInfoError,
-  GetSystemInfoResponse,
-  SystemInfoResponse,
-} from "@/app/apiclient";
+import type { GetSystemInfoError, SystemInfoResponse } from "@/app/apiclient";
 import { systemInfo as systemInfoFactory } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockSystemInfo: SystemInfoResponse = systemInfoFactory();
 
@@ -18,24 +11,12 @@ const mockSystemInfoError: GetSystemInfoError = {
 };
 
 const systemResolvers = {
-  getSystemInfo: {
-    resolved: false,
-    handler: (
-      data:
-        | GetSystemInfoResponse
-        | Promise<GetSystemInfoResponse> = mockSystemInfo
-    ) =>
-      http.get(`${BASE_URL}MAAS/a/v3/system/info`, async () => {
-        const response = await data;
-        systemResolvers.getSystemInfo.resolved = true;
-        return HttpResponse.json(response);
-      }),
-    error: (error: GetSystemInfoError = mockSystemInfoError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/system/info`, () => {
-        systemResolvers.getSystemInfo.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  getSystemInfo: createResolver({
+    method: "get",
+    path: "system/info",
+    data: mockSystemInfo,
+    error: mockSystemInfoError,
+  }),
 };
 
 export { systemResolvers, mockSystemInfo };

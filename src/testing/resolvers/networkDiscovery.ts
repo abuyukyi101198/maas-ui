@@ -1,13 +1,10 @@
-import { http, HttpResponse } from "msw";
-
 import type {
-  ClearAllDiscoveriesWithOptionalIpAndMacError,
   GetDiscoveryError,
   ListDiscoveriesError,
   ListDiscoveriesResponse,
 } from "@/app/apiclient";
 import { discovery as discoveryFactory } from "@/testing/factories";
-import { BASE_URL } from "@/testing/utils";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockNetworkDiscoveries: ListDiscoveriesResponse = {
   items: [discoveryFactory(), discoveryFactory(), discoveryFactory()],
@@ -27,34 +24,19 @@ const mockGetDiscoveriesError: GetDiscoveryError = {
 };
 
 const networkDiscoveryResolvers = {
-  listNetworkDiscoveries: {
-    resolved: false,
-    handler: (data: ListDiscoveriesResponse = mockNetworkDiscoveries) =>
-      http.get(`${BASE_URL}MAAS/a/v3/discoveries`, () => {
-        networkDiscoveryResolvers.listNetworkDiscoveries.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListDiscoveriesError = mockListDiscoveriesError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/discoveries`, () => {
-        networkDiscoveryResolvers.listNetworkDiscoveries.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  clearNetworkDiscoveries: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/discoveries`, () => {
-        networkDiscoveryResolvers.clearNetworkDiscoveries.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (
-      error: ClearAllDiscoveriesWithOptionalIpAndMacError = mockGetDiscoveriesError
-    ) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/discoveries`, () => {
-        networkDiscoveryResolvers.clearNetworkDiscoveries.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listNetworkDiscoveries: createResolver({
+    method: "get",
+    path: "discoveries",
+    data: mockNetworkDiscoveries,
+    error: mockListDiscoveriesError,
+  }),
+  clearNetworkDiscoveries: createResolver({
+    method: "delete",
+    path: "discoveries",
+    data: {},
+    status: 204,
+    error: mockGetDiscoveriesError,
+  }),
 };
 
 export { networkDiscoveryResolvers, mockNetworkDiscoveries };

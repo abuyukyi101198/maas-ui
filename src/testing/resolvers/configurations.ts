@@ -1,16 +1,11 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
-
 import type {
   SetConfigurationError,
-  SetConfigurationsError,
   GetConfigurationError,
-  GetConfigurationResponse,
   GetConfigurationsError,
   GetConfigurationsResponse,
 } from "@/app/apiclient";
 import { config as configFactory } from "@/testing/factories";
+import { createResolver } from "@/testing/resolvers/createResolver";
 
 const mockConfigurations: GetConfigurationsResponse = {
   items: [configFactory()],
@@ -35,59 +30,31 @@ const mockSetConfigurationError: SetConfigurationError = {
 };
 
 const configurationsResolvers = {
-  listConfigurations: {
-    resolved: false,
-    handler: (data: GetConfigurationsResponse = mockConfigurations) =>
-      http.get(`${BASE_URL}MAAS/a/v3/configurations`, () => {
-        configurationsResolvers.listConfigurations.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetConfigurationsError = mockGetConfigurationsError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/configurations`, () => {
-        configurationsResolvers.listConfigurations.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getConfiguration: {
-    resolved: false,
-    handler: (data: GetConfigurationResponse = mockConfigurations.items[0]) =>
-      http.get(`${BASE_URL}MAAS/a/v3/configurations/:id`, () => {
-        configurationsResolvers.getConfiguration.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: GetConfigurationError = mockGetConfigurationError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/configurations/:id`, () => {
-        configurationsResolvers.getConfiguration.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  setConfiguration: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/configurations/:id`, () => {
-        configurationsResolvers.setConfiguration.resolved = true;
-        return HttpResponse.json(configFactory());
-      }),
-    error: (error: SetConfigurationError = mockSetConfigurationError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/configurations/:id`, () => {
-        configurationsResolvers.setConfiguration.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  setBulkConfigurations: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/configurations`, () => {
-        configurationsResolvers.setBulkConfigurations.resolved = true;
-        // The success response on this endpoint is empty, according to the open API spec
-        return HttpResponse.json({}, { status: 200 });
-      }),
-    error: (error: SetConfigurationsError = mockSetConfigurationError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/configurations`, () => {
-        configurationsResolvers.setBulkConfigurations.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listConfigurations: createResolver({
+    method: "get",
+    path: "configurations",
+    data: mockConfigurations,
+    error: mockGetConfigurationsError,
+  }),
+  getConfiguration: createResolver({
+    method: "get",
+    path: "configurations/:id",
+    data: mockConfigurations.items[0],
+    error: mockGetConfigurationError,
+  }),
+  setConfiguration: createResolver({
+    method: "put",
+    path: "configurations/:id",
+    data: configFactory(),
+    error: mockSetConfigurationError,
+  }),
+  setBulkConfigurations: createResolver({
+    method: "put",
+    path: "configurations",
+    // The success response on this endpoint is empty, according to the open API spec
+    data: {},
+    error: mockSetConfigurationError,
+  }),
 };
 
 export { configurationsResolvers, mockConfigurations };

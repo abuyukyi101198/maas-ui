@@ -1,16 +1,15 @@
-import { http, HttpResponse } from "msw";
-
-import { resourcePool } from "../factories";
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreateResourcePoolError,
-  DeleteResourcePoolError,
   GetResourcePoolError,
+  GetResourcePoolResponse,
   ListResourcePoolsError,
   ListResourcePoolsResponse,
   UpdateResourcePoolError,
 } from "@/app/apiclient";
+import { resourcePool } from "@/testing/factories";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockPools: ListResourcePoolsResponse = {
   items: [
@@ -67,75 +66,41 @@ const mockUpdatePoolError: UpdateResourcePoolError = {
 };
 
 const poolsResolvers = {
-  listPools: {
-    resolved: false,
-    handler: (data: ListResourcePoolsResponse = mockPools) =>
-      http.get(`${BASE_URL}MAAS/a/v3/resource_pools:statistics`, () => {
-        poolsResolvers.listPools.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListResourcePoolsError = mockListPoolsError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/resource_pools:statistics`, () => {
-        poolsResolvers.listPools.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getPool: {
-    resolved: false,
-    handler: () =>
-      http.get(`${BASE_URL}MAAS/a/v3/resource_pools/:id`, ({ params }) => {
-        const id = Number(params.id);
-        if (!id) return HttpResponse.error();
-
-        const pool = mockPools.items.find((pool) => pool.id === id);
-        poolsResolvers.getPool.resolved = true;
-        return pool ? HttpResponse.json(pool) : HttpResponse.error();
-      }),
-    error: (error: GetResourcePoolError = mockGetPoolError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        poolsResolvers.getPool.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createPool: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/resource_pools`, () => {
-        poolsResolvers.createPool.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateResourcePoolError = mockCreatePoolError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/resource_pools`, () => {
-        poolsResolvers.createPool.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updatePool: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/resource_pools/:id`, () => {
-        poolsResolvers.updatePool.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateResourcePoolError = mockUpdatePoolError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/resource_pools/:id`, () => {
-        poolsResolvers.updatePool.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deletePool: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/resource_pools/:id`, () => {
-        poolsResolvers.deletePool.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteResourcePoolError = mockGetPoolError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/resource_pools/:id`, () => {
-        poolsResolvers.deletePool.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listPools: createResolver({
+    method: "get",
+    path: "resource_pools:statistics",
+    data: mockPools,
+    error: mockListPoolsError,
+  }),
+  getPool: createResolver({
+    method: "get",
+    path: "resource_pools/:id",
+    error: mockGetPoolError,
+    respond: (data: GetResourcePoolResponse | undefined, { params }) => {
+      const pool =
+        data ?? mockPools.items.find((pool) => pool.id === Number(params.id));
+      return pool ? HttpResponse.json(pool) : notFound();
+    },
+  }),
+  createPool: createResolver({
+    method: "post",
+    path: "resource_pools",
+    data: { id: 1 },
+    error: mockCreatePoolError,
+  }),
+  updatePool: createResolver({
+    method: "put",
+    path: "resource_pools/:id",
+    data: {},
+    error: mockUpdatePoolError,
+  }),
+  deletePool: createResolver({
+    method: "delete",
+    path: "resource_pools/:id",
+    data: {},
+    status: 204,
+    error: mockGetPoolError,
+  }),
 };
 
 export { poolsResolvers, mockPools };

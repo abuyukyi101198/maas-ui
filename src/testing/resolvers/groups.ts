@@ -1,23 +1,14 @@
-import { http, HttpResponse } from "msw";
-
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreateGroupError,
   GetGroupError,
-  ListGroupEntitlementsError,
   ListGroupEntitlementsResponse,
   ListGroupsError,
   ListGroupsResponse,
-  ListGroupsStatisticsError,
   ListGroupsStatisticsResponse,
-  ListGroupMembersError,
   ListGroupMembersResponse,
-  AddGroupMemberError,
-  UpdateGroupError,
-  DeleteGroupError,
-  RemoveGroupEntitlementError,
-  RemoveGroupMemberError,
+  UserGroupResponse,
 } from "@/app/apiclient";
 import { Entitlement } from "@/app/settings/views/UserManagement/views/Groups/constants";
 import {
@@ -26,6 +17,7 @@ import {
   groupEntitlements as groupEntitlementsFactory,
   groupMember as groupMemberFactory,
 } from "@/testing/factories/groups";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockGroups: ListGroupsResponse = {
   items: [
@@ -97,191 +89,102 @@ const mockGroupMembers: ListGroupMembersResponse = {
   total: 2,
 };
 
-const mockListError = {
+const mockListError: ListGroupsError = {
   message: "Unprocessable Entity",
   code: 422,
   kind: "Error",
 };
 
-const mockGetError = {
+const mockGetError: GetGroupError = {
   message: "Not found",
   code: 404,
   kind: "Error",
 };
 
-const mockCreateGroupError = {
+const mockCreateGroupError: CreateGroupError = {
   message: "A group with this name already exists.",
   code: 409,
   kind: "Error",
 };
 
 const groupsResolvers = {
-  listGroups: {
-    resolved: false,
-    handler: (data: ListGroupsResponse = mockGroups) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups`, () => {
-        groupsResolvers.listGroups.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListGroupsError = mockListError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups`, () => {
-        groupsResolvers.listGroups.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listGroupsStatistics: {
-    resolved: false,
-    handler: (data: ListGroupsStatisticsResponse = mockGroupStatistics) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups:statistics`, () => {
-        groupsResolvers.listGroupsStatistics.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListGroupsStatisticsError = mockListError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups:statistics`, () => {
-        groupsResolvers.listGroupsStatistics.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getGroup: {
-    resolved: false,
-    handler: () =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id`, ({ params }) => {
-        const id = Number(params.id);
-        if (!id) return HttpResponse.error();
-
-        const group = mockGroups.items.find((group) => group.id === id);
-        groupsResolvers.getGroup.resolved = true;
-        return group ? HttpResponse.json(group) : HttpResponse.error();
-      }),
-    error: (error: GetGroupError = mockGetError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id`, () => {
-        groupsResolvers.getGroup.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createGroup: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups`, () => {
-        groupsResolvers.createGroup.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateGroupError = mockCreateGroupError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups`, () => {
-        groupsResolvers.createGroup.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateGroup: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/groups/:id`, () => {
-        groupsResolvers.updateGroup.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateGroupError = mockGetError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/groups/:id`, () => {
-        groupsResolvers.updateGroup.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteGroup: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/groups/:id`, () => {
-        groupsResolvers.deleteGroup.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: DeleteGroupError = mockGetError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/groups/:id`, () => {
-        groupsResolvers.deleteGroup.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  listGroupEntitlements: {
-    resolved: false,
-    handler: (data: ListGroupEntitlementsResponse = mockGroupEntitlements) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id/entitlements`, () => {
-        groupsResolvers.listGroupEntitlements.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListGroupEntitlementsError = mockListError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id/entitlements`, () => {
-        groupsResolvers.listGroupEntitlements.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  addGroupEntitlement: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups/:id/entitlements`, () => {
-        groupsResolvers.addGroupEntitlement.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateGroupError = mockCreateGroupError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups/:id/entitlements`, () => {
-        groupsResolvers.addGroupEntitlement.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  removeGroupEntitlement: {
-    resolved: false,
-    handler: () =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/groups/:id/entitlements:batch_delete`,
-        () => {
-          groupsResolvers.removeGroupEntitlement.resolved = true;
-          return HttpResponse.json({});
-        }
-      ),
-    error: (error: RemoveGroupEntitlementError = mockGetError) =>
-      http.post(
-        `${BASE_URL}MAAS/a/v3/groups/:id/entitlements:batch_delete`,
-        () => {
-          groupsResolvers.removeGroupEntitlement.resolved = true;
-          return HttpResponse.json(error, { status: error.code });
-        }
-      ),
-  },
-  listGroupMembers: {
-    resolved: false,
-    handler: (data: ListGroupMembersResponse = mockGroupMembers) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id/members`, () => {
-        groupsResolvers.listGroupMembers.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListGroupMembersError = mockListError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/groups/:id/members`, () => {
-        groupsResolvers.listGroupMembers.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  addGroupMember: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups/:id/members:batch_create`, () => {
-        groupsResolvers.addGroupMember.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: AddGroupMemberError = mockCreateGroupError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/groups/:id/members:batch_create`, () => {
-        groupsResolvers.addGroupMember.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  removeGroupMember: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/groups/:id/members`, () => {
-        groupsResolvers.removeGroupMember.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: RemoveGroupMemberError = mockGetError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/groups/:id/members`, () => {
-        groupsResolvers.removeGroupMember.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listGroups: createResolver({
+    method: "get",
+    path: "groups",
+    data: mockGroups,
+    error: mockListError,
+  }),
+  listGroupsStatistics: createResolver({
+    method: "get",
+    path: "groups:statistics",
+    data: mockGroupStatistics,
+    error: mockListError,
+  }),
+  getGroup: createResolver({
+    method: "get",
+    path: "groups/:id",
+    error: mockGetError,
+    respond: (data: UserGroupResponse | undefined, { params }) => {
+      const group =
+        data ??
+        mockGroups.items.find((group) => group.id === Number(params.id));
+      return group ? HttpResponse.json(group) : notFound();
+    },
+  }),
+  createGroup: createResolver({
+    method: "post",
+    path: "groups",
+    data: { id: 1 },
+    error: mockCreateGroupError,
+  }),
+  updateGroup: createResolver({
+    method: "put",
+    path: "groups/:id",
+    data: {},
+    error: mockGetError,
+  }),
+  deleteGroup: createResolver({
+    method: "delete",
+    path: "groups/:id",
+    data: {},
+    error: mockGetError,
+  }),
+  listGroupEntitlements: createResolver({
+    method: "get",
+    path: "groups/:id/entitlements",
+    data: mockGroupEntitlements,
+    error: mockListError,
+  }),
+  addGroupEntitlement: createResolver({
+    method: "post",
+    path: "groups/:id/entitlements",
+    data: { id: 1 },
+    error: mockCreateGroupError,
+  }),
+  removeGroupEntitlement: createResolver({
+    method: "post",
+    path: "groups/:id/entitlements:batch_delete",
+    data: {},
+    error: mockGetError,
+  }),
+  listGroupMembers: createResolver({
+    method: "get",
+    path: "groups/:id/members",
+    data: mockGroupMembers,
+    error: mockListError,
+  }),
+  addGroupMember: createResolver({
+    method: "post",
+    path: "groups/:id/members:batch_create",
+    data: {},
+    error: mockCreateGroupError,
+  }),
+  removeGroupMember: createResolver({
+    method: "delete",
+    path: "groups/:id/members",
+    data: {},
+    error: mockGetError,
+  }),
 };
 
 export {

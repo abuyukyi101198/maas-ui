@@ -1,18 +1,15 @@
-import { http, HttpResponse } from "msw";
-
-import { rackFactory } from "../factories/racks";
-import { BASE_URL } from "../utils";
+import { HttpResponse } from "msw";
 
 import type {
   CreateRackError,
-  DeleteRacksError,
   GenerateRackBootstrapTokenError,
   GetRackError,
+  GetRackResponse,
   ListRacksError,
-  ListRacksWithSummaryError,
-  ListRacksWithSummaryResponse,
   UpdateRackError,
 } from "@/app/apiclient";
+import { rackFactory } from "@/testing/factories/racks";
+import { createResolver, notFound } from "@/testing/resolvers/createResolver";
 
 const mockRacks = { items: rackFactory.buildList(15), total: 15 };
 
@@ -47,93 +44,50 @@ const mockGenerateRackBootstrapTokenError: GenerateRackBootstrapTokenError = {
 };
 
 const rackResolvers = {
-  listRacks: {
-    resolved: false,
-    handler: (data: ListRacksWithSummaryResponse = mockRacks) =>
-      http.get(`${BASE_URL}MAAS/a/v3/racks_with_summary`, () => {
-        rackResolvers.listRacks.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    error: (error: ListRacksWithSummaryError = mockListRacksError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/racks_with_summary`, () => {
-        rackResolvers.listRacks.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getRack: {
-    resolved: false,
-    handler: () =>
-      http.get(`${BASE_URL}MAAS/a/v3/racks/:id`, ({ params }) => {
-        const id = Number(params.id);
-        if (!id) return HttpResponse.error();
-
-        const rack = mockRacks.items.find((rack) => rack.id === id);
-        rackResolvers.getRack.resolved = true;
-        return rack ? HttpResponse.json(rack) : HttpResponse.error();
-      }),
-    error: (error: GetRackError = mockGetRackError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/racks/:id`, () => {
-        rackResolvers.getRack.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createRack: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/racks`, () => {
-        rackResolvers.createRack.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateRackError = mockCreateRackError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/racks`, () => {
-        rackResolvers.createRack.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateRack: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/racks/:id`, () => {
-        rackResolvers.updateRack.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateRackError = mockUpdateRackError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/racks/:id`, () => {
-        rackResolvers.updateRack.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteRack: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/racks/:id`, () => {
-        rackResolvers.deleteRack.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteRacksError = mockGetRackError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/racks/:id`, () => {
-        rackResolvers.deleteRack.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  generateToken: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/racks/:id/tokens:generate`, () => {
-        rackResolvers.generateToken.resolved = true;
-        return HttpResponse.json({
-          token: "generated-token",
-          kind: "RackBootstrapToken",
-        });
-      }),
-    error: (
-      error: GenerateRackBootstrapTokenError = mockGenerateRackBootstrapTokenError
-    ) =>
-      http.post(`${BASE_URL}MAAS/a/v3/racks/:id/tokens:generate`, () => {
-        rackResolvers.generateToken.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listRacks: createResolver({
+    method: "get",
+    path: "racks_with_summary",
+    data: mockRacks,
+    error: mockListRacksError,
+  }),
+  getRack: createResolver({
+    method: "get",
+    path: "racks/:id",
+    error: mockGetRackError,
+    respond: (data: GetRackResponse | undefined, { params }) => {
+      const rack =
+        data ?? mockRacks.items.find((rack) => rack.id === Number(params.id));
+      return rack ? HttpResponse.json(rack) : notFound();
+    },
+  }),
+  createRack: createResolver({
+    method: "post",
+    path: "racks",
+    data: { id: 1 },
+    error: mockCreateRackError,
+  }),
+  updateRack: createResolver({
+    method: "put",
+    path: "racks/:id",
+    data: {},
+    error: mockUpdateRackError,
+  }),
+  deleteRack: createResolver({
+    method: "delete",
+    path: "racks/:id",
+    data: {},
+    status: 204,
+    error: mockGetRackError,
+  }),
+  generateToken: createResolver({
+    method: "post",
+    path: "racks/:id/tokens:generate",
+    data: {
+      token: "generated-token",
+      kind: "RackBootstrapToken",
+    },
+    error: mockGenerateRackBootstrapTokenError,
+  }),
 };
 
 export { mockRacks, rackResolvers };
