@@ -61,7 +61,7 @@ describe("MyComponent", () => {
 The `setupMockServer` function:
 
 - Automatically sets up and tears down the mock server
-- Resets handlers between tests
+- Resets handlers, and every resolver's `resolved` flag and `body`, before each test
 - Accepts any number of request handlers
 
 ### Overriding Mock Responses
@@ -295,7 +295,7 @@ expect(within(row).getByRole("button", { name: /edit/i })).toBeInTheDocument();
 
 ### Checking Resolver Calls
 
-Verify that API calls were made by checking the `resolved` flag on your mock resolvers. This is useful for confirming that form submissions or user actions trigger the expected API requests.
+Verify that API calls were made by checking the `resolved` flag on your mock resolvers. This is useful for confirming that form submissions or user actions trigger the expected API requests. The flag is reset before each test, so it only reflects requests made by the current test; `body` holds the JSON body of the last intercepted request.
 
 ```typescript
 await userEvent.click(screen.getByRole("button", { name: /save/i }));
@@ -331,7 +331,7 @@ renderWithProviders(<MyComponent />, {
 - **Don't** forget to set up mock server handlers before tests
 - **Don't** use `configureStore()` directly in new tests - use `renderWithProviders`
 - **Don't** mock components or hooks - mock at the network layer with MSW
-- **Don't** forget to reset mock functions between tests (handled automatically by `setupMockServer`)
+- **Don't** reset resolver `resolved`/`body` or MSW handlers by hand - `setupMockServer` does it before each test
 - **Don't** use `getByTestId` unless absolutely necessary - prefer semantic queries
 
 ## Debugging Tests
@@ -429,6 +429,8 @@ const mockServer = setupMockServer(poolsResolvers.listPools.handler());
 mockServer.use(poolsResolvers.listPools.handler({ items: [], total: 0 }));
 
 mockServer.use(poolsResolvers.deletePool.error());
+
+mockServer.use(poolsResolvers.listPools.networkError());
 
 await waitFor(() => {
   expect(poolsResolvers.createPool.resolved).toBeTruthy();

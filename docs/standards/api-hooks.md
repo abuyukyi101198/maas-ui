@@ -189,7 +189,7 @@ Add an entry using the `WebSocketEndpointModel` value for the resource and the c
 
 ## Writing Mock Resolvers
 
-Mock resolvers use [MSW (Mock Service Worker)](https://mswjs.io/) to intercept HTTP requests during testing. Create a resolver file in `src/testing/resolvers/` for each resource.
+Mock resolvers use [MSW (Mock Service Worker)](https://mswjs.io/) to intercept HTTP requests during testing. Create a resolver file in `src/testing/resolvers/` for each resource and build every operation with `createResolver` from `src/testing/resolvers/createResolver.ts`.
 
 ### Resolver Structure
 
@@ -197,21 +197,22 @@ Each resolver file should follow this structure:
 
 1. **Mock data constants** - Default response data using factories
 2. **Error constants** - Default error responses for each operation
-3. **Resolver object** - Contains handlers for each endpoint operation
+3. **Resolver object** - One `createResolver(...)` per endpoint operation
 4. **Exports** - Export both the resolvers and mock data
 
 ### Key Principles
 
-- **Overridable responses**: Both `handler()` and `error()` functions should accept optional parameters to override default responses
-- **Resolved flag**: Track when a resolver has been called using a `resolved` boolean
-- **Default errors**: Provide sensible default error objects that can be overridden
+- **Declare the endpoint once**: `method` and `path` (relative to `MAAS/a/v3/`) are given once; every variant is generated from them. Write action separators raw (`zones:statistics`, `selections/:id:sync`) — a `:` that does not start a path segment is escaped automatically.
+- **Overridable responses**: `handler(data?)` and `error(error?)` default to the `data` and `error` options. The error's `code` is the response status.
+- **Custom logic only via `respond`**: use `respond(data, info)` when the success response depends on the request (by-id lookup, pagination). Return `notFound()` for a missing item — never `HttpResponse.error()`, which simulates a network failure.
+- **Call tracking is automatic**: every resolver exposes `resolved` (intercepted a request) and `body` (JSON body of the last request). `setupMockServer` resets both before each test.
 - **Use factories**: Generate mock data using factory functions for consistency
 
 ### Complete Example
 
 ```typescript
 // 1. Define default mock data using factories
-const mockUsers: ListUsersWithSummaryResponse = {
+const mockUsers: ListUsersResponse = {
   items: [
     userFactory({ id: 1, email: "user1@example.com", username: "user1" }),
     userFactory({ id: 2, email: "user2@example.com", username: "user2" }),
@@ -232,84 +233,32 @@ const mockGetUserError: GetUserError = {
   kind: "Error",
 };
 
-const mockCreateUserError: CreateUserError = {
-  message: "A user with this username already exists.",
-  code: 409,
-  kind: "Error",
-};
-
 // 3. Create the resolver object
 const usersResolvers = {
-  listUsers: {
-    resolved: false,
-    // Handler accepts optional data parameter to override default response
-    handler: (data: ListUsersWithSummaryResponse = mockUsers) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users_with_summary`, () => {
-        usersResolvers.listUsers.resolved = true;
-        return HttpResponse.json(data);
-      }),
-    // Error handler accepts optional error parameter to override default
-    error: (error: ListUsersError = mockListUsersError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users_with_summary`, () => {
-        usersResolvers.listUsers.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  getUser: {
-    resolved: false,
-    // For single item queries, extract ID from params
-    handler: () =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/:id`, ({ params }) => {
-        const id = Number(params.id);
-        const user = mockUsers.items.find((user) => user.id === id);
-        usersResolvers.getUser.resolved = true;
-        return user ? HttpResponse.json(user) : HttpResponse.error();
-      }),
-    error: (error: GetUserError = mockGetUserError) =>
-      http.get(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.getUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  createUser: {
-    resolved: false,
-    handler: () =>
-      http.post(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.createUser.resolved = true;
-        return HttpResponse.json({ id: 1 });
-      }),
-    error: (error: CreateUserError = mockCreateUserError) =>
-      http.post(`${BASE_URL}MAAS/a/v3/users`, () => {
-        usersResolvers.createUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  updateUser: {
-    resolved: false,
-    handler: () =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.updateUser.resolved = true;
-        return HttpResponse.json({});
-      }),
-    error: (error: UpdateUserError) =>
-      http.put(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.updateUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
-  deleteUser: {
-    resolved: false,
-    handler: () =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.deleteUser.resolved = true;
-        return HttpResponse.json({}, { status: 204 });
-      }),
-    error: (error: DeleteUserError) =>
-      http.delete(`${BASE_URL}MAAS/a/v3/users/:id`, () => {
-        usersResolvers.deleteUser.resolved = true;
-        return HttpResponse.json(error, { status: error.code });
-      }),
-  },
+  listUsers: createResolver({
+    method: "get",
+    path: "users",
+    data: mockUsers,
+    error: mockListUsersError,
+  }),
+  getUser: createResolver({
+    method: "get",
+    path: "users/:id",
+    error: mockGetUserError,
+    // Return the override if given, otherwise look the item up by id
+    respond: (data: UserResponse | undefined, { params }) => {
+      const user =
+        data ?? mockUsers.items.find((user) => user.id === Number(params.id));
+      return user ? HttpResponse.json(user) : notFound();
+    },
+  }),
+  deleteUser: createResolver({
+    method: "delete",
+    path: "users/:id",
+    data: {},
+    status: 204,
+    error: mockGetUserError,
+  }),
 };
 
 // 4. Export both resolvers and mock data for reuse in tests
@@ -349,14 +298,39 @@ mockServer.use(
 mockServer.use(usersResolvers.createUser.error());
 ```
 
-**Check if resolver was called:**
+**Inject transport faults:**
+
+```typescript
+// Connection failure (no HTTP response)
+mockServer.use(usersResolvers.listUsers.networkError());
+
+// Slow response; "infinite" keeps the request pending
+mockServer.use(usersResolvers.listUsers.delayed(2000));
+
+// Non-JSON body, e.g. a proxy error page (status defaults to 502)
+mockServer.use(usersResolvers.listUsers.malformed());
+```
+
+**Target specific requests:** every variant accepts `{ when }` as its last argument; non-matching requests fall through to the next handler.
+
+```typescript
+mockServer.use(
+  usersResolvers.listUsers.error(undefined, {
+    when: ({ request }) =>
+      new URL(request.url).searchParams.get("page") === "2",
+  })
+);
+```
+
+**Check if resolver was called, and with what body:**
 
 ```typescript
 await userEvent.click(screen.getByRole("button", { name: /save/i }));
 
 await waitFor(() => {
-  expect(usersResolvers.createUser.resolved).toBeTruthy();
+  expect(usersResolvers.updateUser.resolved).toBeTruthy();
 });
+expect(usersResolvers.updateUser.body).toMatchObject({ username: "new" });
 ```
 
 ## Testing Hooks
