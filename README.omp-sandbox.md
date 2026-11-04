@@ -313,7 +313,7 @@ cd /project
 exec /home/workshop/.local/bin/omp \
   --config /home/workshop/.config/omp-edit.yml \
   --approval-mode always-ask \
-  --tools read,grep,find,edit,write,bash \
+  --tools read,grep,glob,edit,write,bash \
   --no-lsp \
   --no-extensions \
   --no-skills \
@@ -322,6 +322,10 @@ exec /home/workshop/.local/bin/omp \
 EOF
 chmod 700 "$HOME/.local/bin/omp-edit"
 ```
+
+`glob` searches file paths; `grep` searches file contents. Do not substitute
+`find`: OMP's semantic-search tool is conditional and can fail startup with
+`Built-in tool unavailable in this session: find`.
 
 Use this launcher rather than the unwrapped OMP executable, whose default
 approval mode can allow tools without prompting. Additional arguments are
