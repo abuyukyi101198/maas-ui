@@ -106,12 +106,9 @@ missing. Clone using HTTPS without embedding a token in the URL:
 mkdir -p "$HOME/workshops" "$HOME/omp-workshop-records"
 git clone https://github.com/abuyukyi101198/maas-ui.git "$HOME/workshops/maas-ui"
 cd "$HOME/workshops/maas-ui"
-
-# Record once; noclobber prevents replacing an existing review baseline.
-(set -C; git rev-parse --verify HEAD > "$HOME/omp-workshop-records/maas-ui-base.txt")
 ```
 
-If you need another branch, select it **before** recording the baseline.
+If you need another branch, select it before starting OMP.
 Do not overwrite an existing checkout or discard local work.
 
 Do not copy the Mac's `node_modules`, `.env` files, OMP login, SSH keys, or
@@ -545,10 +542,11 @@ Prefer making commits and pushes yourself. Run project Git commands inside
 Workshop after inspecting hooks/configuration; don't expose host credentials
 to agent-controlled Git metadata.
 
-Compare tracked content against the starting commit recorded in
-`~/omp-workshop-records/maas-ui-base.txt`, not just against the current `HEAD`.
-An agent can commit changes, and ignored/untracked files are not fully covered
-by an ordinary diff. Inspect new files, relevant ignored files, `.git`, agent
+Review staged and unstaged changes before making your own commits. If OMP has
+made commits, inspect them in Git history or compare against a known reviewed
+commit rather than relying only on the uncommitted Changes view.
+Ignored/untracked files are not fully covered by an ordinary diff.
+Inspect new files, relevant ignored files, `.git`, agent
 configuration, and executable project configuration separately. Disable hooks,
 fsmonitor, external diffs/text conversion, and pagers when using Git to inspect
 untrusted changes. A clean working tree is not a safety verdict.
