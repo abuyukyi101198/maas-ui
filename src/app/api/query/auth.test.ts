@@ -1,4 +1,3 @@
-import { http } from "msw";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {
@@ -303,12 +302,7 @@ describe("useGetCurrentUser", () => {
   });
 
   it("remains loading until the user statistics have loaded", async () => {
-    mockServer.use(
-      http.get(
-        /\/MAAS\/a\/v3\/users\/me:statistics$/,
-        () => new Promise<Response>(() => {})
-      )
-    );
+    mockServer.use(authResolvers.getMeStatistics.delayed("infinite"));
 
     const { result } = renderHookWithProviders(() => useGetCurrentUser());
 
