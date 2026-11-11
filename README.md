@@ -6,7 +6,6 @@
 [![sitespeed.io](https://github.com/canonical/maas-ui/actions/workflows/sitespeed.yml/badge.svg?branch=main)](https://github.com/canonical/maas-ui/actions/workflows/sitespeed.yml?query=branch%3Amain)
 [![MAAS Docs link checker](https://github.com/canonical/maas-ui/actions/workflows/links-checker.yml/badge.svg?branch=main)](https://github.com/canonical/maas-ui/actions/workflows/links-checker.yml?query=branch%3Amain)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![Code Coverage](https://img.shields.io/badge/code--coverage-report-brightgreen.svg)](https://canonical.github.io/maas-ui/)
 [![Build upload](https://github.com/canonical/maas-ui/actions/workflows/upload.yml/badge.svg?branch=main)](https://github.com/canonical/maas-ui/actions/workflows/upload.yml?query=branch%3Amain)
 
 <details>
