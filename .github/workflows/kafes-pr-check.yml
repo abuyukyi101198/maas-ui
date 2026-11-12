@@ -1,0 +1,247 @@
+# kafes PR check. See omp-sandbox.spec.md#edit-rule-check.
+#
+# Runs from this fork's default branch (kafes-checks), never from the PR. It
+# reads the PR's diff through the API as data, never checks out or runs PR
+# code, and posts a `kafes-pr-check` status on the PR's head commit. A branch
+# ruleset on kafes-base/** requires that status.
+#
+# Paths are an allowlist: a change outside ALLOWED_PATHS fails, and a change
+# inside REVIEW_CLOSELY passes but is listed for close review.
+#
+# Repository variables (Settings > Secrets and variables > Actions > Variables):
+#   KAFES_FORK   <kafes-owner>/<repo>
+#   KAFES_EMAIL  the kafes bot's commit email
+name: kafes-pr-check
+
+on:
+  # No branches filter: a kafes-fork PR into any branch gets a status, and one
+  # whose base isn't kafes-base/* fails, so a mis-targeted kafes PR is red.
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: kafes-pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # Only kafes-fork PRs are checked. Other PRs (your kafes-base -> feature
+    # merges, ordinary PRs) get no status rather than a false failure. A
+    # non-kafes PR into kafes-base/* gets no status, so the ruleset still
+    # blocks it. The condition is evaluated by GitHub, not in a shell.
+    if: github.event.pull_request.head.repo.full_name == vars.KAFES_FORK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Check the PR diff against the edit rules
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          KAFES_FORK: ${{ vars.KAFES_FORK }}
+          KAFES_EMAIL: ${{ vars.KAFES_EMAIL }}
+        # Everything below is plain JavaScript. It reads PR data only through
+        # the event file and the API; no PR text is interpolated into it.
+        shell: node {0}
+        run: |
+          const fs = require("node:fs");
+
+          // Limits that keep every change readable inline on GitHub.
+          const MAX_FILES = 100;
+          const MAX_FILE_CHANGES = 1000;
+          const MAX_LINE_LENGTH = 500;
+
+          // Allowlist. Anything outside it needs a human-authored commit.
+          // Tooling configs, scripts and dependency files are deliberately
+          // absent, so a new vite.config.js, bunfig.toml or postcss.config.*
+          // fails instead of slipping in.
+          const ALLOWED_PATHS = [
+            /^src\/.+\.(ts|tsx|scss)$/,
+            /^cypress\/e2e\/.+\.(ts|feature)$/,
+            /^cypress\/support\/.+\.ts$/,
+            /^docs\/.+\.md$/,
+          ];
+          // Never allowed, even inside the allowlist.
+          const REJECTED_PATHS = [
+            /^src\/app\/apiclient\//, // generated (yarn generate-api-client)
+            /(^|\/)\.[^/]*($|\/)/, // any dotfile or dot-directory
+          ];
+
+          // Allowed, but loaded by every test run or read by agents.
+          const REVIEW_CLOSELY = [
+            /^src\/(setupTests\.ts|testing\/)/,
+            /(^|\/)__mocks__\//,
+            /^cypress\/support\//,
+            /^docs\/standards\//,
+          ];
+
+          const SAFE_PATH = /^[A-Za-z0-9._@+,\[\]\/-]+$/;
+          // Controls (except tab), bidi controls, zero-width and invisible
+          // characters, and Unicode tag characters used for hidden text.
+          const INVISIBLE =
+            /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u00AD\u061C\u180E\u200B-\u200F\u2028-\u202E\u2060-\u2064\u2066-\u2069\uFEFF\u{E0000}-\u{E007F}]/u;
+          const ENCODED_RUN = /[A-Za-z0-9+\/=_-]{200,}/;
+
+          const env = process.env;
+          const event = JSON.parse(fs.readFileSync(env.GITHUB_EVENT_PATH, "utf8"));
+          const pr = event.pull_request;
+          const repo = env.GITHUB_REPOSITORY;
+          const runUrl = `${env.GITHUB_SERVER_URL}/${repo}/actions/runs/${env.GITHUB_RUN_ID}`;
+
+          async function api(path, accept, init = {}) {
+            const response = await fetch(`${env.GITHUB_API_URL}${path}`, {
+              ...init,
+              headers: {
+                Accept: accept,
+                Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "kafes-pr-check",
+              },
+            });
+            if (!response.ok) {
+              throw new Error(`${init.method ?? "GET"} ${path}: HTTP ${response.status}`);
+            }
+            return response;
+          }
+
+          // PR-controlled text is shown only as printable ASCII.
+          function shown(text) {
+            return String(text).replace(
+              /[^\x20-\x7E]/gu,
+              (c) => `\\u{${c.codePointAt(0).toString(16)}}`,
+            );
+          }
+
+          async function check() {
+            const failures = [];
+            const review = [];
+            if (!env.KAFES_FORK || !env.KAFES_EMAIL) {
+              return { failures: ["KAFES_FORK or KAFES_EMAIL variable not set"], review };
+            }
+            if (pr.head.repo?.full_name !== env.KAFES_FORK) {
+              failures.push(`head repository is not ${env.KAFES_FORK}`);
+            }
+            if (!pr.base.ref.startsWith("kafes-base/")) {
+              failures.push("base is not a kafes-base/* branch");
+            }
+
+            // Pinned to the event's base and head commits, as the PR shows them.
+            const compare = `/repos/${repo}/compare/${pr.base.sha}...${pr.head.sha}`;
+            const json = await (await api(compare, "application/vnd.github+json")).json();
+            const diff = await (await api(compare, "application/vnd.github.diff")).text();
+
+            if (json.commits.at(-1)?.sha !== pr.head.sha) {
+              failures.push("compared head is not the PR head");
+            }
+            if (json.total_commits !== json.commits.length) {
+              failures.push(`too many commits (${json.total_commits})`);
+            }
+            for (const { sha, commit, parents } of json.commits) {
+              const id = sha.slice(0, 12);
+              if (parents.length !== 1) failures.push(`${id}: merge commit`);
+              if (commit.author.email !== env.KAFES_EMAIL) {
+                failures.push(`${id}: author ${shown(commit.author.email)}`);
+              }
+              if (commit.committer.email !== env.KAFES_EMAIL) {
+                failures.push(`${id}: committer ${shown(commit.committer.email)}`);
+              }
+            }
+
+            if (json.files.length >= MAX_FILES) {
+              failures.push(`too many files (${json.files.length}+)`);
+            }
+            for (const file of json.files) {
+              const names = [file.filename, file.previous_filename].filter(Boolean);
+              for (const name of names) {
+                if (!SAFE_PATH.test(name)) failures.push(`${shown(name)}: unusual path characters`);
+                const allowed =
+                  ALLOWED_PATHS.some((rule) => rule.test(name)) &&
+                  !REJECTED_PATHS.some((rule) => rule.test(name));
+                if (!allowed) {
+                  failures.push(`${shown(name)}: outside the editable paths`);
+                } else if (REVIEW_CLOSELY.some((rule) => rule.test(name))) {
+                  review.push(shown(name));
+                }
+              }
+              const name = shown(file.filename);
+              if (file.changes > MAX_FILE_CHANGES) {
+                failures.push(`${name}: ${file.changes} changed lines`);
+              }
+              if (file.patch === undefined) {
+                // GitHub omits the patch for binary files and very large diffs.
+                if (file.changes > 0 || file.status === "added") {
+                  failures.push(`${name}: no textual diff (binary or too large)`);
+                }
+                continue;
+              }
+              file.patch.split("\n").forEach((line, index) => {
+                if (!line.startsWith("+")) return;
+                const where = `${name}: patch line ${index + 1}`;
+                if (line.length > MAX_LINE_LENGTH) failures.push(`${where} too long`);
+                if (INVISIBLE.test(line)) failures.push(`${where} has an invisible or control character`);
+                if (ENCODED_RUN.test(line)) failures.push(`${where} has a long encoded-looking run`);
+              });
+            }
+
+            // Modes, symlinks and submodules appear only in the full diff.
+            let header = "";
+            for (const line of diff.split("\n")) {
+              if (line.startsWith("diff --git ")) header = shown(line.slice(11));
+              const mode = line.match(/^(?:new file mode|old mode|new mode) (\d+)$/) ??
+                line.match(/^index [0-9a-f]+\.\.[0-9a-f]+ (\d+)$/);
+              if (mode && mode[1] !== "100644") {
+                failures.push(`${header}: file mode ${mode[1]} (executable, symlink or submodule)`);
+              }
+              if (/^(Binary files |GIT binary patch)/.test(line)) failures.push(`${header}: binary`);
+            }
+            return { failures, review: [...new Set(review)] };
+          }
+
+          async function setStatus(state, description) {
+            await api(`/repos/${repo}/statuses/${pr.head.sha}`, "application/vnd.github+json", {
+              method: "POST",
+              body: JSON.stringify({
+                state,
+                context: "kafes-pr-check",
+                description: description.slice(0, 140),
+                target_url: runUrl,
+              }),
+            });
+          }
+
+          (async () => {
+            await setStatus("pending", "Checking edit rules");
+            let result;
+            try {
+              result = await check();
+            } catch (error) {
+              result = { failures: [`check error: ${shown(error.message)}`], review: [] };
+            }
+            const { failures, review } = result;
+            const passed = failures.length === 0;
+
+            const list = (items) => ["~~~", ...items.map((item) => `- ${item}`), "~~~"];
+            const summary = [
+              `## kafes-pr-check: ${passed ? "passed" : "failed"}`,
+              `Head commit: \`${pr.head.sha}\``,
+              ...(passed ? [] : ["### Failures", ...list(failures)]),
+              ...(review.length ? ["### Review closely", ...list(review)] : []),
+            ];
+            fs.appendFileSync(env.GITHUB_STEP_SUMMARY, `${summary.join("\n")}\n`);
+            // A fixed prefix keeps log lines from being read as workflow commands.
+            for (const line of summary) console.log(`kafes-pr-check: ${line}`);
+
+            await setStatus(
+              passed ? "success" : "failure",
+              passed
+                ? `Passed${review.length ? `; ${review.length} path(s) to review closely` : ""}`
+                : `${failures.length} rule failure(s); see details`,
+            );
+            if (!passed) process.exitCode = 1;
+          })().catch((error) => {
+            console.log(`kafes-pr-check: ${shown(error.message)}`);
+            process.exit(1);
+          });
